@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Portal — BIMDEC Document System</title>
-<link rel="icon" type="image/png" href="../assets/logo.png">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
 <link rel="stylesheet" href="../assets/css/portal.css">
 </head>
 <body>
@@ -67,12 +67,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../assets/js/supabase-config.js"></script>
-<script src="../assets/js/supabaseDb.js"></script>
+<script src="../assets/js/db.js"></script>
 <script src="../assets/js/emailClient.js"></script>
 <script>
-let session;
+let session = null;
 
-function doLogout(){ DB.logout().then(() => window.location.href = '../login.html'); }
+async function doLogout(){ await DB.logout(); window.location.href = '../login.html'; }
 
 function escapeHtml(s){
   return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -97,7 +97,7 @@ async function render(){
   }
 }
 
-(async function boot(){
+(async function(){
   session = await DB.requireSession('admin');
   if(!session) return;
   render();

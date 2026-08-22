@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Client Portal — BIMDEC Document System</title>
-<link rel="icon" type="image/png" href="../assets/logo.png">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
 <link rel="stylesheet" href="../assets/css/portal.css">
 </head>
 <body>
@@ -46,19 +46,21 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../assets/js/supabase-config.js"></script>
-<script src="../assets/js/supabaseDb.js"></script>
+<script src="../assets/js/db.js"></script>
 <script>
-function doLogout(){ DB.logout().then(() => window.location.href = '../login.html'); }
+async function doLogout(){ await DB.logout(); window.location.href = '../login.html'; }
 
 function escapeHtml(s){
   return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-async function render(session){
+(async function render(){
+  const session = await DB.requireSession('client');
+  if(!session) return;
   document.getElementById('whoName').textContent = session.fullName;
   document.getElementById('greet').textContent = 'Welcome, ' + session.fullName.split(' ')[0] + '.';
 
-  const user = await DB.findUserByEmail(session.email) || {};
+  const user = (await DB.findUserByEmail(session.email)) || {};
   const rows = [
     ['Full name', user.fullName],
     ['Email', user.email],
@@ -67,12 +69,6 @@ async function render(session){
   ];
   document.getElementById('profileTable').innerHTML =
     rows.map(([label, val]) => `<tr><td style="width:180px; color:var(--muted); font-weight:600;">${label}</td><td>${escapeHtml(val) || '<span style="color:var(--muted)">—</span>'}</td></tr>`).join('');
-}
-
-(async function boot(){
-  const session = await DB.requireSession('client');
-  if(!session) return;
-  render(session);
 })();
 </script>
 </body>

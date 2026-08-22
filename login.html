@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign in — BIMDEC Document System</title>
-<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="stylesheet" href="assets/css/portal.css">
 </head>
 <body>
@@ -42,9 +42,8 @@
         </form>
 
         <div class="authfoot">
-          Don't have an account? <a href="signup.html">Create an account</a><br>
-          <a href="index.html">&larr; Back to welcome</a><br>
-          Forgot your password? Contact an administrator.
+          Have an invite code? <a href="signup.html">Create an account</a><br>
+          <a href="index.html">&larr; Back to welcome</a>
         </div>
       </div>
     </div>
@@ -52,7 +51,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/supabase-config.js"></script>
-<script src="assets/js/supabaseDb.js"></script>
+<script src="assets/js/db.js"></script>
 <script>
 let currentRole = 'client';
 
@@ -79,10 +78,10 @@ function hideMsg(){
 async function handleLogin(evt){
   evt.preventDefault();
   hideMsg();
-  const submitBtn = evt.target.querySelector('button[type=submit]');
-  submitBtn.disabled = true;
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
+  const submitBtn = evt.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
   const result = await DB.login(email, password, currentRole);
   submitBtn.disabled = false;
   if(!result.ok){
@@ -97,7 +96,6 @@ async function handleLogin(evt){
   const params = new URLSearchParams(window.location.search);
   const role = params.get('role') === 'admin' ? 'admin' : 'client';
   setRole(role);
-  if(params.get('created')) showMsg('Account created — sign in below.', 'ok');
 })();
 </script>
 </body>
