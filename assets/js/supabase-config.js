@@ -10,6 +10,6 @@
  * must never reach the browser.
  */
 window.SUPABASE_CONFIG = {
-  url: 'https://tardsfjvpfusgrgzruit.supabase.co',
-  anonKey: 'sb_publishable_GL-WOu1J7bXAlYG7achf0Q_YJb2XkqT'
+  url: 'https://ygsufcxhvsdfjlhoekxd.supabase.co',
+  anonKey: 'sb_publishable_JDyd5wTlqBJV80EC7YCyow_326MVpRc'
 };
