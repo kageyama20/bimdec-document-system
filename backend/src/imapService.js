@@ -61,13 +61,31 @@ async function fetchAndStore(client, uid, { announce } = { announce: false }) {
 }
 
 function openClient() {
-  return new ImapFlow({
+  const client = new ImapFlow({
     host: process.env.IMAP_HOST,
     port: Number(process.env.IMAP_PORT || 993),
     secure: String(process.env.IMAP_SECURE || 'true') === 'true',
     auth: { user: process.env.IMAP_USER, pass: process.env.IMAP_PASS },
     logger: false,
+    // Fail fast instead of hanging for minutes when the mail server is
+    // slow/unreachable from Render's network.
+    connectionTimeout: Number(process.env.IMAP_CONNECTION_TIMEOUT_MS || 15000),
+    greetingTimeout: Number(process.env.IMAP_GREETING_TIMEOUT_MS || 15000),
+    socketTimeout: Number(process.env.IMAP_SOCKET_TIMEOUT_MS || 30000),
   });
+
+  // CRITICAL: every ImapFlow instance needs an 'error' listener attached
+  // immediately, even short-lived poll-mode clients. Node treats 'error'
+  // as a special event — an EventEmitter that emits it with zero
+  // listeners attached throws and crashes the *entire process*, not just
+  // this connection. This was previously only attached for idle-mode
+  // clients, which is why a single IMAP timeout was taking the whole
+  // backend down (and every /api route with it) until Render restarted it.
+  client.on('error', (err) => {
+    console.error('[imap] client error', err && err.message);
+  });
+
+  return client;
 }
 
 /* ---------------- Poll mode (default, free-tier friendly) ---------------- */
@@ -76,10 +94,11 @@ let lastKnownExists = null; // total message count on the mailbox as of our last
 
 async function doPollFetch({ announceNew }) {
   const client = openClient();
-  await client.connect();
-  const mailbox = process.env.IMAP_MAILBOX || 'INBOX';
-  const lock = await client.getMailboxLock(mailbox);
+  let lock = null;
   try {
+    await client.connect();
+    const mailbox = process.env.IMAP_MAILBOX || 'INBOX';
+    lock = await client.getMailboxLock(mailbox);
     const total = client.mailbox.exists || 0;
     if (lastKnownExists === null) {
       // First ever check: seed the cache with the most recent N messages
@@ -103,8 +122,15 @@ async function doPollFetch({ announceNew }) {
     lastKnownExists = total;
     store.setConnectionState('ok', `Checked ${new Date().toLocaleTimeString()} — polling every ${MIN_POLL_INTERVAL_MS / 1000}s.`);
   } finally {
-    lock.release();
-    await client.logout().catch(() => {});
+    // Never let cleanup itself throw/crash the process — a connection
+    // that already errored or timed out may not accept a graceful
+    // logout, so fall back to a hard close.
+    try { if (lock) lock.release(); } catch (_) { /* ignore */ }
+    try {
+      await client.logout();
+    } catch (_) {
+      try { client.close(); } catch (_) { /* ignore */ }
+    }
   }
 }
 

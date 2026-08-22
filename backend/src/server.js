@@ -8,6 +8,16 @@ const mailer = require('./mailer');
 const store = require('./store');
 const imapService = require('./imapService');
 
+// Safety net: log and keep running instead of crashing the whole process
+// (and taking down email sending + everything else) on an unexpected
+// error anywhere in the app, e.g. a stray IMAP/SMTP socket event.
+process.on('uncaughtException', (err) => {
+  console.error('[server] uncaughtException (recovered)', err && err.stack || err);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('[server] unhandledRejection (recovered)', reason);
+});
+
 const app = express();
 app.use(express.json({ limit: '15mb' })); // generous enough for a base64 PDF attachment
 app.set('etag', false);
