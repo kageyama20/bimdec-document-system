@@ -85,22 +85,24 @@
     </div>
   </div>
 
-<script src="../assets/js/db.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/supabase-config.js"></script>
+<script src="../assets/js/supabaseDb.js"></script>
 <script src="../assets/js/emailClient.js"></script>
 <script>
-const session = DB.requireSession('admin');
+let session;
 
-function doLogout(){ DB.logout(); window.location.href = '../login.html'; }
+function doLogout(){ DB.logout().then(() => window.location.href = '../login.html'); }
 
 function escapeHtml(s){
   return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-function render(){
+async function render(){
   document.getElementById('whoName').textContent = session.fullName;
 
-  const users = DB.listUsers();
-  const invites = DB.listInvites();
+  const users = await DB.listUsers();
+  const invites = await DB.listInvites();
   document.getElementById('statUsers').textContent = users.length;
   document.getElementById('statInvites').textContent = invites.filter(i=>!i.usedBy).length;
 
@@ -140,9 +142,16 @@ async function createInvite(evt){
   const role = document.getElementById('inviteRole').value;
   const note = document.getElementById('inviteNote').value.trim();
   const email = document.getElementById('inviteEmail').value.trim();
-  const code = DB.createInvite(role, note);
+  let code;
+  try{
+    code = await DB.createInvite(role, note);
+  }catch(err){
+    document.getElementById('inviteEmailStatus').className = 'send-status bad';
+    document.getElementById('inviteEmailStatus').textContent = 'Could not create invite: ' + err.message;
+    return false;
+  }
   document.getElementById('inviteNote').value = '';
-  render();
+  await render();
   copyCode(code);
 
   const status = document.getElementById('inviteEmailStatus');
@@ -178,15 +187,18 @@ async function createInvite(evt){
 
 function removeInvite(code){
   if(!confirm('Revoke invite ' + code + '? This cannot be undone.')) return;
-  DB.revokeInvite(code);
-  render();
+  DB.revokeInvite(code).then(render).catch(err => alert('Could not revoke invite: ' + err.message));
 }
 
 function copyCode(code){
   if(navigator.clipboard){ navigator.clipboard.writeText(code).catch(()=>{}); }
 }
 
-render();
+(async function boot(){
+  session = await DB.requireSession('admin');
+  if(!session) return;
+  render();
+})();
 </script>
 </body>
 </html>

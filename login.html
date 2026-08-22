@@ -42,15 +42,17 @@
         </form>
 
         <div class="authfoot">
-          Invite code check is switched off for now. <a href="signup.html">Create an account</a><br>
+          Don't have an account? <a href="signup.html">Create an account</a><br>
           <a href="index.html">&larr; Back to welcome</a><br>
-          Can't sign in? <a href="#" onclick="return doReset()">Reset demo data &amp; try again</a>
+          Forgot your password? Contact an administrator.
         </div>
       </div>
     </div>
   </div>
 
-<script src="assets/js/db.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/supabaseDb.js"></script>
 <script>
 let currentRole = 'client';
 
@@ -74,12 +76,15 @@ function hideMsg(){
   el.className = 'msg';
 }
 
-function handleLogin(evt){
+async function handleLogin(evt){
   evt.preventDefault();
   hideMsg();
+  const submitBtn = evt.target.querySelector('button[type=submit]');
+  submitBtn.disabled = true;
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
-  const result = DB.login(email, password, currentRole);
+  const result = await DB.login(email, password, currentRole);
+  submitBtn.disabled = false;
   if(!result.ok){
     showMsg(result.error, 'error');
     return false;
@@ -88,17 +93,11 @@ function handleLogin(evt){
   return false;
 }
 
-function doReset(){
-  if(!confirm('This clears this browser\'s local demo data (accounts + invites created here) and restores the original bootstrap admin login. Continue?')) return false;
-  DB.resetToBootstrap();
-  showMsg('Demo data reset. Sign in with admin@bimphilippines.org / BIMDEC-Admin-2026.', 'ok');
-  return false;
-}
-
 (function init(){
   const params = new URLSearchParams(window.location.search);
   const role = params.get('role') === 'admin' ? 'admin' : 'client';
   setRole(role);
+  if(params.get('created')) showMsg('Account created — sign in below.', 'ok');
 })();
 </script>
 </body>

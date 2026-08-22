@@ -65,23 +65,25 @@
     </div>
   </div>
 
-<script src="../assets/js/db.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/supabase-config.js"></script>
+<script src="../assets/js/supabaseDb.js"></script>
 <script src="../assets/js/emailClient.js"></script>
 <script>
-const session = DB.requireSession('admin');
+let session;
 
-function doLogout(){ DB.logout(); window.location.href = '../login.html'; }
+function doLogout(){ DB.logout().then(() => window.location.href = '../login.html'); }
 
 function escapeHtml(s){
   return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-function render(){
+async function render(){
   document.getElementById('whoName').textContent = session.fullName;
   document.getElementById('greet').textContent = 'Welcome back, ' + session.fullName.split(' ')[0] + '.';
 
-  const users = DB.listUsers();
-  const invites = DB.listInvites();
+  const users = await DB.listUsers();
+  const invites = await DB.listInvites();
   document.getElementById('statUsers').textContent = users.length;
   document.getElementById('statInvites').textContent = invites.filter(i=>!i.usedBy).length;
 
@@ -95,7 +97,11 @@ function render(){
   }
 }
 
-render();
+(async function boot(){
+  session = await DB.requireSession('admin');
+  if(!session) return;
+  render();
+})();
 </script>
 </body>
 </html>

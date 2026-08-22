@@ -641,17 +641,19 @@ input[type="date"]::-webkit-calendar-picker-indicator{
   </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script src="../assets/js/db.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/supabase-config.js"></script>
+<script src="../assets/js/supabaseDb.js"></script>
 <script src="../assets/js/emailClient.js"></script>
 <script>
-  var __session = DB.requireSession('admin');
-  function portalLogout(){ DB.logout(); window.location.href = '../login.html'; }
-  document.addEventListener('DOMContentLoaded', function(){
+  function portalLogout(){ DB.logout().then(() => window.location.href = '../login.html'); }
+  (async function(){
+    var __session = await DB.requireSession('admin');
     if(__session){
       var who = document.getElementById('portalWho');
       if(who) who.textContent = __session.fullName;
     }
-  });
+  })();
 </script>
 
 <div class="appshell">

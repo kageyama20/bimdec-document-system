@@ -72,7 +72,9 @@
     </div>
   </div>
 
-<script src="assets/js/db.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/supabaseDb.js"></script>
 <script>
 function showMsg(id, text){
   const el = document.getElementById(id);
@@ -92,7 +94,7 @@ function updateRoleFields(){
   document.getElementById('orgLabel').textContent = isAdmin ? 'Position / title' : 'Company / organization';
 }
 
-function handleSignup(evt){
+async function handleSignup(evt){
   evt.preventDefault();
   hideMsg('formMsg');
   const role = document.getElementById('signupRole').value;
@@ -108,7 +110,10 @@ function handleSignup(evt){
     return false;
   }
 
-  const result = DB.createUser({ role, fullName, email, password, orgOrPosition, phone });
+  const submitBtn = evt.target.querySelector('button[type=submit]');
+  submitBtn.disabled = true;
+  const result = await DB.createUser({ role, fullName, email, password, orgOrPosition, phone });
+  submitBtn.disabled = false;
   if(!result.ok){
     showMsg('formMsg', result.error);
     return false;

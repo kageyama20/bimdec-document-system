@@ -99,13 +99,14 @@
   </div>
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-<script src="../assets/js/db.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/supabase-config.js"></script>
+<script src="../assets/js/supabaseDb.js"></script>
 <script src="../assets/js/emailClient.js"></script>
 <script>
-const session = DB.requireSession('admin');
-document.getElementById('whoName').textContent = session.fullName;
+let session;
 
-function doLogout(){ DB.logout(); window.location.href = '../login.html'; }
+function doLogout(){ DB.logout().then(() => window.location.href = '../login.html'); }
 
 function escapeHtml(s){
   return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -268,7 +269,13 @@ async function sendCompose(evt){
 }
 
 loadSettingsIntoForm();
-connectAndLoad();
+
+(async function boot(){
+  session = await DB.requireSession('admin');
+  if(!session) return;
+  document.getElementById('whoName').textContent = session.fullName;
+  connectAndLoad();
+})();
 </script>
 </body>
 </html>
