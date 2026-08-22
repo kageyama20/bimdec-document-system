@@ -65,23 +65,23 @@
     </div>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-config.js"></script>
 <script src="../assets/js/db.js"></script>
 <script src="../assets/js/emailClient.js"></script>
 <script>
-async function doLogout(){ await DB.logout(); window.location.href = '../login.html'; }
+const session = DB.requireSession('admin');
+
+function doLogout(){ DB.logout(); window.location.href = '../login.html'; }
 
 function escapeHtml(s){
   return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-async function render(session){
+function render(){
   document.getElementById('whoName').textContent = session.fullName;
   document.getElementById('greet').textContent = 'Welcome back, ' + session.fullName.split(' ')[0] + '.';
 
-  const users = await DB.listUsers();
-  const invites = await DB.listInvites();
+  const users = DB.listUsers();
+  const invites = DB.listInvites();
   document.getElementById('statUsers').textContent = users.length;
   document.getElementById('statInvites').textContent = invites.filter(i=>!i.usedBy).length;
 
@@ -95,11 +95,7 @@ async function render(session){
   }
 }
 
-(async function main(){
-  const session = await DB.requireSession('admin');
-  if(!session) return;
-  render(session);
-})();
+render();
 </script>
 </body>
 </html>

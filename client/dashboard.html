@@ -44,21 +44,21 @@
     </div>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-config.js"></script>
 <script src="../assets/js/db.js"></script>
 <script>
-async function doLogout(){ await DB.logout(); window.location.href = '../login.html'; }
+const session = DB.requireSession('client');
+
+function doLogout(){ DB.logout(); window.location.href = '../login.html'; }
 
 function escapeHtml(s){
   return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-async function render(session){
+(function render(){
   document.getElementById('whoName').textContent = session.fullName;
   document.getElementById('greet').textContent = 'Welcome, ' + session.fullName.split(' ')[0] + '.';
 
-  const user = (await DB.findUserByEmail(session.email)) || {};
+  const user = DB.findUserByEmail(session.email) || {};
   const rows = [
     ['Full name', user.fullName],
     ['Email', user.email],
@@ -67,12 +67,6 @@ async function render(session){
   ];
   document.getElementById('profileTable').innerHTML =
     rows.map(([label, val]) => `<tr><td style="width:180px; color:var(--muted); font-weight:600;">${label}</td><td>${escapeHtml(val) || '<span style="color:var(--muted)">—</span>'}</td></tr>`).join('');
-}
-
-(async function main(){
-  const session = await DB.requireSession('client');
-  if(!session) return;
-  render(session);
 })();
 </script>
 </body>

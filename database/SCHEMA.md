@@ -1,10 +1,10 @@
 # BIMDEC Document System — Data Model
 
 This folder documents the data this system keeps on registered users and
-invitations. The live copy of this data lives in a Supabase (Postgres)
-project — see `supabase-schema.sql` in this folder for the real table
-definitions, access rules, and setup steps. `/assets/js/db.js` talks to
-that project via `@supabase/supabase-js`.
+invitations. It's the reference copy of the structure — the running app
+(this is a static, front-end-only prototype) keeps the *live* copy of this
+data in the visitor's browser storage (`localStorage`, key `BIMDEC_DB`),
+seeded and managed by `/assets/js/db.js`.
 
 `users.seed.json` and `invites.seed.json` in this folder show that same
 shape so the schema has one clear source of truth, separate from the
@@ -41,20 +41,27 @@ invite code before it will show the registration form. Admins generate
 codes from the Admin Portal dashboard (`admin/dashboard.html`) and share
 them directly with the person being invited.
 
-## Security note
+## Security note — read before deploying this for real
 
-This now runs on Supabase, which handles the items a real backend needs:
+This is a static prototype with no server, so there is no real database
+and no real authentication:
 
-1. `profiles` / `invites` live in a real Postgres database, not
-   `localStorage`.
-2. Passwords are hashed and managed by Supabase Auth — never stored in
-   plain text anywhere in this app's code.
-3. Login issues a real, server-validated session (JWT) via Supabase Auth.
-4. Row-level security policies (in `supabase-schema.sql`) check the
-   caller's role on every request — a client's Supabase session simply
-   cannot read another client's profile row, and only an admin session
-   can read the `invites` table or every profile.
+- `db.js` stores everything in the browser's `localStorage`, which is
+  readable and editable by anyone with access to that browser's devtools.
+- Passwords are only lightly obfuscated in `db.js`, not hashed with a
+  proper algorithm (bcrypt/argon2) and a per-user salt.
+- There is no server-side session, so nothing here actually restricts
+  access to real documents — it only gates the *front-end screens*.
 
-The `users.seed.json` / `invites.seed.json` files in this folder still
-describe the same shape, now implemented as real columns in
-`supabase-schema.sql`.
+Before this goes live with real client data, replace `db.js` with calls
+to a real backend that:
+1. Owns the user and invite tables in an actual database (e.g.
+   Postgres/MySQL), not `localStorage`.
+2. Hashes passwords server-side and never stores them in plain text.
+3. Issues a signed, server-validated session (e.g. HTTP-only cookie or
+   JWT) after login.
+4. Checks the caller's role/session on every request that returns a
+   client's documents — not just at the login screen.
+
+The `users.seed.json` / `invites.seed.json` shape in this folder is a
+reasonable starting point for that backend's table design.

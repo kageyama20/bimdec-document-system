@@ -1,26 +1,48 @@
 # BIMDEC Email Service (backend)
 
-A small always-on Node service that gives the static, Netlify-hosted
-BIMDEC Document System admin portal a real emailing system:
+A small service that gives the static, Netlify-hosted BIMDEC Document
+System admin portal a real emailing system:
 
 - **Sends mail** via your SMTP account (`POST /api/send`) — used by the
   Emailing System page and by the "Send to email" button in the
   Document Generator preview.
-- **Watches your inbox in real time** via IMAP IDLE and pushes new
-  messages to the admin portal instantly over Socket.IO
-  (`GET /api/inbox`, live `newMail` events).
+- **Reads your inbox** via IMAP (`GET /api/inbox`) and shows new
+  messages in the admin portal.
 
-This exists because a static site (Netlify) cannot hold an open SMTP/IMAP
+This exists because a static site (Netlify) cannot hold an SMTP/IMAP
 connection or keep your mail password safe — that needs a real server.
-This is that server. It's intentionally small and dependency-light.
+This is that server. It's intentionally small and dependency-light,
+and it's designed to run entirely on **free hosting tiers**.
+
+## Two modes: poll (free) vs idle (paid, instant)
+
+Set with `IMAP_MODE` in your environment variables:
+
+- **`poll`** (default) — checks your mailbox for new mail whenever the
+  admin portal asks for the inbox (roughly every 20 seconds while the
+  Email page is open, throttled by `IMAP_POLL_INTERVAL_SECONDS`), then
+  disconnects. This is what actually works on Render/Railway's **free**
+  tier, because free instances spin down after ~15 minutes idle and
+  can't hold a connection open in the background anyway. New mail shows
+  up within a few seconds to ~20 seconds of the admin having the page
+  open — not instant, but free.
+- **`idle`** — keeps one persistent IMAP connection open and pushes new
+  mail out instantly over Socket.IO. Only actually behaves as "instant"
+  on an **always-on / paid** instance. On a free instance it just gets
+  disconnected when the service sleeps and reconnects later, which ends
+  up worse than poll mode — so there's no reason to turn this on until
+  you've upgraded.
+
+Sending mail (SMTP) works the same either way and isn't affected by
+sleep — it just wakes the free instance on demand when you hit "Send".
 
 ## Why this can't just live on Netlify
 
 - Browsers can't open raw SMTP/IMAP sockets, and mail servers wouldn't
   accept a browser connecting directly anyway.
-- IMAP "real-time" (IDLE) needs a *persistent* connection — Netlify
-  Functions are short-lived and spin down between requests, so they
-  can't stay connected to your mailbox.
+- Netlify Functions are short-lived and can't hold a connection open
+  even in poll mode's brief per-check sense — a small standalone
+  service like this one is the simplest fit.
 - Your mail password must never be shipped to the browser. It lives
   only in this service's environment variables.
 
@@ -35,29 +57,38 @@ npm start
 ```
 
 Visit `http://localhost:8080/health` — you should see
-`{"ok":true,"imap":{"status":"ok", ...}}` once the IMAP connection is
-established (status starts as `"pending"` for a few seconds on boot).
+`{"ok":true,"imap":{"status":"pending"or"ok", ...}}`.
 
-## 2. Deploy it somewhere always-on
+## 2. Deploy it for free
 
-Netlify can't run this (see above). Use **Render** or **Railway** —
-both have a free/cheap tier that's enough for this:
+Netlify can't run this (see above). **Render's free tier** is the
+easiest fit — 750 free instance-hours/month is enough to run one
+service continuously, and no credit card is required:
 
-### Render
+### Render (free)
 1. Push this repo (or just the `backend/` folder) to GitHub.
 2. Render dashboard → New → Web Service → connect the repo.
 3. Root directory: `backend`
 4. Build command: `npm install`
 5. Start command: `npm start`
-6. Add all the variables from `.env.example` under **Environment**.
-7. Deploy. Render gives you a URL like `https://bimdec-email.onrender.com`.
+6. Instance type: **Free**
+7. Add all the variables from `.env.example` under **Environment**
+   (leave `IMAP_MODE=poll` — that's the free-tier-compatible default).
+8. Deploy. Render gives you a URL like `https://bimdec-email.onrender.com`.
 
-### Railway
-1. New Project → Deploy from GitHub repo.
-2. Set root directory to `backend`.
-3. Add the same environment variables under **Variables**.
-4. Railway auto-detects `npm start`. Deploy, then grab the generated
-   public URL.
+That's it — $0/month. The trade-off is the ~20-second poll delay and a
+30-60 second "wake up" the first time it's used after being idle a
+while (Render's cold start) — both fine for an internal admin tool.
+
+### If you later want true instant push
+Upgrade the Render service to a paid **Starter** instance (~$7/month,
+always-on), set `IMAP_MODE=idle`, and redeploy. Nothing else changes.
+
+### Railway (alternative)
+Railway's free tier has become far more limited than Render's, so
+Render is the better default for a genuinely free setup. If you still
+prefer Railway, the steps are the same: root directory `backend`, same
+environment variables, `npm start`.
 
 Either way, **set `ALLOWED_ORIGINS` to your real Netlify site URL**
 (e.g. `https://bimphilippines.org`) so only your site can call this API.

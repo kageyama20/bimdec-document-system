@@ -85,24 +85,22 @@
     </div>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-config.js"></script>
 <script src="../assets/js/db.js"></script>
 <script src="../assets/js/emailClient.js"></script>
 <script>
-let session = null;
+const session = DB.requireSession('admin');
 
-async function doLogout(){ await DB.logout(); window.location.href = '../login.html'; }
+function doLogout(){ DB.logout(); window.location.href = '../login.html'; }
 
 function escapeHtml(s){
   return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-async function render(){
+function render(){
   document.getElementById('whoName').textContent = session.fullName;
 
-  const users = await DB.listUsers();
-  const invites = await DB.listInvites();
+  const users = DB.listUsers();
+  const invites = DB.listInvites();
   document.getElementById('statUsers').textContent = users.length;
   document.getElementById('statInvites').textContent = invites.filter(i=>!i.usedBy).length;
 
@@ -142,9 +140,9 @@ async function createInvite(evt){
   const role = document.getElementById('inviteRole').value;
   const note = document.getElementById('inviteNote').value.trim();
   const email = document.getElementById('inviteEmail').value.trim();
-  const code = await DB.createInvite(role, note);
+  const code = DB.createInvite(role, note);
   document.getElementById('inviteNote').value = '';
-  await render();
+  render();
   copyCode(code);
 
   const status = document.getElementById('inviteEmailStatus');
@@ -178,9 +176,9 @@ async function createInvite(evt){
   return false;
 }
 
-async function removeInvite(code){
+function removeInvite(code){
   if(!confirm('Revoke invite ' + code + '? This cannot be undone.')) return;
-  await DB.revokeInvite(code);
+  DB.revokeInvite(code);
   render();
 }
 
@@ -188,11 +186,7 @@ function copyCode(code){
   if(navigator.clipboard){ navigator.clipboard.writeText(code).catch(()=>{}); }
 }
 
-(async function main(){
-  session = await DB.requireSession('admin');
-  if(!session) return;
-  render();
-})();
+render();
 </script>
 </body>
 </html>

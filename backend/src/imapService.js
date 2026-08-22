@@ -3,27 +3,35 @@ const { simpleParser } = require('mailparser');
 const store = require('./store');
 
 /*
- * Keeps a persistent IMAP connection open (using IMAP IDLE) so new mail
- * is detected the moment it arrives, rather than on a polling delay.
- * imapflow automatically re-issues IDLE and reconnects on drops, but we
- * add our own retry/backoff around the initial connect and around any
- * fatal error so the service recovers on its own instead of needing a
- * manual restart.
+ * Two ways this can watch your inbox, chosen by IMAP_MODE:
+ *
+ * - "poll" (default — works on Render/Railway's FREE tier):
+ *   Free web services spin down after ~15 minutes idle, so nothing can
+ *   stay "always connected" for real IMAP IDLE. Instead, each call to
+ *   fetchIfDue() opens a short IMAP connection, grabs anything new,
+ *   stores it, and disconnects. The admin portal calls this every time
+ *   it loads/polls the inbox (see /api/inbox in server.js), which also
+ *   happens to be what wakes a sleeping free instance back up. A
+ *   MIN_POLL_INTERVAL guards against hammering your mail server if the
+ *   dashboard is refreshing quickly. New mail typically shows up within
+ *   IMAP_POLL_INTERVAL_SECONDS of the admin having the Email page open —
+ *   not truly instant, but free.
+ *
+ * - "idle" (only meaningful on an ALWAYS-ON / paid instance):
+ *   Keeps one persistent connection open with IMAP IDLE, so new mail is
+ *   pushed out over Socket.IO the moment it arrives. On a free instance
+ *   that sleeps, this connection just gets dropped and reconnects on
+ *   the next wake — which ends up behaving like a worse version of poll
+ *   mode anyway, so there's no reason to use it until you're paying for
+ *   an always-on service.
  */
 
-let client = null;
-let io = null;
-let reconnectDelay = 5000; // grows on repeated failures, resets on success
-const MAX_RECONNECT_DELAY = 60000;
-let reconnectTimer = null; // prevents stacking multiple scheduled reconnects
-let connecting = false; // prevents overlapping connect attempts
+const MODE = (process.env.IMAP_MODE || 'poll').toLowerCase();
+const MIN_POLL_INTERVAL_MS = Number(process.env.IMAP_POLL_INTERVAL_SECONDS || 20) * 1000;
 
-// Updates the shared state AND pushes it to every connected admin tab
-// immediately, so the "Live" badge never goes stale.
-function updateConnectionState(status, detail) {
-  store.setConnectionState(status, detail);
-  if (io) io.emit('connectionState', store.getConnectionState());
-}
+let io = null;
+let lastFetchAt = 0;
+let fetchInFlight = null;
 
 function toSummary(parsed, uid, unread) {
   const text = (parsed.text || '').trim();
@@ -48,50 +56,129 @@ async function fetchAndStore(client, uid, { announce } = { announce: false }) {
   const unread = !(flagsData && flagsData.flags && flagsData.flags.has('\\Seen'));
   const summary = toSummary(parsed, uid, unread);
   store.addMessage(summary);
-  if (announce && io) {
-    io.emit('newMail', summary);
-  }
+  if (announce && io) io.emit('newMail', summary);
   return summary;
 }
 
-async function initialSync(client) {
+function openClient() {
+  return new ImapFlow({
+    host: process.env.IMAP_HOST,
+    port: Number(process.env.IMAP_PORT || 993),
+    secure: String(process.env.IMAP_SECURE || 'true') === 'true',
+    auth: { user: process.env.IMAP_USER, pass: process.env.IMAP_PASS },
+    logger: false,
+  });
+}
+
+/* ---------------- Poll mode (default, free-tier friendly) ---------------- */
+
+let lastKnownExists = null; // total message count on the mailbox as of our last check
+
+async function doPollFetch({ announceNew }) {
+  const client = openClient();
+  await client.connect();
   const mailbox = process.env.IMAP_MAILBOX || 'INBOX';
   const lock = await client.getMailboxLock(mailbox);
   try {
     const total = client.mailbox.exists || 0;
-    if (total === 0) return;
-    const initialFetch = Number(process.env.IMAP_INITIAL_FETCH || 30);
-    const start = Math.max(1, total - initialFetch + 1);
-    const range = `${start}:${total}`;
-    for await (const msg of client.fetch(range, { uid: true })) {
-      try {
-        await fetchAndStore(client, msg.uid, { announce: false });
-      } catch (err) {
-        console.error('[imap] failed to parse message during initial sync', err.message);
+    if (lastKnownExists === null) {
+      // First ever check: seed the cache with the most recent N messages
+      // without treating all of them as "new" pushes.
+      const initialFetch = Number(process.env.IMAP_INITIAL_FETCH || 30);
+      const start = Math.max(1, total - initialFetch + 1);
+      if (total > 0) {
+        const range = `${start}:${total}`;
+        for await (const msg of client.fetch(range, { uid: true })) {
+          try { await fetchAndStore(client, msg.uid, { announce: false }); }
+          catch (err) { console.error('[imap] parse failed during initial fetch', err.message); }
+        }
+      }
+    } else if (total > lastKnownExists) {
+      const range = `${lastKnownExists + 1}:${total}`;
+      for await (const msg of client.fetch(range, { uid: true })) {
+        try { await fetchAndStore(client, msg.uid, { announce: announceNew }); }
+        catch (err) { console.error('[imap] parse failed during poll', err.message); }
       }
     }
+    lastKnownExists = total;
+    store.setConnectionState('ok', `Checked ${new Date().toLocaleTimeString()} — polling every ${MIN_POLL_INTERVAL_MS / 1000}s.`);
   } finally {
     lock.release();
+    await client.logout().catch(() => {});
   }
 }
 
-async function watchMailbox(client) {
-  const mailbox = process.env.IMAP_MAILBOX || 'INBOX';
-  const lock = await client.getMailboxLock(mailbox);
-  lock.release(); // release the setup lock; listen for events on the client itself
+/**
+ * Called from the API route whenever the admin portal asks for the inbox.
+ * Only actually hits the mail server if MIN_POLL_INTERVAL_MS has elapsed
+ * since the last check, and coalesces overlapping calls into one fetch.
+ */
+async function fetchIfDue() {
+  if (MODE !== 'poll') return; // idle mode keeps its own connection open
+  const now = Date.now();
+  if (fetchInFlight) return fetchInFlight;
+  if (now - lastFetchAt < MIN_POLL_INTERVAL_MS) return;
 
-  client.on('exists', async (data) => {
-    // New message(s) landed — fetch just the newest one(s).
+  lastFetchAt = now;
+  fetchInFlight = doPollFetch({ announceNew: true })
+    .catch(err => {
+      console.error('[imap] poll failed', err.message);
+      store.setConnectionState('bad', err.message);
+    })
+    .finally(() => { fetchInFlight = null; });
+  return fetchInFlight;
+}
+
+/* ---------------- IDLE mode (only for an always-on paid instance) ---------------- */
+
+let idleClient = null;
+let reconnectDelay = 5000;
+const MAX_RECONNECT_DELAY = 60000;
+
+async function connectIdleOnce() {
+  idleClient = openClient();
+
+  idleClient.on('error', (err) => {
+    console.error('[imap] connection error', err.message);
+    store.setConnectionState('bad', err.message);
+  });
+  idleClient.on('close', () => {
+    store.setConnectionState('bad', 'Connection closed — reconnecting…');
+    scheduleIdleReconnect();
+  });
+
+  await idleClient.connect();
+  store.setConnectionState('ok', `Connected — watching ${process.env.IMAP_MAILBOX || 'INBOX'} in real time.`);
+  reconnectDelay = 5000;
+
+  const mailbox = process.env.IMAP_MAILBOX || 'INBOX';
+  const lock = await idleClient.getMailboxLock(mailbox);
+  try {
+    const total = idleClient.mailbox.exists || 0;
+    const initialFetch = Number(process.env.IMAP_INITIAL_FETCH || 30);
+    const start = Math.max(1, total - initialFetch + 1);
+    if (total > 0) {
+      for await (const msg of idleClient.fetch(`${start}:${total}`, { uid: true })) {
+        try { await fetchAndStore(idleClient, msg.uid, { announce: false }); }
+        catch (err) { console.error('[imap] failed to parse message during initial sync', err.message); }
+      }
+    }
+    lastKnownExists = total;
+  } finally {
+    lock.release();
+  }
+
+  idleClient.on('exists', async (data) => {
     try {
-      const lock2 = await client.getMailboxLock(mailbox);
+      const lock2 = await idleClient.getMailboxLock(mailbox);
       try {
-        const total = client.mailbox.exists || 0;
+        const total = idleClient.mailbox.exists || 0;
         const prev = data.prevCount || (total - 1);
         if (total <= prev) return;
-        const range = `${prev + 1}:${total}`;
-        for await (const msg of client.fetch(range, { uid: true })) {
-          await fetchAndStore(client, msg.uid, { announce: true });
+        for await (const msg of idleClient.fetch(`${prev + 1}:${total}`, { uid: true })) {
+          await fetchAndStore(idleClient, msg.uid, { announce: true });
         }
+        lastKnownExists = total;
       } finally {
         lock2.release();
       }
@@ -99,65 +186,39 @@ async function watchMailbox(client) {
       console.error('[imap] error handling new mail event', err.message);
     }
   });
+
+  await idleClient.idle();
 }
 
-async function connectOnce() {
-  const thisClient = new ImapFlow({
-    host: process.env.IMAP_HOST,
-    port: Number(process.env.IMAP_PORT || 993),
-    secure: String(process.env.IMAP_SECURE || 'true') === 'true',
-    auth: {
-      user: process.env.IMAP_USER,
-      pass: process.env.IMAP_PASS,
-    },
-    logger: false,
-  });
-  client = thisClient;
-
-  thisClient.on('error', (err) => {
-    if (client !== thisClient) return; // a newer connection has already replaced this one
-    console.error('[imap] connection error', err.message);
-    updateConnectionState('bad', err.message);
-  });
-
-  thisClient.on('close', () => {
-    if (client !== thisClient) return; // stale client closing after we already moved on — ignore
-    updateConnectionState('bad', 'Connection closed — reconnecting…');
-    scheduleReconnect();
-  });
-
-  await thisClient.connect();
-  updateConnectionState('ok', `Connected — watching ${process.env.IMAP_MAILBOX || 'INBOX'} in real time.`);
-  reconnectDelay = 5000;
-
-  await initialSync(thisClient);
-  await watchMailbox(thisClient);
-  await thisClient.idle();
-}
-
-function scheduleReconnect() {
-  if (reconnectTimer) return; // a reconnect is already scheduled — never stack more than one
-  reconnectTimer = setTimeout(() => {
-    reconnectTimer = null;
+function scheduleIdleReconnect() {
+  setTimeout(() => {
     reconnectDelay = Math.min(reconnectDelay * 1.5, MAX_RECONNECT_DELAY);
-    startImapWatcher(io).catch(() => {});
+    connectIdleOnce().catch(err => {
+      console.error('[imap] reconnect failed', err.message);
+      store.setConnectionState('bad', err.message);
+      scheduleIdleReconnect();
+    });
   }, reconnectDelay);
 }
 
+/* ---------------- Startup ---------------- */
+
 async function startImapWatcher(ioInstance) {
-  if (connecting) return; // a connect attempt is already in flight — never overlap
-  connecting = true;
   io = ioInstance;
-  updateConnectionState('pending', 'Connecting to IMAP…');
-  try {
-    await connectOnce();
-  } catch (err) {
-    console.error('[imap] failed to connect', err.message);
-    updateConnectionState('bad', err.message);
-    scheduleReconnect();
-  } finally {
-    connecting = false;
+  if (MODE === 'idle') {
+    store.setConnectionState('pending', 'Connecting to IMAP (real-time mode)…');
+    try {
+      await connectIdleOnce();
+    } catch (err) {
+      console.error('[imap] failed to connect', err.message);
+      store.setConnectionState('bad', err.message);
+      scheduleIdleReconnect();
+    }
+  } else {
+    store.setConnectionState('pending', 'Waiting for first inbox check (poll mode)…');
+    // Best-effort initial fetch so the inbox isn't empty before the first API call.
+    fetchIfDue().catch(() => {});
   }
 }
 
-module.exports = { startImapWatcher };
+module.exports = { startImapWatcher, fetchIfDue, MODE };

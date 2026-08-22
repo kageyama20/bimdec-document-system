@@ -6,7 +6,7 @@ const { Server } = require('socket.io');
 
 const mailer = require('./mailer');
 const store = require('./store');
-const { startImapWatcher } = require('./imapService');
+const imapService = require('./imapService');
 
 const app = express();
 app.use(express.json({ limit: '15mb' })); // generous enough for a base64 PDF attachment
@@ -62,7 +62,8 @@ app.post('/api/send', async (req, res) => {
 });
 
 // GET /api/inbox?limit=50&offset=0
-app.get('/api/inbox', (req, res) => {
+app.get('/api/inbox', async (req, res) => {
+  await imapService.fetchIfDue().catch(() => {}); // poll-mode: check the mailbox now if it's due
   const limit = Math.min(Number(req.query.limit) || 50, 200);
   const offset = Number(req.query.offset) || 0;
   res.json({
@@ -95,4 +96,4 @@ server.listen(PORT, () => {
   console.log(`[server] BIMDEC email service listening on port ${PORT}`);
 });
 
-startImapWatcher(io);
+imapService.startImapWatcher(io);

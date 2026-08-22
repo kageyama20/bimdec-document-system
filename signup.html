@@ -19,30 +19,21 @@
           </div>
         </div>
 
-        <div id="step-code">
-          <div class="invite-badge" id="inviteBadgeCode">Invitation required</div>
-          <h2>Enter your invite code</h2>
-          <p class="sub">Ask your BIMDEC administrator for an invite code, then enter it below to continue.</p>
-
-          <div class="msg error" id="codeMsg"></div>
-
-          <form id="codeForm" onsubmit="return handleCodeCheck(event)">
-            <div class="field">
-              <label for="inviteCode">Invite code</label>
-              <input type="text" id="inviteCode" required placeholder="e.g. ADMIN-AB12-CD34" autocomplete="off" style="text-transform:uppercase;">
-            </div>
-            <button class="btn-primary" type="submit">Continue</button>
-          </form>
-        </div>
-
-        <div id="step-form" style="display:none;">
-          <div class="invite-badge" id="inviteBadge">Invitation verified</div>
+        <div id="step-form">
+          <div class="invite-badge" id="inviteBadge" style="background:var(--warning,#f59e0b);">Invitation code temporarily not required</div>
           <h2 id="formTitle">Create your account</h2>
-          <p class="sub" id="formSub">Fill in your details to finish creating your account.</p>
+          <p class="sub" id="formSub">Signup is normally invitation-only, but that check is switched off for now — pick a role below and create your account directly.</p>
 
           <div class="msg error" id="formMsg"></div>
 
           <form id="signupForm" onsubmit="return handleSignup(event)">
+            <div class="field">
+              <label for="signupRole">Account type</label>
+              <select id="signupRole" onchange="updateRoleFields()">
+                <option value="admin">Admin</option>
+                <option value="client">Client</option>
+              </select>
+            </div>
             <div class="field">
               <label for="fullName">Full name</label>
               <input type="text" id="fullName" required placeholder="e.g. Juan Dela Cruz">
@@ -81,12 +72,8 @@
     </div>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/js/supabase-config.js"></script>
 <script src="assets/js/db.js"></script>
 <script>
-let verifiedInvite = null;
-
 function showMsg(id, text){
   const el = document.getElementById(id);
   el.textContent = text;
@@ -97,40 +84,18 @@ function hideMsg(id){
 }
 
 function updateRoleFields(){
-  const isAdmin = verifiedInvite && verifiedInvite.role === 'admin';
+  const isAdmin = document.getElementById('signupRole').value === 'admin';
   document.getElementById('formTitle').textContent = isAdmin ? 'Create your Admin account' : 'Create your Client account';
   document.getElementById('formSub').textContent = isAdmin
-    ? 'This account will be able to prepare and manage documents.'
-    : 'This account will let you view documents issued to you.';
+    ? 'This account will be able to prepare and manage documents. (Invite code check is switched off for now.)'
+    : 'This account will let you view documents issued to you. (Invite code check is switched off for now.)';
   document.getElementById('orgLabel').textContent = isAdmin ? 'Position / title' : 'Company / organization';
 }
 
-async function handleCodeCheck(evt){
-  evt.preventDefault();
-  hideMsg('codeMsg');
-  const code = document.getElementById('inviteCode').value.trim();
-  const submitBtn = evt.target.querySelector('button[type="submit"]');
-  submitBtn.disabled = true;
-  const result = await DB.validateInvite(code);
-  submitBtn.disabled = false;
-  if(!result.ok){
-    showMsg('codeMsg', result.error);
-    return false;
-  }
-  verifiedInvite = result.invite;
-  document.getElementById('step-code').style.display = 'none';
-  document.getElementById('step-form').style.display = '';
-  updateRoleFields();
-  return false;
-}
-
-async function handleSignup(evt){
+function handleSignup(evt){
   evt.preventDefault();
   hideMsg('formMsg');
-  if(!verifiedInvite){
-    showMsg('formMsg', 'Invite code not verified — go back and re-enter it.');
-    return false;
-  }
+  const role = document.getElementById('signupRole').value;
   const fullName = document.getElementById('fullName').value.trim();
   const orgOrPosition = document.getElementById('orgOrPosition').value.trim();
   const phone = document.getElementById('phone').value.trim();
@@ -143,18 +108,17 @@ async function handleSignup(evt){
     return false;
   }
 
-  const submitBtn = evt.target.querySelector('button[type="submit"]');
-  submitBtn.disabled = true;
-  const result = await DB.createUser({ invite: verifiedInvite, fullName, email, password, orgOrPosition, phone });
-  submitBtn.disabled = false;
+  const result = DB.createUser({ role, fullName, email, password, orgOrPosition, phone });
   if(!result.ok){
     showMsg('formMsg', result.error);
     return false;
   }
 
-  window.location.href = 'login.html?role=' + verifiedInvite.role + '&created=1';
+  window.location.href = 'login.html?role=' + role + '&created=1';
   return false;
 }
+
+updateRoleFields();
 </script>
 </body>
 </html>

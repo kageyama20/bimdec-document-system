@@ -5,32 +5,29 @@ billing invoice, and acknowledgement receipt templates).
 
 ## Getting started
 
-This now runs on a real backend database (Supabase — free tier). Before
-opening any page, do the one-time setup:
-
-1. Create a free project at [supabase.com](https://supabase.com).
-2. In the Supabase dashboard, open **SQL Editor** → New query → paste in
-   the contents of `database/supabase-schema.sql` → Run. This creates the
-   `profiles` and `invites` tables plus the access rules.
-3. **Authentication → Providers → Email** → turn **off** "Confirm email"
-   (this is an internal staff/client tool, not a public signup form —
-   accounts should be usable immediately after signup). You can turn it
-   back on later if you want email verification.
-4. **Project Settings → API** → copy the **Project URL** and **anon
-   public** key into `assets/js/supabase-config.js` (never put the
-   `service_role` key here — only `anon`).
-5. Deploy/redeploy the site (e.g. push to the connected Netlify site).
-
-Then:
+Open `index.html` in a browser (or serve the folder with any static file
+server). No build step or server-side install is required.
 
 1. **Welcome page** (`index.html`) — entry point with Client / Admin login options.
-2. **Create the first account** on `signup.html` using the bootstrap
-   invite code `ADMIN-BOOTSTRAP-0001` (seeded by `supabase-schema.sql`)
-   — this becomes your real first admin account.
-3. From the **Admin Portal** (`admin/dashboard.html`), generate invite
-   codes for new admins or clients under "Invite a new user" — every
-   further signup requires one of these codes.
-4. Admins open **Documents** (`admin/documents.html`) to prepare proposals,
+2. **Sign in** (`login.html`) — use the bootstrap admin account to get started:
+   - Email: `admin@bimphilippines.org`
+   - Password: `BIMDEC-Admin-2026`
+   - Change this password's account details from a real backend before
+     using this with real client data — see the security note in
+     `database/SCHEMA.md`.
+3. From the **Admin Portal** (`admin/dashboard.html`), you can still generate
+   invite codes for new admins or clients under "Invite a new user" — but
+   this is **not required right now**: see the note below.
+4. **Invite-code gating is temporarily switched off.** `signup.html` no
+   longer requires a code — anyone who reaches the signup page picks
+   "Admin" or "Client" and creates an account directly. Turn this back on
+   before sharing the link publicly (see "Re-enabling invites" below).
+5. Locked out of the bootstrap admin account? Use "Reset demo data & try
+   again" on `login.html` — it clears this browser's local copy of the
+   simulated database (`localStorage`) and restores the original bootstrap
+   admin login. Note this only resets *that browser*; it doesn't affect
+   what other visitors' browsers have stored.
+5. Admins open **Documents** (`admin/documents.html`) to prepare proposals,
    invoices, and receipts — this is the original document generator, with
    client-specific sample data (names, dates, project details, invoice/
    receipt numbers, amounts, and fee line items) cleared out. The firm's
@@ -69,13 +66,11 @@ BIMDEC-Document-System/
 │   └── dashboard.html        Client home — profile, documents issued to them
 ├── assets/
 │   ├── css/portal.css        Shared styling for login/signup/dashboards
-│   ├── js/db.js              Database + auth layer (Supabase-backed)
-│   ├── js/supabase-config.js Your Supabase project URL + anon key
+│   ├── js/db.js              Simulated database + auth (see security note)
 │   ├── js/emailClient.js     Frontend helper that talks to /backend's API
 │   └── logo.png               BIMDEC logo, reused across login/signup/portals
 ├── database/
-│   ├── supabase-schema.sql    Run this once in Supabase's SQL Editor
-│   ├── SCHEMA.md              Data model notes
+│   ├── SCHEMA.md              Data model + security notes (read this)
 │   ├── users.seed.json        Reference shape for the users table
 │   └── invites.seed.json      Reference shape for the invites table
 └── backend/                  Small always-on Node service: SMTP send +
@@ -85,22 +80,25 @@ BIMDEC-Document-System/
                                Email page).
 ```
 
-## Database
+## Important: this is a front-end prototype
 
-Real accounts and data now live in Supabase (Postgres, free tier) —
-`assets/js/db.js` talks to it via `@supabase/supabase-js`. Login uses
-Supabase Auth (proper password hashing and sessions), and the
-`profiles` / `invites` tables are protected by row-level security so
-clients can only see their own data and only admins can see everyone's.
-See `database/supabase-schema.sql` for the setup steps and
-`database/SCHEMA.md` for the data model.
+There is no server here. `assets/js/db.js` simulates a database using the
+browser's `localStorage`, seeded with one bootstrap admin account and one
+example admin invite code. That's enough to demo the full flow —
+welcome → login → invite → signup → portal — but it is **not secure**
+and **not multi-device**: each browser has its own separate copy of the
+data, and anyone with devtools access to that browser can read or edit it.
 
-## Invite-gating
+Read `database/SCHEMA.md` for what a real backend would need to replace
+`db.js` with before this handles real client accounts or documents.
 
-Signup is invitation-only again: `signup.html` requires a valid, unused
-invite code (checked via `DB.validateInvite()`) before it shows the
-account form, and `DB.createUser()` marks the code used on success. Admins
-generate new codes from `admin/users.html`. The one-time bootstrap code
-`ADMIN-BOOTSTRAP-0001` (seeded by `supabase-schema.sql`) exists only to
-create your very first admin account — after that, generate fresh codes
-per person instead of reusing it.
+## Re-enabling invites
+
+Signup is currently open (no code required) so you can get back into an
+admin account and start using the portal. To restore invitation-only
+signup later:
+1. In `signup.html`, put back the invite-code step before the profile
+   form (an earlier version of this file gates the form behind
+   `DB.validateInvite(code)` — regenerate that step, or ask for it).
+2. Keep `assets/js/db.js`'s `createUser()` as-is — it already accepts
+   either an `invite` object or a plain `role`, so it works either way.
