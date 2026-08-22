@@ -15,6 +15,15 @@ let client = null;
 let io = null;
 let reconnectDelay = 5000; // grows on repeated failures, resets on success
 const MAX_RECONNECT_DELAY = 60000;
+let reconnectTimer = null; // prevents stacking multiple scheduled reconnects
+let connecting = false; // prevents overlapping connect attempts
+
+// Updates the shared state AND pushes it to every connected admin tab
+// immediately, so the "Live" badge never goes stale.
+function updateConnectionState(status, detail) {
+  store.setConnectionState(status, detail);
+  if (io) io.emit('connectionState', store.getConnectionState());
+}
 
 function toSummary(parsed, uid, unread) {
   const text = (parsed.text || '').trim();
@@ -93,7 +102,7 @@ async function watchMailbox(client) {
 }
 
 async function connectOnce() {
-  client = new ImapFlow({
+  const thisClient = new ImapFlow({
     host: process.env.IMAP_HOST,
     port: Number(process.env.IMAP_PORT || 993),
     secure: String(process.env.IMAP_SECURE || 'true') === 'true',
@@ -103,42 +112,51 @@ async function connectOnce() {
     },
     logger: false,
   });
+  client = thisClient;
 
-  client.on('error', (err) => {
+  thisClient.on('error', (err) => {
+    if (client !== thisClient) return; // a newer connection has already replaced this one
     console.error('[imap] connection error', err.message);
-    store.setConnectionState('bad', err.message);
+    updateConnectionState('bad', err.message);
   });
 
-  client.on('close', () => {
-    store.setConnectionState('bad', 'Connection closed — reconnecting…');
+  thisClient.on('close', () => {
+    if (client !== thisClient) return; // stale client closing after we already moved on — ignore
+    updateConnectionState('bad', 'Connection closed — reconnecting…');
     scheduleReconnect();
   });
 
-  await client.connect();
-  store.setConnectionState('ok', `Connected — watching ${process.env.IMAP_MAILBOX || 'INBOX'} in real time.`);
+  await thisClient.connect();
+  updateConnectionState('ok', `Connected — watching ${process.env.IMAP_MAILBOX || 'INBOX'} in real time.`);
   reconnectDelay = 5000;
 
-  await initialSync(client);
-  await watchMailbox(client);
-  await client.idle();
+  await initialSync(thisClient);
+  await watchMailbox(thisClient);
+  await thisClient.idle();
 }
 
 function scheduleReconnect() {
-  setTimeout(() => {
+  if (reconnectTimer) return; // a reconnect is already scheduled — never stack more than one
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null;
     reconnectDelay = Math.min(reconnectDelay * 1.5, MAX_RECONNECT_DELAY);
     startImapWatcher(io).catch(() => {});
   }, reconnectDelay);
 }
 
 async function startImapWatcher(ioInstance) {
+  if (connecting) return; // a connect attempt is already in flight — never overlap
+  connecting = true;
   io = ioInstance;
-  store.setConnectionState('pending', 'Connecting to IMAP…');
+  updateConnectionState('pending', 'Connecting to IMAP…');
   try {
     await connectOnce();
   } catch (err) {
     console.error('[imap] failed to connect', err.message);
-    store.setConnectionState('bad', err.message);
+    updateConnectionState('bad', err.message);
     scheduleReconnect();
+  } finally {
+    connecting = false;
   }
 }
 
