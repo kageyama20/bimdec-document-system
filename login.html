@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign in — BIMDEC Document System</title>
-<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="stylesheet" href="assets/css/portal.css">
 </head>
 <body>
@@ -42,14 +42,15 @@
         </form>
 
         <div class="authfoot">
-          Invite code check is switched off for now. <a href="signup.html">Create an account</a><br>
-          <a href="index.html">&larr; Back to welcome</a><br>
-          Can't sign in? <a href="#" onclick="return doReset()">Reset demo data &amp; try again</a>
+          Have an invite code? <a href="signup.html">Create an account</a><br>
+          <a href="index.html">&larr; Back to welcome</a>
         </div>
       </div>
     </div>
   </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
 <script src="assets/js/db.js"></script>
 <script>
 let currentRole = 'client';
@@ -74,24 +75,20 @@ function hideMsg(){
   el.className = 'msg';
 }
 
-function handleLogin(evt){
+async function handleLogin(evt){
   evt.preventDefault();
   hideMsg();
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
-  const result = DB.login(email, password, currentRole);
+  const submitBtn = evt.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  const result = await DB.login(email, password, currentRole);
+  submitBtn.disabled = false;
   if(!result.ok){
     showMsg(result.error, 'error');
     return false;
   }
   window.location.href = currentRole === 'admin' ? 'admin/dashboard.html' : 'client/dashboard.html';
-  return false;
-}
-
-function doReset(){
-  if(!confirm('This clears this browser\'s local demo data (accounts + invites created here) and restores the original bootstrap admin login. Continue?')) return false;
-  DB.resetToBootstrap();
-  showMsg('Demo data reset. Sign in with admin@bimphilippines.org / BIMDEC-Admin-2026.', 'ok');
   return false;
 }
 

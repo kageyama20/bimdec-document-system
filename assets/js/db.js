@@ -1,204 +1,182 @@
 /*
- * BIMDEC Document System — local "database" layer
+ * BIMDEC Document System — Supabase-backed data layer
  * ---------------------------------------------------------------
- * This is a static, front-end-only prototype. There is no server, so
- * there is no real database — this file simulates one using the
- * browser's localStorage, under the key BIMDEC_DB.
+ * Replaces the old localStorage-only prototype. Accounts now live in
+ * Supabase Auth, invites and profiles live in real Postgres tables
+ * (see /database/supabase-schema.sql) — so both work identically
+ * across every browser/device instead of being trapped in whichever
+ * single browser happened to create them.
  *
- * The shape of the data mirrors /database/users.schema.json and
- * /database/invites.schema.json in the project root, so this file
- * can be swapped for real API calls later without changing the
- * shape of the records the rest of the app works with.
+ * Requires, loaded BEFORE this file on every page that uses DB:
+ *   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+ *   <script src=".../assets/js/supabase-config.js"></script>
+ *     (sets window.SUPABASE_CONFIG = { url, anonKey })
  *
- * IMPORTANT — this is NOT secure and is NOT production-ready:
- *   - Passwords are only lightly obscured (see hashPassword below),
- *     not cryptographically hashed with a salt.
- *   - All "database" contents live in the visitor's own browser and
- *     are trivially readable/editable via devtools.
- *   - There is no server session, so nothing here should be trusted
- *     to actually restrict access to real documents or data.
- * Before going live, replace this file with real API calls to a
- * server that owns the user table, hashes passwords (e.g. bcrypt/
- * argon2), issues invitations, and checks permissions server-side.
+ * Every DB method that touches the network is now async — callers
+ * must `await` it. See each admin/*.html and client/dashboard.html
+ * for the calling convention.
  * ---------------------------------------------------------------
  */
 
-const BIMDEC_DB_KEY = 'BIMDEC_DB';
-const BIMDEC_SESSION_KEY = 'BIMDEC_SESSION';
+const sb = window.supabase.createClient(window.SUPABASE_CONFIG.url, window.SUPABASE_CONFIG.anonKey);
 
-/* One bootstrap admin account so *someone* can log in and start
-   issuing invitations. Change this password after first login —
-   there is no "forgot password" flow in this prototype. */
-const BOOTSTRAP_ADMIN = {
-  id: 'u_admin_bootstrap',
-  role: 'admin',
-  fullName: 'BIMDEC Administrator',
-  email: 'admin@bimphilippines.org',
-  password: 'BIMDEC-Admin-2026',
-  position: 'System Administrator',
-  phone: '',
-  createdAt: '2026-01-01T00:00:00.000Z',
-  mustChangePassword: true
-};
-
-function seedDB(){
+function profileToUser(p) {
+  if (!p) return null;
   return {
-    users: [ BOOTSTRAP_ADMIN ],
-    invites: [
-      {
-        code: 'ADMIN-BOOTSTRAP-0001',
-        role: 'admin',
-        note: 'Example admin invite — revoke or use this, then generate fresh codes from the Admin Portal.',
-        createdAt: '2026-01-01T00:00:00.000Z',
-        usedBy: null,
-        usedAt: null
-      }
-    ]
+    id: p.id,
+    role: p.role,
+    fullName: p.full_name,
+    email: p.email,
+    position: p.position || '',
+    company: p.company || '',
+    phone: p.phone || '',
+    createdAt: p.created_at,
+    invitedBy: p.invited_by || ''
   };
 }
 
-function loadDB(){
-  try{
-    const raw = localStorage.getItem(BIMDEC_DB_KEY);
-    if(!raw) throw new Error('no db yet');
-    const db = JSON.parse(raw);
-    if(!db.users || !db.invites) throw new Error('malformed db');
-    return db;
-  }catch(e){
-    const fresh = seedDB();
-    localStorage.setItem(BIMDEC_DB_KEY, JSON.stringify(fresh));
-    return fresh;
-  }
+function inviteRowToInvite(i) {
+  return {
+    code: i.code,
+    role: i.role,
+    note: i.note || '',
+    createdAt: i.created_at,
+    usedBy: i.used_by || null,
+    usedAt: i.used_at || null
+  };
 }
 
-function saveDB(db){
-  localStorage.setItem(BIMDEC_DB_KEY, JSON.stringify(db));
-}
-
-/* Very light obfuscation only — NOT real password hashing.
-   See file header. Kept deterministic so login can re-derive it. */
-function hashPassword(plain){
-  let h = 0;
-  const s = 'bimdec::' + plain;
-  for(let i=0;i<s.length;i++){ h = ((h<<5)-h) + s.charCodeAt(i); h |= 0; }
-  return 'h' + Math.abs(h).toString(36) + '_' + plain.length;
+async function fetchProfile(userId) {
+  const { data, error } = await sb.from('profiles').select('*').eq('id', userId).maybeSingle();
+  if (error) throw error;
+  return profileToUser(data);
 }
 
 const DB = {
-  init(){ loadDB(); },
-
-  findUserByEmail(email){
-    const db = loadDB();
-    const e = String(email||'').trim().toLowerCase();
-    return db.users.find(u => u.email.toLowerCase() === e) || null;
-  },
-
-  login(email, password, expectedRole){
-    const user = this.findUserByEmail(email);
-    if(!user) return { ok:false, error:'No account found for that email.' };
-    if(hashPassword(password) !== hashPassword(user.password)){
-      return { ok:false, error:'Incorrect password.' };
+  async login(email, password, expectedRole) {
+    const { data, error } = await sb.auth.signInWithPassword({ email: String(email || '').trim(), password });
+    if (error) {
+      return { ok: false, error: error.message === 'Invalid login credentials' ? 'Incorrect email or password.' : error.message };
     }
-    if(expectedRole && user.role !== expectedRole){
-      return { ok:false, error:`This account is registered as ${user.role === 'admin' ? 'an Admin' : 'a Client'}. Use the ${user.role === 'admin' ? 'Admin' : 'Client'} tab to sign in.` };
+    let profile;
+    try {
+      profile = await fetchProfile(data.user.id);
+    } catch (e) {
+      profile = null;
     }
-    const session = { userId:user.id, role:user.role, fullName:user.fullName, email:user.email, loginAt:new Date().toISOString() };
-    sessionStorage.setItem(BIMDEC_SESSION_KEY, JSON.stringify(session));
-    return { ok:true, user, session };
+    if (!profile) {
+      await sb.auth.signOut();
+      return { ok: false, error: 'No profile found for this account. Contact an administrator.' };
+    }
+    if (expectedRole && profile.role !== expectedRole) {
+      await sb.auth.signOut();
+      return { ok: false, error: `This account is registered as ${profile.role === 'admin' ? 'an Admin' : 'a Client'}. Use the ${profile.role === 'admin' ? 'Admin' : 'Client'} tab to sign in.` };
+    }
+    return { ok: true, user: profile, session: profile };
   },
 
-  logout(){
-    sessionStorage.removeItem(BIMDEC_SESSION_KEY);
+  async logout() {
+    await sb.auth.signOut();
   },
 
-  getSession(){
-    try{ return JSON.parse(sessionStorage.getItem(BIMDEC_SESSION_KEY) || 'null'); }
-    catch(e){ return null; }
+  /* Returns the logged-in user's profile (role, fullName, email, ...),
+     or null if nobody is signed in. */
+  async getSession() {
+    const { data } = await sb.auth.getSession();
+    if (!data || !data.session) return null;
+    try {
+      return await fetchProfile(data.session.user.id);
+    } catch (e) {
+      return null;
+    }
   },
 
   /* Guard for portal pages: redirect to login if not authenticated,
-     or if authenticated with the wrong role for this page. */
-  requireSession(role){
-    const s = this.getSession();
-    if(!s || (role && s.role !== role)){
-      window.location.href = '../login.html';
+     or if authenticated with the wrong role for this page.
+     Await this before rendering anything that needs the session. */
+  async requireSession(role) {
+    const s = await this.getSession();
+    if (!s || (role && s.role !== role)) {
+      const inSubfolder = /\/(admin|client)\//.test(window.location.pathname);
+      window.location.href = inSubfolder ? '../login.html' : 'login.html';
       return null;
     }
     return s;
   },
 
-  validateInvite(code){
-    const db = loadDB();
-    const c = String(code||'').trim().toUpperCase();
-    const invite = db.invites.find(i => i.code.toUpperCase() === c);
-    if(!invite) return { ok:false, error:'Invite code not recognized.' };
-    if(invite.usedBy) return { ok:false, error:'This invite code has already been used.' };
-    return { ok:true, invite };
+  async findUserByEmail(email) {
+    const e = String(email || '').trim().toLowerCase();
+    const { data, error } = await sb.from('profiles').select('*').ilike('email', e).maybeSingle();
+    if (error) return null;
+    return profileToUser(data);
   },
 
-  /* invite is optional right now — signup.html has invite-gating temporarily
-     disabled, so callers pass `role` directly instead. Still honors a real
-     invite object if one is passed in, so this stays compatible once
-     invite-gating is turned back on. */
-  createUser({ invite, role, fullName, email, password, orgOrPosition, phone }){
-    const db = loadDB();
-    const e = String(email||'').trim().toLowerCase();
-    if(db.users.some(u => u.email.toLowerCase() === e)){
-      return { ok:false, error:'An account with that email already exists.' };
-    }
+  async validateInvite(code) {
+    const c = String(code || '').trim().toUpperCase();
+    const { data, error } = await sb.rpc('validate_invite', { p_code: c });
+    if (error) return { ok: false, error: error.message };
+    const row = Array.isArray(data) ? data[0] : data;
+    if (!row) return { ok: false, error: 'Invite code not recognized.' };
+    if (row.used_by) return { ok: false, error: 'This invite code has already been used.' };
+    return { ok: true, invite: { code: row.code, role: row.role, note: row.note || '' } };
+  },
+
+  /* invite is the verified { code, role, note } object from validateInvite. */
+  async createUser({ invite, role, fullName, email, password, orgOrPosition, phone }) {
+    const e = String(email || '').trim().toLowerCase();
     const finalRole = invite ? invite.role : role;
-    const user = {
-      id: 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+
+    const { data, error } = await sb.auth.signUp({ email: e, password });
+    if (error) return { ok: false, error: error.message };
+    const userId = data.user && data.user.id;
+    if (!userId) return { ok: false, error: 'Account created, but could not confirm the new user. Try signing in.' };
+
+    const { error: profileErr } = await sb.from('profiles').insert({
+      id: userId,
       role: finalRole,
-      fullName: String(fullName||'').trim(),
+      full_name: String(fullName || '').trim(),
       email: e,
-      password: password, // prototype only — see file header
-      position: finalRole === 'admin' ? (orgOrPosition||'') : '',
-      company: finalRole === 'client' ? (orgOrPosition||'') : '',
-      phone: phone||'',
-      createdAt: new Date().toISOString(),
-      mustChangePassword: false,
-      invitedBy: invite ? invite.code : '(no invite — invite-gating disabled)'
-    };
-    db.users.push(user);
-    if(invite){
-      const inv = db.invites.find(i => i.code === invite.code);
-      if(inv){ inv.usedBy = e; inv.usedAt = new Date().toISOString(); }
+      position: finalRole === 'admin' ? (orgOrPosition || '') : '',
+      company: finalRole === 'client' ? (orgOrPosition || '') : '',
+      phone: phone || '',
+      invited_by: invite ? invite.code : ''
+    });
+    if (profileErr) return { ok: false, error: profileErr.message };
+
+    if (invite) {
+      await sb.rpc('redeem_invite', { p_code: invite.code, p_email: e });
     }
-    saveDB(db);
-    return { ok:true, user };
+
+    return { ok: true, user: { role: finalRole, fullName, email: e } };
   },
 
-  /* Troubleshooting helper: wipes the simulated DB + session for this
-     browser/domain and reseeds from BOOTSTRAP_ADMIN. Useful if a login
-     is stuck because this browser's localStorage has stale/edited data
-     that no longer matches the seed (e.g. the bootstrap admin was
-     edited or removed via the Admin Portal). */
-  resetToBootstrap(){
-    localStorage.removeItem(BIMDEC_DB_KEY);
-    sessionStorage.removeItem(BIMDEC_SESSION_KEY);
-    loadDB();
+  /* --- Admin-only helpers (RLS restricts these to admin accounts) --- */
+
+  async listUsers() {
+    const { data, error } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
+    if (error) return [];
+    return data.map(profileToUser);
   },
 
-  /* --- Admin-only helpers --- */
-  listUsers(){ return loadDB().users; },
-  listInvites(){ return loadDB().invites; },
+  async listInvites() {
+    const { data, error } = await sb.from('invites').select('*').order('created_at', { ascending: false });
+    if (error) return [];
+    return data.map(inviteRowToInvite);
+  },
 
-  createInvite(role, note){
-    const db = loadDB();
+  async createInvite(role, note) {
     const code = (role === 'admin' ? 'ADMIN-' : 'CLIENT-') +
-      Math.random().toString(36).slice(2,6).toUpperCase() + '-' +
-      Math.random().toString(36).slice(2,6).toUpperCase();
-    db.invites.unshift({ code, role, note: note||'', createdAt: new Date().toISOString(), usedBy:null, usedAt:null });
-    saveDB(db);
+      Math.random().toString(36).slice(2, 6).toUpperCase() + '-' +
+      Math.random().toString(36).slice(2, 6).toUpperCase();
+    const { data: sessionData } = await sb.auth.getSession();
+    const createdBy = sessionData && sessionData.session ? sessionData.session.user.id : null;
+    const { error } = await sb.from('invites').insert({ code, role, note: note || '', created_by: createdBy });
+    if (error) throw error;
     return code;
   },
 
-  revokeInvite(code){
-    const db = loadDB();
-    db.invites = db.invites.filter(i => i.code !== code);
-    saveDB(db);
+  async revokeInvite(code) {
+    const { error } = await sb.from('invites').delete().eq('code', code);
+    if (error) throw error;
   }
 };
-
-DB.init();
