@@ -81,7 +81,9 @@ function openClient() {
   // this connection. This was previously only attached for idle-mode
   // clients, which is why a single IMAP timeout was taking the whole
   // backend down (and every /api route with it) until Render restarted it.
+  client._connectionLost = false;
   client.on('error', (err) => {
+    client._connectionLost = true;
     console.error('[imap] client error', err && err.message);
   });
 
@@ -103,11 +105,12 @@ async function doPollFetch({ announceNew }) {
     if (lastKnownExists === null) {
       // First ever check: seed the cache with the most recent N messages
       // without treating all of them as "new" pushes.
-      const initialFetch = Number(process.env.IMAP_INITIAL_FETCH || 30);
+      const initialFetch = Number(process.env.IMAP_INITIAL_FETCH || 10);
       const start = Math.max(1, total - initialFetch + 1);
       if (total > 0) {
         const range = `${start}:${total}`;
         for await (const msg of client.fetch(range, { uid: true })) {
+          if (client._connectionLost) { console.error('[imap] aborting initial fetch — connection lost'); break; }
           try { await fetchAndStore(client, msg.uid, { announce: false }); }
           catch (err) { console.error('[imap] parse failed during initial fetch', err.message); }
         }
@@ -115,6 +118,7 @@ async function doPollFetch({ announceNew }) {
     } else if (total > lastKnownExists) {
       const range = `${lastKnownExists + 1}:${total}`;
       for await (const msg of client.fetch(range, { uid: true })) {
+        if (client._connectionLost) { console.error('[imap] aborting poll fetch — connection lost'); break; }
         try { await fetchAndStore(client, msg.uid, { announce: announceNew }); }
         catch (err) { console.error('[imap] parse failed during poll', err.message); }
       }
