@@ -1,0 +1,2085 @@
+<!DOCTYPE html>
+<!-- saved from url=(0044)file:///C:/Users/Joemel/Downloads/index.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIMDEC — Document System</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="./index_files/css2" rel="stylesheet">
+<style>
+:root{
+  --blue-deep:#0F3D8C;
+  --blue-mid:#1B54B8;
+  --blue-bright:#2E78E6;
+  --ink:#151A21;
+  --paper:#FFFFFF;
+  --canvas:#EEF1F6;
+  --line:#C7CFDC;
+  --line-soft:#DFE4EC;
+  --muted:#5B6472;
+  --amber:#D98A2B;
+  --ok:#1E7A46;
+  --danger:#B3261E;
+  --grid: rgba(27,84,184,0.08);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--canvas);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:28px 28px;
+  color:var(--ink);
+  font-family:'IBM Plex Sans', Arial, sans-serif;
+  min-height:100vh;
+}
+::selection{background:var(--blue-bright); color:#fff;}
+
+/* ---------- Top App Bar ---------- */
+.appbar{
+  position:sticky; top:0; z-index:50;
+  background:var(--blue-deep);
+  background-image: linear-gradient(180deg, var(--blue-deep), #0B2F6E);
+  color:#fff;
+  border-bottom:3px solid var(--amber);
+  box-shadow:0 4px 18px rgba(15,61,140,0.25);
+}
+.appbar-inner{
+  max-width:1680px; margin:0 auto;
+  display:flex; align-items:center; gap:18px;
+  padding:12px 24px;
+}
+.appbar .brandmark{
+  background:#fff; color:var(--blue-deep); font-family:'IBM Plex Serif',serif; font-weight:700;
+  font-size:20px; letter-spacing:.5px; border-radius:6px; padding:6px 14px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
+.appbar .brandtext{ line-height:1.15; }
+.appbar .brandtext .name{ font-weight:700; font-size:16px; letter-spacing:.3px; }
+.appbar .brandtext .tag{
+  font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:1.6px;
+  text-transform:uppercase; color:#B9CCF2;
+}
+.appbar .spacer{flex:1;}
+.appbar .docid{
+  font-family:'IBM Plex Mono', monospace; font-size:11px; color:#BFD3F7;
+  text-align:right; letter-spacing:.4px;
+}
+.appbar .docid b{color:#fff; font-weight:600;}
+.autosave-box{
+  display:flex; align-items:center; gap:10px; margin-left:18px; padding-left:18px;
+  border-left:1px solid rgba(255,255,255,0.25);
+  font-family:'IBM Plex Mono', monospace; font-size:10px; color:#B9CCF2; letter-spacing:.3px;
+  white-space:nowrap;
+}
+.autosave-box::before{
+  content:""; width:6px; height:6px; border-radius:50%; background:#5FD98A; display:inline-block;
+  box-shadow:0 0 0 3px rgba(95,217,138,0.2);
+}
+.clear-draft-btn{
+  font-family:'IBM Plex Mono', monospace; font-size:9.5px; letter-spacing:.3px; text-transform:uppercase;
+  background:transparent; color:#B9CCF2; border:1px solid rgba(255,255,255,0.35); border-radius:5px;
+  padding:3px 8px; cursor:pointer;
+}
+.clear-draft-btn:hover{ background:rgba(255,255,255,0.1); color:#fff; }
+
+/* ---------- Tabs (left sidebar) ---------- */
+.appshell{
+  max-width:1680px; margin:0 auto; padding:0 24px;
+  display:flex; align-items:flex-start; gap:18px;
+}
+.tabbar{
+  display:flex; flex-direction:column; gap:6px;
+  width:216px; flex-shrink:0;
+  margin-top:16px; padding-bottom:60px;
+  position:sticky; top:88px;
+}
+.tabbtn{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:12.5px; letter-spacing:.5px; text-transform:uppercase;
+  background:#E4E9F2; color:var(--muted);
+  border:1px solid var(--line);
+  padding:13px 16px; border-radius:8px;
+  cursor:pointer; position:relative;
+  text-align:left; display:flex; align-items:center;
+  transition:all .15s ease;
+}
+.tabbtn .num{color:var(--blue-bright); margin-right:8px; font-weight:600;}
+.tabbtn:hover{background:#DCE4F0; color:var(--ink);}
+.tabbtn.active{
+  background:var(--paper); color:var(--blue-deep); font-weight:600;
+  border-color:var(--blue-bright); border-left:3px solid var(--blue-deep); padding-left:14px;
+  box-shadow:0 4px 14px rgba(15,61,140,0.10);
+}
+
+.page{ flex:1; min-width:0; padding:16px 0 60px; }
+.panel{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:10px;
+  box-shadow:0 12px 30px rgba(20,30,60,0.06);
+  overflow:hidden;
+}
+.workspace{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  min-height:640px;
+}
+@media (max-width: 1200px){
+  .workspace{grid-template-columns:1fr;}
+  .editor{ max-height:none; overflow:visible; border-right:none; border-bottom:1px dashed var(--line); }
+  .preview-wrap{ max-height:none; overflow:visible; }
+  .zoom-bar{ top:66px; }
+}
+@media (max-width: 900px){
+  .appbar-inner{ flex-wrap:wrap; padding:10px 16px; row-gap:6px; }
+  .appbar .docid{ order:3; text-align:left; }
+  .autosave-box{ order:4; margin-left:0; padding-left:0; border-left:none; width:100%; justify-content:space-between; }
+  .appshell{ flex-direction:column; padding:0 16px; }
+  .tabbar{
+    flex-direction:row; width:100%; position:static;
+    overflow-x:auto; margin-top:12px; padding-bottom:0;
+  }
+  .tabbtn{ flex-shrink:0; }
+  .tabbtn.active{ border-left:1px solid var(--blue-bright); border-bottom:3px solid var(--blue-deep); padding-left:16px; }
+  .page{ padding:12px 0 40px; }
+  .zoom-bar{ top:104px; }
+}
+
+/* ---------- Form (editor) column ---------- */
+.editor{
+  background:#F7F9FC;
+  border-right:1px dashed var(--line);
+  padding:22px 20px 40px;
+  overflow-y:auto;
+  max-height:calc(100vh - 40px);
+}
+.editor h3{
+  font-size:11px; letter-spacing:1.6px; text-transform:uppercase;
+  font-family:'IBM Plex Mono', monospace; color:var(--blue-mid);
+  margin:26px 0 10px; padding-bottom:6px; border-bottom:1px solid var(--line-soft);
+  display:flex; align-items:center; gap:8px;
+}
+.editor h3:first-of-type{margin-top:0;}
+.editor h3::before{
+  content:""; width:7px; height:7px; background:var(--amber); display:inline-block;
+  transform:rotate(45deg);
+}
+.h3row{
+  display:flex; align-items:center; justify-content:space-between;
+  margin:26px 0 10px; padding-bottom:6px; border-bottom:1px solid var(--line-soft);
+}
+.h3row h3{ margin:0; padding-bottom:0; border-bottom:none; flex:1; }
+.h3row:first-of-type h3{margin-top:0;}
+.lock-btn{
+  display:flex; align-items:center; gap:5px; flex-shrink:0;
+  font-family:'IBM Plex Mono', monospace; font-size:9.5px; letter-spacing:.3px; text-transform:uppercase;
+  background:#EAF1FD; color:var(--blue-mid); border:1px solid var(--line); border-radius:12px;
+  padding:4px 9px 4px 7px; cursor:pointer;
+}
+.lock-btn svg{width:11px;height:11px;}
+.lock-btn.locked{ background:#FCEFE0; color:var(--amber); border-color:#EAD1A8; }
+.field.locked input, .field.locked textarea, .field.locked select{
+  background:#F0F2F6; color:var(--muted); cursor:not-allowed;
+}
+.datetick-row{
+  display:flex; align-items:center; gap:12px; margin:-2px 0 12px; flex-wrap:wrap;
+}
+.datetick-row label.tickopt{
+  display:flex; align-items:center; gap:4px; font-size:10.5px; color:var(--muted);
+  font-weight:500; letter-spacing:.2px; cursor:pointer;
+}
+.datetick-row input[type=checkbox]{ width:13px; height:13px; margin:0; cursor:pointer; accent-color:var(--blue-bright); }
+.field{margin-bottom:12px;}
+.field label{
+  display:block; font-size:11px; font-weight:600; color:var(--muted);
+  margin-bottom:4px; letter-spacing:.2px;
+}
+.field input, .field textarea, .field select{
+  width:100%; font-family:'IBM Plex Sans', sans-serif; font-size:13px;
+  padding:8px 10px; border:1px solid var(--line); border-radius:6px;
+  background:#fff; color:var(--ink); resize:vertical;
+}
+.field textarea{min-height:64px; line-height:1.5;}
+.field input:focus, .field textarea:focus, .field select:focus{
+  outline:none; border-color:var(--blue-bright); box-shadow:0 0 0 3px rgba(46,120,230,0.14);
+}
+.row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;}
+.hint{font-size:10.5px; color:var(--muted); margin-top:3px; line-height:1.4;}
+
+/* line item editor rows */
+
+/* Added: fee line item drag ordering */
+.item-editor{position:relative;transition:opacity .15s ease,border-color .15s ease,box-shadow .15s ease;cursor:grab;user-select:none;}
+.item-editor:active{cursor:grabbing;}
+.item-editor input,.item-editor select,.item-editor textarea,.item-editor button{user-select:text;}
+.item-editor .drag-hint{font-size:10px;color:var(--muted);margin:-3px 0 6px 34px;}
+.item-editor.dragging{opacity:.5;border-color:var(--blue-bright);box-shadow:0 6px 18px rgba(0,0,0,.10);}
+.item-editor.drop-target{border-color:var(--blue-bright);box-shadow:0 0 0 3px rgba(46,120,230,.10);}
+.item-editor .drag-handle{
+  position:absolute;left:6px;top:7px;width:24px;height:28px;
+  border:1px solid var(--line);border-radius:6px;background:#F7F9FC;
+  color:var(--muted);cursor:grab;display:flex;align-items:center;justify-content:center;
+  font-size:15px;line-height:1;padding:0;z-index:2;
+}
+.item-editor .drag-handle:active{cursor:grabbing;}
+.item-editor .desc textarea{padding-left:36px;}
+
+.item-editor{
+  border:1px solid var(--line-soft); border-radius:8px; padding:10px; margin-bottom:8px;
+  background:#fff; position:relative;
+}
+.item-editor .grid5{
+  display:grid; grid-template-columns: 0.7fr 0.9fr 1fr; gap:6px;
+}
+.item-editor input, .item-editor select{font-size:12px; padding:6px 8px;}
+.item-editor .desc{grid-column:1/-1; margin-bottom:6px;}
+.item-editor .desc textarea{
+  font-size:12.5px; line-height:1.4; padding:6px 8px; width:100%;
+  height:34px; min-height:34px; max-height:220px;
+  resize:vertical; overflow-y:auto; white-space:normal;
+  font-family:'IBM Plex Sans', sans-serif; border:1px solid var(--line); border-radius:6px; color:var(--ink);
+}
+.item-editor .desc textarea:focus{ outline:none; border-color:var(--blue-bright); box-shadow:0 0 0 3px rgba(46,120,230,0.14); }
+.rm-btn{
+  position:absolute; top:6px; right:6px; width:20px; height:20px; border-radius:50%;
+  background:#F4E4E0; color:#B23B2E; border:none; cursor:pointer; font-size:12px; line-height:1;
+}
+.rm-btn:hover{background:#E9C7C0;}
+.add-item-btn{
+  width:100%; padding:9px; border:1.5px dashed var(--blue-bright); border-radius:8px;
+  background:#EAF1FD; color:var(--blue-mid); font-weight:600; font-size:12.5px;
+  cursor:pointer; margin-top:2px;
+}
+.add-item-btn:hover{background:#DDEAFC;}
+
+/* buttons */
+.actions{
+  display:flex; gap:10px; margin-top:26px; padding-top:18px; border-top:1px solid var(--line-soft);
+  flex-wrap:wrap;
+}
+.btn{
+  flex:1; min-width:140px; padding:12px 14px; border-radius:8px; border:none;
+  font-family:'IBM Plex Sans',sans-serif; font-weight:600; font-size:13px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px; transition:transform .1s ease, box-shadow .15s ease;
+}
+.btn:active{transform:translateY(1px);}
+.btn-print{ background:var(--blue-deep); color:#fff; box-shadow:0 6px 14px rgba(15,61,140,0.28); }
+.btn-print:hover{ background:var(--blue-mid); }
+.btn svg{width:16px;height:16px;}
+
+/* ---------- Preview column ---------- */
+.preview-wrap{
+  background:#fff; padding:0; overflow:auto; max-height:calc(100vh - 40px);
+  display:flex; justify-content:flex-start;
+}
+.preview-inner{ display:flex; flex-direction:column; align-items:flex-start; width:100%; }
+.sheet{
+  width:100%; min-height:1123px; background:#fff; box-shadow:none;
+  padding:46px 50px 40px; position:relative; font-size:12.5px; line-height:1.5; color:var(--ink);
+  border:none;
+}
+@media screen{
+  .sheet{ display:flex; flex-direction:column; }
+}
+.sheet-upper{ display:block; }
+.sheet-lower{ padding-top:10px; }
+/* Requested document spacing */
+.sheet-upper > .sec-title.terms-heading{ margin-top:6mm; }
+.signblock{ margin-top:12mm !important; }
+.screen-frame{
+  position:absolute; inset:14px; border:1px solid var(--line-soft); pointer-events:none;
+}
+.sheet-head{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+  border-bottom:3px solid var(--blue-deep); padding-bottom:14px; margin-bottom:18px;
+}
+.sheet-brand{ display:flex; flex-direction:column; align-items:center; text-align:center; gap:4px; }
+.sheet-brand .brand-logo{ height:44px; width:auto; flex-shrink:0; display:block; }
+.sheet-brand .bname{ font-weight:700; font-size:16px; color:var(--blue-deep); letter-spacing:.2px; line-height:1.25; max-width:220px;}
+.sheet-brand .btag{ font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:1.4px; color:var(--muted); text-transform:uppercase;}
+.sheet-meta{ text-align:right; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--muted); line-height:1.6; white-space:pre-line; max-width:50%;  flex:0 1 auto; word-break:break-word;}
+.doctitle{
+  font-family:'IBM Plex Mono',monospace; font-weight:600; letter-spacing:2px; font-size:12px;
+  color:#fff; background:var(--blue-deep); display:inline-block; padding:4px 12px; margin-bottom:14px;
+}
+.docsub{font-size:10px; color:var(--muted); font-family:'IBM Plex Mono',monospace; letter-spacing:.4px; margin:-8px 0 16px;}
+
+.kv-grid{ display:grid; grid-template-columns:1fr 1fr; gap:4px 24px; margin-bottom:16px;}
+.kv{ display:flex; justify-content:space-between; border-bottom:1px dotted var(--line); padding:3px 0; font-size:11.5px;}
+.kv .k{color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:.4px;}
+.kv .v{font-weight:600; text-align:right;}
+
+.sec-title{
+  font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:1.2px; text-transform:uppercase;
+  color:var(--blue-mid); margin:18px 0 6px; padding-bottom:3px; border-bottom:1px solid var(--line-soft);
+}
+.scope-list{ margin:0 0 4px; padding-left:18px;}
+.scope-list li{margin-bottom:3px;}
+
+table.doc-table{ width:100%; border-collapse:collapse; margin-top:6px; font-size:11.5px;}
+table.doc-table th{
+  background:var(--blue-deep); color:#fff; font-family:'IBM Plex Mono',monospace;
+  font-weight:500; font-size:9.5px; text-transform:uppercase; letter-spacing:.5px;
+  padding:7px 8px; text-align:left;
+}
+table.doc-table td{ padding:7px 8px; border-bottom:1px solid var(--line-soft); vertical-align:top;}
+table.doc-table tr:nth-child(even) td{ background:#F7F9FC; }
+table.doc-table td.num, table.doc-table th.num{ text-align:right; font-family:'IBM Plex Mono',monospace; white-space:nowrap;}
+
+.totals{ margin-top:6px; width:320px; margin-left:auto; }
+.totals .trow{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:5px 0; font-size:12px; border-bottom:1px dotted var(--line);}
+.totals .trow.grand{ border-top:2px solid var(--blue-deep); border-bottom:none; margin-top:4px; padding-top:9px;
+  font-weight:700; font-size:14px; color:var(--blue-deep);}
+.totals .trow .k{color:var(--muted);}
+.totals .trow > span:last-child{ white-space:nowrap; flex-shrink:0; }
+.nonvat-badge{
+  display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1px;
+  color:var(--ok); border:1px solid var(--ok); border-radius:3px; padding:2px 6px; margin-left:8px; vertical-align:middle;
+}
+
+.terms{ font-size:10.3px; color:#333; line-height:1.55; white-space:pre-line; column-count:1;}
+.ack-line{ display:flex; justify-content:space-between; gap:14px; padding:3px 0; border-bottom:1px dotted var(--line-soft); font-size:10.3px; }
+.ack-line:last-child{ border-bottom:none; }
+.ack-line .num{ white-space:nowrap; font-family:'IBM Plex Mono', monospace; font-size:10px; color:#333; }
+.terms b{color:var(--ink);}
+
+.signblock{ display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-top:34px;}
+.sigline{ border-top:1px solid var(--ink); padding-top:5px; margin-top:58px; font-size:10.5px; position:relative;}
+.sigline .role{ color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:.5px;}
+.sig-img{
+  position:absolute; bottom:100%; left:0; margin-bottom:4px;
+  max-height:48px; max-width:190px; object-fit:contain;
+}
+
+/* signature upload widget (editor only) */
+.sig-upload{
+  display:flex; align-items:center; gap:10px; margin:6px 0 12px;
+  padding:8px 10px; border:1px dashed var(--line); border-radius:8px; background:#fff;
+}
+.sig-upload input[type=file]{
+  flex:1; font-size:11px; padding:0; border:none; background:none;
+}
+.sig-thumb-row{ display:flex; align-items:center; gap:8px; }
+.sig-thumb{
+  height:34px; max-width:100px; object-fit:contain; border:1px solid var(--line-soft); border-radius:4px; background:#F7F9FC; padding:2px;
+}
+.sig-remove-btn{
+  font-family:'IBM Plex Mono', monospace; font-size:9.5px; letter-spacing:.3px; text-transform:uppercase;
+  background:#F4E4E0; color:#B23B2E; border:none; border-radius:5px; padding:5px 8px; cursor:pointer; white-space:nowrap;
+}
+.sig-remove-btn:hover{ background:#E9C7C0; }
+
+.titleblock{
+  margin-top:28px; border:1.5px solid var(--blue-deep); border-radius:4px; overflow:hidden;
+  display:grid; grid-template-columns: 1.3fr 1fr 1fr 1fr;
+  font-family:'IBM Plex Mono',monospace; font-size:9.5px;
+}
+.titleblock .tb-cell{ padding:7px 9px; border-right:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft);}
+.titleblock .tb-cell:last-child{border-right:none;}
+.titleblock .tb-cell .tb-label{ display:block; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; font-size:8px; margin-bottom:2px;}
+.titleblock .tb-cell.wide{grid-column:1/-1; background:#F7F9FC; border-bottom:none;}
+
+.sheet-foot{
+  position:absolute; bottom:22px; left:50px; right:50px; display:flex; justify-content:space-between;
+  font-family:'IBM Plex Mono',monospace; font-size:8.5px; color:#9AA3B2; border-top:1px solid var(--line-soft); padding-top:6px;
+}
+
+/* ---------- Print ---------- */
+@media print{
+  @page{ size:A4 portrait; margin:8mm; }
+  html,body{ background:#fff !important; }
+  *{
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  .appbar, .tabbar, .editor, .actions, .no-print, .cloud-note{ display:none !important; }
+  .page{ padding:0; max-width:none; }
+  .panel{ border:none; box-shadow:none; border-radius:0; }
+  .workspace{ display:block; }
+  .preview-wrap{ padding:0; background:#fff; max-height:none; overflow:visible; display:block; }
+  .sheet{ box-shadow:none; width:auto; min-height:0; margin:0; padding:0; border:none; display:block; }
+  .sheet-lower{ margin-top:24px; break-inside: avoid; page-break-inside: avoid; }
+  .sheet.hidden-print{ display:none !important; }
+  /* The screen preview hides non-current pages, but printing must always print the complete document. */
+  .sheet [data-page-hidden="true"]{ display:block !important; }
+  /* sheet-foot was position:absolute for the single-page screen mock-up only.
+     In print, content can spill onto a second sheet, and an absolutely
+     positioned footer measures from the bottom of the WHOLE (multi-page)
+     element, so it lands mid-page and overlaps the title block instead of
+     sitting under it. Let it flow normally so it always prints directly
+     under whatever content precedes it. */
+  .sheet-foot{
+    position:static;
+    left:auto; right:auto; bottom:auto;
+    margin-top:16px;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .page-gap, .page-count-note{ display:none !important; }
+
+  /* keep related content together instead of splitting mid-block across pages */
+  .sheet-head, .kv-grid, .sec-title, table.doc-table, table.doc-table tr,
+  .totals, .titleblock, .signblock, .sigline, .item-editor{
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .sec-title{ break-after: avoid; page-break-after: avoid; }
+  table.doc-table thead{ display: table-header-group; }
+  .terms{ orphans:4; widows:4; }
+  body, .sheet{ orphans:4; widows:4; }
+}
+.hidden{display:none !important;}
+
+/* ---------- On-screen page-break preview ---------- */
+/* Purely visual (screen only): when a sheet's content is taller than one
+   A4 page, JS inserts one of these between the blocks that will actually
+   fall on different printed pages, so the preview shows the document as
+   separate stacked papers instead of one endless strip. */
+.page-gap{
+  margin:0 -50px; position:relative;
+  background:var(--canvas);
+  box-shadow:
+    inset 0 8px 12px -9px rgba(15,30,60,0.4),
+    inset 0 -8px 12px -9px rgba(15,30,60,0.4);
+}
+.page-gap::before{
+  content:"Page break — next printed page"; position:absolute; left:50%; top:50%;
+  transform:translate(-50%,-50%); white-space:nowrap;
+  font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:1.1px; text-transform:uppercase;
+  color:var(--muted); background:#fff; border:1px solid var(--line-soft);
+  padding:3px 10px; border-radius:20px; box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+.page-count-note{
+  width:794px; margin:0 0 10px; text-align:center;
+  font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.4px;
+  color:var(--muted);
+}
+.print-hint{
+  margin-top:10px; padding:9px 11px; border:1px dashed var(--line);
+  border-radius:8px; background:#F7F9FC; font-size:10.8px; line-height:1.5; color:var(--muted);
+}
+
+/* Added: subtle native calendar styling */
+input[type="date"]{
+  cursor:pointer;
+}
+input[type="date"]:focus{
+  outline:none;
+  border-color:var(--blue-bright);
+  box-shadow:0 0 0 3px rgba(46,120,230,.10);
+}
+input[type="date"]::-webkit-calendar-picker-indicator{
+  cursor:pointer;
+  opacity:.78;
+}
+
+.print-hint b{color:var(--ink);}
+
+/* ---------- Send-to-email box ---------- */
+.send-email-box{
+  border:1px dashed var(--line); border-radius:10px; padding:14px; margin-top:10px; background:#F7F9FC;
+}
+.send-email-box h4{ margin:0 0 10px; font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--blue-mid); }
+.send-email-row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.send-email-row input[type=email]{
+  flex:1; min-width:180px; padding:9px 10px; border:1px solid var(--line); border-radius:8px; font:inherit; color:var(--ink);
+}
+.send-email-row button{ white-space:nowrap; }
+.send-status{ font-size:12.5px; margin-top:8px; }
+.send-status.ok{ color:var(--ok); }
+.send-status.bad{ color:var(--danger); }
+.send-status.pending{ color:var(--muted); }
+
+/* ---------- Print paper selector ---------- */
+.print-paper-modal{
+  position:fixed; inset:0; z-index:10000; display:none; align-items:center; justify-content:center;
+  background:rgba(12,24,45,.48); backdrop-filter:blur(2px);
+}
+.print-paper-modal.open{ display:flex; }
+.print-paper-card{
+  width:min(440px, calc(100vw - 32px)); background:#fff; border:1px solid var(--line);
+  border-radius:14px; padding:20px; box-shadow:0 18px 60px rgba(0,0,0,.24);
+}
+.print-paper-card h3{ margin:0 0 6px; color:var(--blue-deep); }
+.print-paper-card p{ margin:0 0 14px; color:var(--muted); font-size:12px; line-height:1.45; }
+.print-paper-select{ width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:8px; font:inherit; }
+.print-paper-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:16px; }
+.print-paper-actions button{ padding:8px 14px; border-radius:7px; border:1px solid var(--line); cursor:pointer; }
+.print-paper-actions .primary{ background:var(--blue-deep); color:#fff; border-color:var(--blue-deep); }
+@media print{ .print-paper-modal{ display:none !important; } }
+
+/* ---------- Zoom controls (preview) ---------- */
+.zoom-bar{
+  position:sticky; top:0; z-index:5; align-self:center;
+  display:flex; align-items:center; gap:8px;
+  background:#fff; border:1px solid var(--line); border-radius:20px;
+  padding:6px 8px 6px 12px; margin-bottom:14px; box-shadow:0 4px 14px rgba(20,30,60,0.12);
+  font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted);
+}
+.zoom-btn{
+  width:24px; height:24px; border-radius:50%; border:1px solid var(--line);
+  background:#F7F9FC; color:var(--blue-deep); font-size:15px; font-weight:700;
+  cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; padding:0;
+}
+.zoom-btn:hover{ background:#EAF1FD; }
+.zoom-btn:disabled{ opacity:.4; cursor:not-allowed; }
+.zoom-level{ min-width:40px; text-align:center; font-weight:600; color:var(--ink); }
+.zoom-reset-btn{
+  font-family:'IBM Plex Mono', monospace; font-size:9.5px; letter-spacing:.3px; text-transform:uppercase;
+  background:transparent; color:var(--blue-mid); border:1px solid var(--line); border-radius:14px;
+  padding:4px 10px; cursor:pointer; margin-left:2px;
+}
+.zoom-reset-btn:hover{ background:#EAF1FD; }
+.zoom-hint{ font-size:9.5px; color:var(--muted); opacity:.7; margin-left:2px; white-space:nowrap; }
+/* ---------- Continuous preview navigation ---------- */
+.preview-page-nav{
+  display:inline-flex; align-items:center; gap:4px; margin-left:4px;
+  padding-left:8px; border-left:1px solid var(--line-soft);
+}
+.page-nav-btn{
+  height:24px; padding:0 8px; border:1px solid var(--line); border-radius:5px;
+  background:#F7F9FC; color:var(--blue-deep); font-family:'IBM Plex Mono',monospace;
+  font-size:9px; font-weight:600; cursor:pointer;
+}
+.page-nav-btn:hover{ background:#EAF1FD; }
+.page-nav-btn:disabled{ opacity:.4; cursor:not-allowed; }
+.page-nav-status{
+  min-width:42px; text-align:center; color:var(--ink); font-weight:600;
+}
+.sheet.page-viewing{
+  min-height:1123px;
+}
+/* Continuous preview: all content remains visible. */
+.sheet [data-page-hidden="true"]{ display:block !important; }
+.page-gap{ display:none !important; }
+@media (max-width:900px){
+  .zoom-bar{ flex-wrap:wrap; justify-content:center; }
+  .preview-page-nav{ border-left:none; padding-left:0; }
+}
+
+/* ---------- Phone-width refinements ---------- */
+@media (max-width:640px){
+  .appbar .brandtext .tag{ display:none; }
+  .appbar .docid{ font-size:10px; }
+
+  .editor{ padding:16px 14px 30px; }
+  .row2, .row3{ grid-template-columns:1fr; gap:10px; }
+  .h3row{ flex-wrap:wrap; row-gap:6px; }
+  .item-editor .grid5{ grid-template-columns:1fr 1fr; }
+  .item-editor .grid5 select{ grid-column:1/-1; }
+  .item-editor .desc textarea{ height:40px; min-height:40px; }
+  .actions{ flex-direction:column; }
+  .actions .btn{ width:100%; }
+  .sig-upload{ flex-wrap:wrap; }
+  .datetick-row{ row-gap:8px; }
+  .datetick-row input[type=checkbox]{ width:16px; height:16px; }
+
+  /* prevent iOS Safari auto-zoom-on-focus (triggers below 16px) */
+  .field input, .field textarea, .field select,
+  .item-editor input, .item-editor select, .item-editor .desc textarea{ font-size:16px; }
+
+  .sheet{ padding:28px 18px 24px; }
+  .kv-grid{ grid-template-columns:1fr; gap:5px; }
+  .signblock{ grid-template-columns:1fr; gap:26px; }
+  .zoom-hint{ display:none; }
+}
+@media print{ .sheet{ zoom:1 !important; } }
+</style>
+
+<style id="bimdec-files-tab">
+.files-tab{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  text-decoration:none;
+  cursor:pointer;
+}
+.files-tab:hover{
+  text-decoration:none;
+}
+</style>
+
+
+<style id="onedrive-files-tab-style">
+
+.tabbar .onedrive-files-tab:hover{
+  text-decoration:none;
+}
+</style>
+
+<style name="nordpass-fonts">@font-face{font-family:Inter;src:url("chrome-extension://eiaeiblijfjekdanodkjadfinkhbfgcd/assets/font-c9407645.woff2")format("woff2");font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+??,U+131,U+152-153,U+2BB-2BC,U+2C6,U+2DA,U+2DC,U+304,U+308,U+329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;src:url("chrome-extension://eiaeiblijfjekdanodkjadfinkhbfgcd/assets/font-a28eb6d3.woff2")format("woff2");font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+100-2BA,U+2BD-2C5,U+2C7-2CC,U+2CE-2D7,U+2DD-2FF,U+304,U+308,U+329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:Inter;src:url("chrome-extension://eiaeiblijfjekdanodkjadfinkhbfgcd/assets/font-7ddd9658.woff2")format("woff2");font-weight:400 700;font-style:italic;font-display:swap;unicode-range:U+??,U+131,U+152-153,U+2BB-2BC,U+2C6,U+2DA,U+2DC,U+304,U+308,U+329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Inter;src:url("chrome-extension://eiaeiblijfjekdanodkjadfinkhbfgcd/assets/font-e3f94a6c.woff2")format("woff2");font-weight:400 700;font-style:italic;font-display:swap;unicode-range:U+100-2BA,U+2BD-2C5,U+2C7-2CC,U+2CE-2D7,U+2DD-2FF,U+304,U+308,U+329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:Roboto Mono;src:url("chrome-extension://eiaeiblijfjekdanodkjadfinkhbfgcd/assets/font-2ed6ac9e.woff2")format("woff2");font-weight:500 700;font-style:normal;font-display:swap;unicode-range:U+??,U+131,U+152-153,U+2BB-2BC,U+2C6,U+2DA,U+2DC,U+304,U+308,U+329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Roboto Mono;src:url("chrome-extension://eiaeiblijfjekdanodkjadfinkhbfgcd/assets/font-2cb74c78.woff2")format("woff2");font-weight:500 700;font-style:normal;font-display:swap;unicode-range:U+100-2BA,U+2BD-2C5,U+2C7-2CC,U+2CE-2D7,U+2DD-2FF,U+304,U+308,U+329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}</style></head>
+<body>
+<div class="appbar">
+  <div class="appbar-inner">
+    <div class="brandmark">B</div>
+    <div class="brandtext">
+      <div class="name">BIM Design &amp; Engineering Consultants</div>
+      <div class="tag">Document System</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="docid">Active tab: <b id="activeTabLabel">Acknowledgement Receipt</b><br>Non‑VAT registered issuer</div>
+    <div class="autosave-box no-print">
+      <span id="autosaveStamp">Draft autosaved 04:28 PM</span>
+      <button type="button" class="clear-draft-btn" onclick="clearSavedDraft()">Clear draft</button>
+    </div>
+    <div class="autosave-box no-print" id="portalNav">
+      <a href="dashboard.html" style="color:#B9CCF2; text-decoration:none; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.3px; text-transform:uppercase;">&larr; Dashboard</a>
+      <a href="users.html" style="color:#B9CCF2; text-decoration:none; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.3px; text-transform:uppercase; margin-left:10px;">Users</a>
+      <a href="email.html" style="color:#B9CCF2; text-decoration:none; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.3px; text-transform:uppercase; margin-left:10px;">Email</a>
+      <span id="portalWho"></span>
+      <button type="button" class="clear-draft-btn" onclick="portalLogout()">Log out</button>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/supabase-config.js"></script>
+<script src="../assets/js/db.js"></script>
+<script src="../assets/js/emailClient.js"></script>
+<script>
+  var __session = null;
+  function portalLogout(){ DB.logout().then(function(){ window.location.href = '../login.html'; }); }
+  (async function(){
+    __session = await DB.requireSession('admin');
+    if(__session){
+      var who = document.getElementById('portalWho');
+      if(who) who.textContent = __session.fullName;
+    }
+  })();
+</script>
+
+<div class="appshell">
+<div class="tabbar no-print">
+  <button class="tabbtn" data-tab="proposal" onclick="switchTab(&#39;proposal&#39;)"><span class="num">01</span>Proposal</button>
+  <button class="tabbtn" data-tab="invoice" onclick="switchTab(&#39;invoice&#39;)"><span class="num">02</span>Billing Invoice</button>
+  <button class="tabbtn active" data-tab="ack" onclick="switchTab(&#39;ack&#39;)"><span class="num">03</span>Acknowledgement Receipt</button>
+  <a class="tabbtn onedrive-files-tab" href="https://1drv.ms/f/c/1b24af0211eb28f6/IgCiehFET-cvRoksHIhBMlUUAZfDrgcspTIPXajOdDfLMek?e=xTy2ED" target="_blank" rel="noopener noreferrer" title="Open OneDrive Files"><span class="num">04</span>OneDrive Files</a>
+</div>
+
+<div class="page">
+  <div class="panel">
+    <div class="workspace hidden" id="workspace-proposal">
+      <div class="editor no-print">
+        <div class="h3row"><h3>Issuer letterhead</h3><button type="button" class="lock-btn locked" id="lockbtn-letterhead-proposal" onclick="toggleLock(&#39;letterhead&#39;)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span>Locked</span></button></div>
+        <div class="field lk-letterhead locked"><label>Firm address</label><input id="p_addr" value="1187 Don Quijote St. Sampaloc, Brgy. 480, Metro Manila, Philippines" disabled=""></div>
+        <div class="field lk-letterhead locked"><label>Email</label><input id="p_email" value="joemel.baccal@bimphilippines.org" disabled=""></div>
+        <div class="field lk-letterhead locked"><label>Phone</label><input id="p_phone" value="(02)8832-3530/(63)917-541-3963" disabled=""></div>
+        <div class="field lk-letterhead locked"><label>Tax status</label><input id="p_tin" value="Non-VAT Registered TIN: 343-962-880-00000" disabled=""></div>
+
+        <h3>Client &amp; reference</h3>
+        <div class="field"><label>Client / attention to</label><input id="p_client" value="" placeholder="e.g. MS. JUAN DELA CRUZ"></div>
+        <div class="field"><label>Client company</label><input id="p_clientco" value="" placeholder="e.g. Client Company, Inc."></div>
+        <div class="row2">
+          <div class="field"><label>Quotation no.</label><input id="p_qno" value="" placeholder="e.g. 2026-01-001"></div>
+          <div class="field"><label>Date</label><input id="p_date" value="" placeholder="e.g. 20 August 2026"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Valid until</label><input id="p_valid" value="" placeholder="e.g. 30 August 2026"></div>
+          <div class="field"><label>Project name</label><input id="p_project" value="" placeholder="e.g. Project name"></div>
+        </div>
+        <div class="field"><label>Project location</label><input id="p_loc" value="" placeholder="e.g. Project site address"></div>
+
+        <h3>Scope of work</h3>
+        <div class="field"><label>Scope summary (one line per item)</label>
+          <textarea id="p_scope" style="min-height:96px;">Professional Design and "Sign and Seal" Services
+Design Layouts and Analysis per applicable engineering codes
+Design Analysis: Load Computation, supporting diagrams
+As-Built Plans upon project completion</textarea>
+        </div>
+
+        <h3>Fee line items</h3>
+        <div id="p_items"></div>
+        <button class="add-item-btn" onclick="addItem(&#39;proposal&#39;)">+ Add line item</button>
+
+        <h3>Site visit / add-on fee (optional)</h3>
+        <div class="field"><label>Note (excluded from total)</label><input id="p_sitevisit" value="Site Visit Fee (excluded from total): Php 5,000.00 per visit"></div>
+
+        <h3>Terms &amp; conditions</h3>
+        <div class="field"><label>Editable clauses</label>
+<textarea id="p_terms" style="min-height:190px;">a. Scope of Services — Services are limited to the scope stated in this proposal. Work not expressly included is treated as additional service, subject to separate fees and written approval.
+b. Design Responsibility — Designs follow accepted engineering practice and applicable codes, based on information provided by the Client and other project consultants. Contractors/suppliers remain responsible for installation, testing, and workmanship.
+c. Exclusions — Actual supply, installation, testing and commissioning works; construction supervision; permit/processing fees; BOQ/BOM or cost estimates unless separately agreed.
+d. Limitation of Liability — Liability is limited to the total professional fees received for the project.
+e. Document Ownership — Drawings and documents remain the intellectual property of BIMDEC until full settlement and are instruments of service.
+f. Confidentiality — Project information is treated as confidential except where disclosure is required for permits or authority coordination.
+g. Release of Deliverables — Final signed and sealed drawings are released upon settlement of the corresponding billing.
+h. Suspension/Cancellation — BIMDEC shall be compensated for services rendered to date; compensation shall not be less than 70% of the contract amount.</textarea>
+        </div>
+
+        <h3>Revision policy</h3>
+        <div class="field"><label>Revision policy text</label>
+          <textarea id="p_revisions" style="min-height:70px;">Reasonable revisions from consolidated client/PMO comments are included. Revisions arising from major layout or scope changes after approval are treated as additional scope and are subject to separate fees.</textarea>
+        </div>
+
+        <h3>Payment &amp; lead time</h3>
+        <div class="field"><label>Payment schedule</label>
+          <textarea id="p_payment" style="min-height:64px;">50% Down Payment upon approval of proposal.
+50% upon submission and client's written acceptance of As-Built Drawings (soft copy).
+Hard copies are issued only upon written confirmation to proceed with printing.</textarea>
+        </div>
+        <div class="h3row"><h3>Payment channel</h3><button type="button" class="lock-btn locked" id="lockbtn-paych-proposal" onclick="toggleLock(&#39;paych&#39;)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span>Locked</span></button></div>
+        <div class="field lk-paych locked"><label>Bank name</label><input id="p_bankname" value="Bank of the Philippine Island (BPI)" disabled=""></div>
+        <div class="row2">
+          <div class="field lk-paych locked"><label>Account name</label><input id="p_acctname" value="BIMDEC Engineering Design Services" disabled=""></div>
+          <div class="field lk-paych locked"><label>Account number</label><input id="p_acctno" value="3099-2712-47" disabled=""></div>
+        </div>
+        <div class="field"><label>Lead time</label><input id="p_lead" value="PDF deliverables within seven (7) working days from complete design references."></div>
+
+        <h3>Prepared by</h3>
+        <div class="row2">
+          <div class="field"><label>Prepared by (name)</label>
+            <select id="p_prepby" onchange="renderPreview(); scheduleSave();">
+              <option value="ENGR. ______________">ENGR. ______________</option>
+              <option value="Engr. Joemel Baccal">Engr. Joemel Baccal</option>
+              <option value="Engr. Joseph Domingo">Engr. Joseph Domingo</option>
+            </select>
+          </div>
+          <div class="field"><label>Date prepared</label><input id="p_prepdate" value="" placeholder="e.g. 20 August 2026"></div>
+        </div>
+        <div class="datetick-row">
+          <label class="tickopt"><input type="checkbox" id="p_prepdate_day" onchange="updateAutoDate(&#39;p_prepdate&#39;)"> Day</label>
+          <label class="tickopt"><input type="checkbox" id="p_prepdate_month" onchange="updateAutoDate(&#39;p_prepdate&#39;)"> Month</label>
+          <label class="tickopt"><input type="checkbox" id="p_prepdate_year" onchange="updateAutoDate(&#39;p_prepdate&#39;)"> Year</label>
+          <span class="hint" style="margin:0;">Tick to auto-fill today's date parts</span>
+        </div>
+        <div class="field">
+          <label>Digital signature (PNG/JPG, optional)</label>
+          <div class="sig-upload">
+            <input type="file" accept="image/png,image/jpeg" onchange="handleSigUpload(&#39;p_prepby&#39;, this)">
+          </div>
+          <div class="sig-thumb-row" id="p_prepby_sigpreview"></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-print" onclick="printSheet(&#39;proposal&#39;)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print / Save as PDF
+          </button>
+        </div>
+        <div class="print-hint no-print">
+          <b>Before you print:</b> in the print dialog, open “More settings” and turn <b>Headers and footers</b> off (and set Margins to “Default” or “None”). That is what prints the file path/date/page‑number strip at the top and bottom of the PDF — it isn't part of this document and can only be turned off from that checkbox.<br><br>
+          <b>Save location:</b> browsers don't allow a webpage to silently save a file to your computer, so a folder picker can't be triggered automatically — for "Destination" choose <b>Save as PDF</b>, then in the Save dialog that opens, pick the folder you want. The filename is now pre-filled for you (from the Quotation No.).
+        </div>
+        <div class="send-email-box no-print">
+          <h4>Send this to email</h4>
+          <div class="send-email-row">
+            <input type="email" id="sendEmail_proposal" placeholder="client@example.com">
+            <button type="button" class="btn btn-print" style="padding:9px 16px;" onclick="sendDocumentEmail(&#39;proposal&#39;)" id="sendBtn_proposal">Send proposal</button>
+          </div>
+          <div class="send-status" id="sendStatus_proposal"></div>
+        </div>
+      </div>
+
+      <div class="preview-wrap" data-kind="proposal">
+        <div class="preview-inner">
+        <div class="zoom-bar no-print">
+          <button type="button" class="zoom-btn" onclick="zoomOut(&#39;proposal&#39;)" aria-label="Zoom out">−</button>
+          <span class="zoom-level" id="zoomLevel_proposal">80%</span>
+          <button type="button" class="zoom-btn" onclick="zoomIn(&#39;proposal&#39;)" aria-label="Zoom in">+</button>
+          <button type="button" class="zoom-reset-btn" onclick="resetZoom(&#39;proposal&#39;)">Reset</button>
+          <span class="preview-page-nav" aria-label="Preview page navigation">
+            <button type="button" class="page-nav-btn" onclick="goHome(&#39;proposal&#39;)" id="pageHome_proposal" disabled="">Home</button>
+            <button type="button" class="page-nav-btn" onclick="prevPage(&#39;proposal&#39;)" id="pagePrev_proposal" disabled="">Previous</button>
+            <span class="page-nav-status" id="pageNav_proposal">1 / 1</span>
+            <button type="button" class="page-nav-btn" onclick="nextPage(&#39;proposal&#39;)" id="pageNext_proposal" disabled="">Next</button>
+            <button type="button" class="page-nav-btn" onclick="goEnd(&#39;proposal&#39;)" id="pageEnd_proposal" disabled="">End</button>
+          </span>
+          <span class="zoom-hint">Ctrl+scroll to zoom</span>
+        </div>
+        <div class="page-count-note no-print" id="pageCountProposal">Continuous preview — 1 printed page</div>
+        <div class="sheet" id="sheet-proposal" style="zoom: 0.8;"><div class="screen-frame no-print"></div>
+          <div class="sheet-upper">
+            <div class="sheet-head" data-preview-page="1" data-page-hidden="false">
+              <div class="sheet-brand">
+                <img class="brand-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdIAAACFCAYAAADvnHnNAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsEAAA7BAbiRa+0AAAWhaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49J++7vycgaWQ9J1c1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCc/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyI+DQoJPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4NCgkJPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6QXR0cmliPSJodHRwOi8vbnMuYXR0cmlidXRpb24uY29tL2Fkcy8xLjAvIj4NCgkJCTxBdHRyaWI6QWRzPg0KCQkJCTxyZGY6U2VxPg0KCQkJCQk8cmRmOmxpIHJkZjpwYXJzZVR5cGU9IlJlc291cmNlIj4NCgkJCQkJCTxBdHRyaWI6Q3JlYXRlZD4yMDI1LTA4LTEwPC9BdHRyaWI6Q3JlYXRlZD4NCgkJCQkJCTxBdHRyaWI6RXh0SWQ+ZGZlMDgyMzktZDljMy00MjBmLWJlMTUtMTg3Yzk2ODM4NTFkPC9BdHRyaWI6RXh0SWQ+DQoJCQkJCQk8QXR0cmliOkZiSWQ+NTI1MjY1OTE0MTc5NTgwPC9BdHRyaWI6RmJJZD4NCgkJCQkJCTxBdHRyaWI6VG91Y2hUeXBlPjI8L0F0dHJpYjpUb3VjaFR5cGU+DQoJCQkJCTwvcmRmOmxpPg0KCQkJCTwvcmRmOlNlcT4NCgkJCTwvQXR0cmliOkFkcz4NCgkJPC9yZGY6RGVzY3JpcHRpb24+DQoJCTxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyI+DQoJCQk8ZGM6dGl0bGU+DQoJCQkJPHJkZjpBbHQ+DQoJCQkJCTxyZGY6bGkgeG1sOmxhbmc9IngtZGVmYXVsdCI+ZGVzaWduJmFtcDtFbmdpbmVlcmluZyAtIDM8L3JkZjpsaT4N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" alt="BIMDEC logo">
+                <div>
+                  <div class="bname">BIM Design &amp; Engineering Consultants</div>
+                  
+                </div>
+              </div>
+              <div class="sheet-meta" id="pv_p_letterhead">1187 Don Quijote St. Sampaloc, Metro Manila, Philippines
+joemel.baccal@bimphilippines.org
+(02)8832-3530/(63)917-541-3963
+Non-VAT Registered TIN: 343-962-880-00000</div>
+            </div>
+
+            <span class="doctitle" data-preview-page="1" data-page-hidden="false">PROFESSIONAL DESIGN PROPOSAL</span>
+            <div class="docsub" data-preview-page="1" data-page-hidden="false">Quotation No. <span id="pv_p_qno"></span> &nbsp;·&nbsp; Non‑VAT Official Quotation</div>
+
+            <div class="kv-grid" data-preview-page="1" data-page-hidden="false">
+              <div class="kv"><span class="k">Client</span><span class="v" id="pv_p_client"></span></div>
+              <div class="kv"><span class="k">Date</span><span class="v" id="pv_p_date"></span></div>
+              <div class="kv"><span class="k">Company</span><span class="v" id="pv_p_clientco"></span></div>
+              <div class="kv"><span class="k">Valid until</span><span class="v" id="pv_p_valid"></span></div>
+              <div class="kv"><span class="k">Project</span><span class="v" id="pv_p_project"></span></div>
+              <div class="kv"><span class="k">Location</span><span class="v" id="pv_p_loc"></span></div>
+            </div>
+
+            <div class="sec-title" data-preview-page="1" data-page-hidden="false">Scope of work</div>
+            <ul class="scope-list" id="pv_p_scope" data-preview-page="1" data-page-hidden="false"></ul>
+
+            <div class="sec-title" data-preview-page="1" data-page-hidden="false">Professional fees</div>
+            <table class="doc-table" data-preview-page="1" data-page-hidden="false">
+              <thead><tr><th style="width:52%">Description</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Total</th></tr></thead>
+              <tbody id="pv_p_items"></tbody>
+            </table>
+            <div class="totals" id="pv_p_totals" data-preview-page="1" data-page-hidden="false">
+    <div class="trow"><span class="k">Total professional fee</span><span>Php 0.00</span></div>
+    <div class="trow grand"><span class="k">Total contract price <span class="nonvat-badge">NON‑VAT</span></span><span>Php 0.00</span></div></div>
+            <div class="hint" style="margin-top:6px;" id="pv_p_sitevisit" data-preview-page="1" data-page-hidden="false"></div>
+
+            <div class="sec-title terms-heading" data-preview-page="1" data-page-hidden="false">Terms &amp; conditions</div>
+            <div class="terms" id="pv_p_terms" data-preview-page="1" data-page-hidden="false"></div>
+
+            <div class="sec-title" data-preview-page="1" data-page-hidden="false">Revision policy</div>
+            <div class="terms" id="pv_p_revisions" data-preview-page="1" data-page-hidden="false"></div>
+          </div>
+
+          <div class="sheet-lower">
+            <div class="sec-title" data-preview-page="1" data-page-hidden="false">Payment terms</div>
+            <div class="terms" id="pv_p_payment" data-preview-page="1" data-page-hidden="false"></div>
+            <div class="hint" id="pv_p_lead" data-preview-page="1" data-page-hidden="false">Lead time: </div>
+
+            <div class="sec-title" data-preview-page="1" data-page-hidden="false">Payment channel</div>
+            <div class="terms" id="pv_p_paych" data-preview-page="1" data-page-hidden="false">Bank: Bank of the Philippine Island (BPI)<br>Account Name: BIMDEC Engineering Design Services<br>Account Number: 3099-2712-47</div>
+
+            <div class="signblock" data-preview-page="1" data-page-hidden="false">
+              <div class="sigline"><img class="sig-img hidden" id="pv_p_prepby_sig"><div id="pv_p_prepby">ENGR. ______________  ·  20 August 2026</div><div class="role">Prepared by · BIMDEC</div></div>
+              <div class="sigline">Authorized Client Signature<div class="role">Client acceptance &amp; date</div></div>
+            </div>
+
+            <div class="titleblock" data-preview-page="1" data-page-hidden="false">
+              <div class="tb-cell"><span class="tb-label">Document</span>Design Proposal</div>
+              <div class="tb-cell"><span class="tb-label">No.</span><span id="tb_p_qno"></span></div>
+              <div class="tb-cell"><span class="tb-label">Date</span><span id="tb_p_date"></span></div>
+              <div class="tb-cell"><span class="tb-label">Tax status</span>Non‑VAT</div>
+            </div>
+          </div>
+
+          <div class="sheet-foot" data-preview-page="1" data-page-hidden="false"><span>BIM Design &amp; Engineering Consultants</span><span>Instrument of Service — Confidential</span></div>
+        </div>
+        </div>
+      </div>
+    </div>
+    <div class="workspace hidden" id="workspace-invoice">
+      <div class="editor no-print">
+        <div class="h3row"><h3>Issuer letterhead</h3><button type="button" class="lock-btn locked" id="lockbtn-letterhead-invoice" onclick="toggleLock(&#39;letterhead&#39;)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span>Locked</span></button></div>
+        <div class="field lk-letterhead locked"><label>Firm address</label><input id="i_addr" value="1187 Don Quijote St. Sampaloc, Brgy. 480, Metro Manila, Philippines" disabled=""></div>
+        <div class="field lk-letterhead locked"><label>Email</label><input id="i_email" value="joemel.baccal@bimphilippines.org" disabled=""></div>
+        <div class="field lk-letterhead locked"><label>Phone</label><input id="i_phone" value="(02)8832-3530/(63)917-541-3963" disabled=""></div>
+        <div class="field lk-letterhead locked"><label>Tax status</label><input id="i_tin" value="Non-VAT Registered TIN: 343-962-880-00000" disabled=""></div>
+
+        <h3>Billing details</h3>
+        <div class="row2">
+          <div class="field"><label>Invoice no.</label><input id="i_invno" value="" placeholder="e.g. BI-2026-0001"></div>
+          <div class="field"><label>Date</label><input id="i_date" value="" placeholder="e.g. 20 August 2026"></div>
+        </div>
+        <div class="field"><label>Customer / bill to</label><input id="i_customer" value="" placeholder="e.g. CLIENT COMPANY, INC."></div>
+        <div class="field"><label>Customer address</label><input id="i_custaddr" value="" placeholder="e.g. City, Metro Manila"></div>
+        <div class="row2">
+          <div class="field"><label>Project name</label><input id="i_project" value="" placeholder="e.g. Project name"></div>
+          <div class="field"><label>Project location</label><input id="i_loc" value="" placeholder="e.g. Project site address"></div>
+        </div>
+
+        <h3>Billed items</h3>
+        <div id="i_items"></div>
+        <button class="add-item-btn" onclick="addItem(&#39;invoice&#39;)">+ Add line item</button>
+
+        <h3>Deductions (optional)</h3>
+        <div class="row2">
+          <div class="field"><label>Less: Down payment</label><input id="i_dp" type="number" step="0.01" value="0"></div>
+          <div class="field"><label>Less: Discount</label><input id="i_disc" type="number" step="0.01" value="0"></div>
+        </div>
+
+        <div class="h3row"><h3>Payment channel</h3><button type="button" class="lock-btn locked" id="lockbtn-paych-invoice" onclick="toggleLock(&#39;paych&#39;)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span>Locked</span></button></div>
+        <div class="field lk-paych locked"><label>Bank name</label><input id="i_bankname" value="Bank of the Philippine Island (BPI)" disabled=""></div>
+        <div class="row2">
+          <div class="field lk-paych locked"><label>Account name</label><input id="i_acctname" value="BIMDEC Engineering Design Services" disabled=""></div>
+          <div class="field lk-paych locked"><label>Account number</label><input id="i_acctno" value="3099-2712-47" disabled=""></div>
+        </div>
+
+        <h3>Sign-off</h3>
+        <div class="row2">
+          <div class="field"><label>Prepared by</label>
+            <select id="i_prepby" onchange="renderPreview(); scheduleSave();">
+              <option value="ENGR. ______________">ENGR. ______________</option>
+              <option value="Engr. Joemel Baccal">Engr. Joemel Baccal</option>
+              <option value="Engr. Joseph Domingo">Engr. Joseph Domingo</option>
+            </select>
+          </div>
+          <div class="field"><label>Date</label><input id="i_prepdate" value="" placeholder="e.g. 20 August 2026"></div>
+        </div>
+        <div class="datetick-row">
+          <label class="tickopt"><input type="checkbox" id="i_prepdate_day" onchange="updateAutoDate(&#39;i_prepdate&#39;)"> Day</label>
+          <label class="tickopt"><input type="checkbox" id="i_prepdate_month" onchange="updateAutoDate(&#39;i_prepdate&#39;)"> Month</label>
+          <label class="tickopt"><input type="checkbox" id="i_prepdate_year" onchange="updateAutoDate(&#39;i_prepdate&#39;)"> Year</label>
+          <span class="hint" style="margin:0;">Tick to auto-fill today's date parts</span>
+        </div>
+        <div class="field">
+          <label>Prepared-by signature (PNG/JPG, optional)</label>
+          <div class="sig-upload">
+            <input type="file" accept="image/png,image/jpeg" onchange="handleSigUpload(&#39;i_prepby&#39;, this)">
+          </div>
+          <div class="sig-thumb-row" id="i_prepby_sigpreview"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Approved by</label><input id="i_appby" value=""></div>
+          <div class="field"><label>Date</label><input id="i_appdate" value="" placeholder="e.g. 20 August 2026"></div>
+        </div>
+        <div class="field">
+          <label>Approved-by signature (PNG/JPG, optional)</label>
+          <div class="sig-upload">
+            <input type="file" accept="image/png,image/jpeg" onchange="handleSigUpload(&#39;i_appby&#39;, this)">
+          </div>
+          <div class="sig-thumb-row" id="i_appby_sigpreview"></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-print" onclick="printSheet(&#39;invoice&#39;)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print / Save as PDF
+          </button>
+        </div>
+        <div class="print-hint no-print">
+          <b>Before you print:</b> in the print dialog, open “More settings” and turn <b>Headers and footers</b> off (and set Margins to “Default” or “None”). That is what prints the file path/date/page‑number strip at the top and bottom of the PDF — it isn't part of this document and can only be turned off from that checkbox.<br><br>
+          <b>Save location:</b> browsers don't allow a webpage to silently save a file to your computer, so a folder picker can't be triggered automatically — for "Destination" choose <b>Save as PDF</b>, then in the Save dialog that opens, pick the folder you want. The filename is now pre-filled for you (from the Invoice No.).
+        </div>
+        <div class="send-email-box no-print">
+          <h4>Send this to email</h4>
+          <div class="send-email-row">
+            <input type="email" id="sendEmail_invoice" placeholder="client@example.com">
+            <button type="button" class="btn btn-print" style="padding:9px 16px;" onclick="sendDocumentEmail(&#39;invoice&#39;)" id="sendBtn_invoice">Send invoice</button>
+          </div>
+          <div class="send-status" id="sendStatus_invoice"></div>
+        </div>
+      </div>
+
+      <div class="preview-wrap" data-kind="invoice">
+        <div class="preview-inner">
+        <div class="zoom-bar no-print">
+          <button type="button" class="zoom-btn" onclick="zoomOut(&#39;invoice&#39;)" aria-label="Zoom out">−</button>
+          <span class="zoom-level" id="zoomLevel_invoice">80%</span>
+          <button type="button" class="zoom-btn" onclick="zoomIn(&#39;invoice&#39;)" aria-label="Zoom in">+</button>
+          <button type="button" class="zoom-reset-btn" onclick="resetZoom(&#39;invoice&#39;)">Reset</button>
+          <span class="preview-page-nav" aria-label="Preview page navigation">
+            <button type="button" class="page-nav-btn" onclick="goHome(&#39;invoice&#39;)" id="pageHome_invoice" disabled="">Home</button>
+            <button type="button" class="page-nav-btn" onclick="prevPage(&#39;invoice&#39;)" id="pagePrev_invoice" disabled="">Previous</button>
+            <span class="page-nav-status" id="pageNav_invoice">1 / 1</span>
+            <button type="button" class="page-nav-btn" onclick="nextPage(&#39;invoice&#39;)" id="pageNext_invoice" disabled="">Next</button>
+            <button type="button" class="page-nav-btn" onclick="goEnd(&#39;invoice&#39;)" id="pageEnd_invoice" disabled="">End</button>
+          </span>
+          <span class="zoom-hint">Ctrl+scroll to zoom</span>
+        </div>
+        <div class="page-count-note no-print" id="pageCountInvoice">Continuous preview — 1 printed page</div>
+        <div class="sheet" id="sheet-invoice" style="zoom: 0.8;"><div class="screen-frame no-print"></div>
+          <div class="sheet-upper">
+            <div class="sheet-head" data-preview-page="1" data-page-hidden="false">
+              <div class="sheet-brand">
+                <img class="brand-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdIAAACFCAYAAADvnHnNAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsEAAA7BAbiRa+0AAAWhaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49J++7vycgaWQ9J1c1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCc/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyI+DQoJPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4NCgkJPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6QXR0cmliPSJodHRwOi8vbnMuYXR0cmlidXRpb24uY29tL2Fkcy8xLjAvIj4NCgkJCTxBdHRyaWI6QWRzPg0KCQkJCTxyZGY6U2VxPg0KCQkJCQk8cmRmOmxpIHJkZjpwYXJzZVR5cGU9IlJlc291cmNlIj4NCgkJCQkJCTxBdHRyaWI6Q3JlYXRlZD4yMDI1LTA4LTEwPC9BdHRyaWI6Q3JlYXRlZD4NCgkJCQkJCTxBdHRyaWI6RXh0SWQ+ZGZlMDgyMzktZDljMy00MjBmLWJlMTUtMTg3Yzk2ODM4NTFkPC9BdHRyaWI6RXh0SWQ+DQoJCQkJCQk8QXR0cmliOkZiSWQ+NTI1MjY1OTE0MTc5NTgwPC9BdHRyaWI6RmJJZD4NCgkJCQkJCTxBdHRyaWI6VG91Y2hUeXBlPjI8L0F0dHJpYjpUb3VjaFR5cGU+DQoJCQkJCTwvcmRmOmxpPg0KCQkJCTwvcmRmOlNlcT4NCgkJCTwvQXR0cmliOkFkcz4NCgkJPC9yZGY6RGVzY3JpcHRpb24+DQoJCTxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyI+DQoJCQk8ZGM6dGl0bGU+DQoJCQkJPHJkZjpBbHQ+DQoJCQkJCTxyZGY6bGkgeG1sOmxhbmc9IngtZGVmYXVsdCI+ZGVzaWduJmFtcDtFbmdpbmVlcmluZyAtIDM8L3JkZjpsaT4N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" alt="BIMDEC logo">
+                <div>
+                  <div class="bname">BIM Design &amp; Engineering Consultants</div>
+                  
+                </div>
+              </div>
+              <div class="sheet-meta" id="pv_i_letterhead">1187 Don Quijote St. Sampaloc, Metro Manila, Philippines
+joemel.baccal@bimphilippines.org
+(02)8832-3530/(63)917-541-3963
+Non-VAT Registered TIN: 343-962-880-00000</div>
+            </div>
+
+            <span class="doctitle" data-preview-page="1" data-page-hidden="false">BILLING INVOICE</span>
+            <span class="nonvat-badge" data-preview-page="1" data-page-hidden="false">NON‑VAT</span>
+            <div class="docsub" data-preview-page="1" data-page-hidden="false">Invoice No. <span id="pv_i_invno"></span></div>
+
+            <div class="kv-grid" data-preview-page="1" data-page-hidden="false">
+              <div class="kv"><span class="k">Bill to</span><span class="v" id="pv_i_customer"></span></div>
+              <div class="kv"><span class="k">Date</span><span class="v" id="pv_i_date"></span></div>
+              <div class="kv"><span class="k">Address</span><span class="v" id="pv_i_custaddr"></span></div>
+              <div class="kv"><span class="k">Project</span><span class="v" id="pv_i_project"></span></div>
+              <div class="kv"><span class="k">Location</span><span class="v" id="pv_i_loc"></span></div>
+              <div class="kv"><span class="k">Tax status</span><span class="v">Non‑VAT</span></div>
+            </div>
+
+            <div class="sec-title" data-preview-page="1" data-page-hidden="false">Service / transaction description</div>
+            <table class="doc-table" data-preview-page="1" data-page-hidden="false">
+              <thead><tr><th style="width:52%">Description</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Total</th></tr></thead>
+              <tbody id="pv_i_items"></tbody>
+            </table>
+            <div class="totals" id="pv_i_totals" data-preview-page="1" data-page-hidden="false"><div class="trow"><span class="k">Subtotal (Non‑VAT)</span><span>Php 0.00</span></div><div class="trow grand"><span class="k">Total amount due <span class="nonvat-badge">NON‑VAT</span></span><span>Php 0.00</span></div></div>
+          </div>
+
+          <div class="sheet-lower">
+            <div class="sec-title" data-preview-page="1" data-page-hidden="false">Payment channel</div>
+            <div class="terms" id="pv_i_paych" data-preview-page="1" data-page-hidden="false">Bank: Bank of the Philippine Island (BPI)<br>Account Name: BIMDEC Engineering Design Services<br>Account Number: 3099-2712-47</div>
+
+            <div class="signblock" data-preview-page="1" data-page-hidden="false">
+              <div class="sigline"><img class="sig-img hidden" id="pv_i_prepby_sig"><div id="pv_i_prepby">ENGR. ______________  ·  20 August 2026</div><div class="role">Prepared by</div></div>
+              <div class="sigline"><img class="sig-img hidden" id="pv_i_appby_sig"><div id="pv_i_appby">—</div><div class="role">Approved by</div></div>
+            </div>
+
+            <div class="titleblock" data-preview-page="1" data-page-hidden="false">
+              <div class="tb-cell"><span class="tb-label">Document</span>Billing Invoice</div>
+              <div class="tb-cell"><span class="tb-label">No.</span><span id="tb_i_invno"></span></div>
+              <div class="tb-cell"><span class="tb-label">Date</span><span id="tb_i_date"></span></div>
+              <div class="tb-cell"><span class="tb-label">Tax status</span>Non‑VAT</div>
+            </div>
+          </div>
+
+          <div class="sheet-foot" data-preview-page="1" data-page-hidden="false"><span>BIM Design &amp; Engineering Consultants</span><span>Design Smarter! Execute Sharper!</span></div>
+        </div>
+        </div>
+      </div>
+    </div>
+<div class="workspace" id="workspace-ack">
+      <div class="editor no-print">
+        <div class="h3row"><h3>Issuer letterhead</h3><button type="button" class="lock-btn locked" id="lockbtn-letterhead-ack" onclick="toggleLock(&#39;letterhead&#39;)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span>Locked</span></button></div>
+        <div class="field lk-letterhead locked"><label>Firm address</label><input id="a_addr" value="1187 Don Quijote St. Sampaloc, Brgy. 480, Metro Manila, Philippines" disabled=""></div>
+        <div class="field lk-letterhead locked"><label>Email</label><input id="a_email" value="joemel.baccal@bimphilippines.org" disabled=""></div>
+        <div class="field lk-letterhead locked"><label>Phone</label><input id="a_phone" value="(02)8832-3530/(63)917-541-3963" disabled=""></div>
+        <div class="field lk-letterhead locked"><label>Tax status</label><input id="a_tin" value="Non-VAT Registered TIN: 343-962-880-00000" disabled=""></div>
+
+        <h3>Receipt details</h3>
+        <div class="row2">
+          <div class="field"><label>Receipt no.</label><input id="a_recno" value="" placeholder="e.g. AR-2026-0001"></div>
+          <div class="field"><label>Date</label><input id="a_date" value="" placeholder="e.g. 20 August 2026"></div>
+        </div>
+        <div class="field"><label>Received from</label><input id="a_receivedfrom" value="" placeholder="e.g. CLIENT COMPANY, INC."></div>
+        <div class="row2">
+          <div class="field"><label>Amount (figures)</label><input id="a_amount" type="number" step="0.01" value="" placeholder="0.00"></div>
+          <div class="field"><label>Reference no. (invoice/proposal)</label><input id="a_refno" value="" placeholder="e.g. BI-2026-0001"></div>
+        </div>
+        <div class="field"><label>Amount in words</label><input id="a_amountwords" value="" placeholder="e.g. Amount in words"></div>
+
+        <h3>Particulars</h3>
+        <div class="field"><label>For payment of (add one line per item — particulars + amount)</label></div>
+        <div id="a_items"></div>
+        <button class="add-item-btn" onclick="addAckItem()">+ Add particulars line</button>
+
+        <h3>Payment method</h3>
+        <div class="row2">
+          <div class="field"><label>Method (Cash / Check / Bank Transfer / E-wallet)</label><input id="a_paymethod" value="" placeholder="e.g. Cash / Check / Bank Transfer / E-wallet"></div>
+          <div class="field"><label>Reference / bank / check no.</label><input id="a_paydetails" value="" placeholder="e.g. Bank — Ref. No."></div>
+        </div>
+
+        <h3>Prepared by</h3>
+        <div class="row2">
+          <div class="field"><label>Prepared by (name)</label>
+            <select id="a_recvby" onchange="renderPreview(); scheduleSave();">
+              <option value="">— Select —</option>
+              <option value="Engr. Joemel Baccal">Engr. Joemel Baccal</option>
+              <option value="Engr. Joseph Domingo">Engr. Joseph Domingo</option>
+            </select>
+          </div>
+          <div class="field"><label>Date</label><input id="a_recvdate" value="" placeholder="e.g. 20 August 2026"></div>
+        </div>
+        <div class="field">
+          <label>Digital signature (PNG/JPG, optional)</label>
+          <div class="sig-upload">
+            <input type="file" accept="image/png,image/jpeg" onchange="handleSigUpload(&#39;a_recvby&#39;, this)">
+          </div>
+          <div class="sig-thumb-row" id="a_recvby_sigpreview"></div>
+        </div>
+
+        <h3>Received by</h3>
+        <div class="row2">
+          <div class="field"><label>Received by</label><input id="a_appby" value=""></div>
+          <div class="field"><label>Date</label><input id="a_appdate" value="" placeholder="e.g. 20 August 2026"></div>
+        </div>
+        <div class="datetick-row">
+          <label class="tickopt"><input type="checkbox" id="a_appdate_day" onchange="updateAutoDate(&#39;a_appdate&#39;)"> Day</label>
+          <label class="tickopt"><input type="checkbox" id="a_appdate_month" onchange="updateAutoDate(&#39;a_appdate&#39;)"> Month</label>
+          <label class="tickopt"><input type="checkbox" id="a_appdate_year" onchange="updateAutoDate(&#39;a_appdate&#39;)"> Year</label>
+          <span class="hint" style="margin:0;">Tick to auto-fill today's date parts</span>
+        </div>
+        <div class="field">
+          <label>Received-by signature (PNG/JPG, optional)</label>
+          <div class="sig-upload">
+            <input type="file" accept="image/png,image/jpeg" onchange="handleSigUpload(&#39;a_appby&#39;, this)">
+          </div>
+          <div class="sig-thumb-row" id="a_appby_sigpreview"></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-print" onclick="printSheet(&#39;ack&#39;)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print / Save as PDF
+          </button>
+        </div>
+        <div class="print-hint no-print">
+          <b>Before you print:</b> in the print dialog, open “More settings” and turn <b>Headers and footers</b> off (and set Margins to “Default” or “None”). That is what prints the file path/date/page‑number strip at the top and bottom of the PDF — it isn't part of this document and can only be turned off from that checkbox.<br><br>
+          <b>Save location:</b> browsers don't allow a webpage to silently save a file to your computer, so a folder picker can't be triggered automatically — for "Destination" choose <b>Save as PDF</b>, then in the Save dialog that opens, pick the folder you want. The filename is now pre-filled for you (from the Receipt No.).
+        </div>
+        <div class="send-email-box no-print">
+          <h4>Send this to email</h4>
+          <div class="send-email-row">
+            <input type="email" id="sendEmail_ack" placeholder="client@example.com">
+            <button type="button" class="btn btn-print" style="padding:9px 16px;" onclick="sendDocumentEmail(&#39;ack&#39;)" id="sendBtn_ack">Send receipt</button>
+          </div>
+          <div class="send-status" id="sendStatus_ack"></div>
+        </div>
+      </div>
+
+      <div class="preview-wrap" data-kind="ack">
+        <div class="preview-inner">
+        <div class="zoom-bar no-print">
+          <button type="button" class="zoom-btn" onclick="zoomOut(&#39;ack&#39;)" aria-label="Zoom out">−</button>
+          <span class="zoom-level" id="zoomLevel_ack">80%</span>
+          <button type="button" class="zoom-btn" onclick="zoomIn(&#39;ack&#39;)" aria-label="Zoom in">+</button>
+          <button type="button" class="zoom-reset-btn" onclick="resetZoom(&#39;ack&#39;)">Reset</button>
+          <span class="preview-page-nav" aria-label="Preview page navigation">
+            <button type="button" class="page-nav-btn" onclick="goHome(&#39;ack&#39;)" id="pageHome_ack" disabled="">Home</button>
+            <button type="button" class="page-nav-btn" onclick="prevPage(&#39;ack&#39;)" id="pagePrev_ack" disabled="">Previous</button>
+            <span class="page-nav-status" id="pageNav_ack">1 / 2</span>
+            <button type="button" class="page-nav-btn" onclick="nextPage(&#39;ack&#39;)" id="pageNext_ack">Next</button>
+            <button type="button" class="page-nav-btn" onclick="goEnd(&#39;ack&#39;)" id="pageEnd_ack">End</button>
+          </span>
+          <span class="zoom-hint">Ctrl+scroll to zoom</span>
+        </div>
+        <div class="page-count-note no-print" id="pageCountAck">Continuous preview — 2 printed pages</div>
+        <div class="sheet" id="sheet-ack" style="zoom: 0.8;"><div class="screen-frame no-print"></div>
+          <div class="sheet-upper">
+            <div class="sheet-head" data-preview-page="1" data-page-hidden="false">
+              <div class="sheet-brand">
+                <img class="brand-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdIAAACFCAYAAADvnHnNAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsEAAA7BAbiRa+0AAAWhaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49J++7vycgaWQ9J1c1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCc/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyI+DQoJPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4NCgkJPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6QXR0cmliPSJodHRwOi8vbnMuYXR0cmlidXRpb24uY29tL2Fkcy8xLjAvIj4NCgkJCTxBdHRyaWI6QWRzPg0KCQkJCTxyZGY6U2VxPg0KCQkJCQk8cmRmOmxpIHJkZjpwYXJzZVR5cGU9IlJlc291cmNlIj4NCgkJCQkJCTxBdHRyaWI6Q3JlYXRlZD4yMDI1LTA4LTEwPC9BdHRyaWI6Q3JlYXRlZD4NCgkJCQkJCTxBdHRyaWI6RXh0SWQ+ZGZlMDgyMzktZDljMy00MjBmLWJlMTUtMTg3Yzk2ODM4NTFkPC9BdHRyaWI6RXh0SWQ+DQoJCQkJCQk8QXR0cmliOkZiSWQ+NTI1MjY1OTE0MTc5NTgwPC9BdHRyaWI6RmJJZD4NCgkJCQkJCTxBdHRyaWI6VG91Y2hUeXBlPjI8L0F0dHJpYjpUb3VjaFR5cGU+DQoJCQkJCTwvcmRmOmxpPg0KCQkJCTwvcmRmOlNlcT4NCgkJCTwvQXR0cmliOkFkcz4NCgkJPC9yZGY6RGVzY3JpcHRpb24+DQoJCTxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyI+DQoJCQk8ZGM6dGl0bGU+DQoJCQkJPHJkZjpBbHQ+DQoJCQkJCTxyZGY6bGkgeG1sOmxhbmc9IngtZGVmYXVsdCI+ZGVzaWduJmFtcDtFbmdpbmVlcmluZyAtIDM8L3JkZjpsaT4N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" alt="BIMDEC logo">
+                <div>
+                  <div class="bname">BIM Design &amp; Engineering Consultants</div>
+                  
+                </div>
+              </div>
+              <div class="sheet-meta" id="pv_a_letterhead">1187 Don Quijote St. Sampaloc, Metro Manila, Philippines
+joemel.baccal@bimphilippines.org
+(02)8832-3530/(63)917-541-3963
+Non-VAT Registered TIN: 343-962-880-00000</div>
+            </div>
+
+            <span class="doctitle" data-preview-page="1" data-page-hidden="false">ACKNOWLEDGEMENT RECEIPT</span>
+            <span class="nonvat-badge" data-preview-page="1" data-page-hidden="false">NON‑VAT</span>
+            <div class="docsub" data-preview-page="1" data-page-hidden="false">Receipt No. <span id="pv_a_recno"></span></div>
+
+            <div class="kv-grid" data-preview-page="1" data-page-hidden="false">
+              <div class="kv"><span class="k">Received from</span><span class="v" id="pv_a_receivedfrom"></span></div>
+              <div class="kv"><span class="k">Date</span><span class="v" id="pv_a_date"></span></div>
+              <div class="kv"><span class="k">Reference no.</span><span class="v" id="pv_a_refno"></span></div>
+              <div class="kv"><span class="k">Payment method</span><span class="v" id="pv_a_paymethod">Bank Transfer</span></div>
+              <div class="kv"><span class="k">Payment details</span><span class="v" id="pv_a_paydetails"></span></div>
+              <div class="kv"><span class="k">Tax status</span><span class="v">Non‑VAT</span></div>
+            </div>
+
+            <div class="sec-title" data-preview-page="1" data-page-hidden="false">Particulars</div>
+            <div class="terms" id="pv_a_particulars" data-preview-page="1" data-page-hidden="false"></div>
+            <div class="hint" style="margin-top:4px;" id="pv_a_subtotal" data-preview-page="1" data-page-hidden="false">Particulars subtotal: Php 0.00</div>
+
+            <div class="totals" id="pv_a_totals" data-preview-page="1" data-page-hidden="false"><div class="trow grand"><span class="k">Amount received <span class="nonvat-badge">NON‑VAT</span></span><span>Php 0.00</span></div></div>
+            <div class="hint" style="margin-top:6px;" id="pv_a_amountwords" data-preview-page="1" data-page-hidden="false">Amount in words: </div>
+
+            <div class="sec-title" data-preview-page="1" data-page-hidden="false">Acknowledgement</div>
+            <div class="terms" data-preview-page="1" data-page-hidden="false">This is to acknowledge receipt from the party named above of the amount stated, in good and full consideration of the particulars indicated, through the payment method specified. This receipt is issued for record purposes and does not constitute a BIR Official Receipt; the corresponding Non‑VAT Official Receipt/Invoice, if required, shall be issued separately.</div>
+          </div>
+
+          <div class="sheet-lower">
+            <div class="signblock" data-preview-page="1" data-page-hidden="false">
+              <div class="sigline"><img class="sig-img hidden" id="pv_a_recvby_sig"><div id="pv_a_recvby">  ·  20 August 2026</div><div class="role">Prepared by · BIMDEC</div></div>
+              <div class="sigline"><img class="sig-img hidden" id="pv_a_appby_sig"><div id="pv_a_appby">—</div><div class="role">Received by · BIMDEC</div></div>
+              <div class="sigline">Payor / Authorized Representative Signature<div class="role">Payor acknowledgement</div></div>
+            </div>
+
+            <div class="titleblock" data-preview-page="2" data-page-hidden="false">
+              <div class="tb-cell"><span class="tb-label">Document</span>Acknowledgement Receipt</div>
+              <div class="tb-cell"><span class="tb-label">No.</span><span id="tb_a_recno"></span></div>
+              <div class="tb-cell"><span class="tb-label">Date</span><span id="tb_a_date"></span></div>
+              <div class="tb-cell"><span class="tb-label">Tax status</span>Non‑VAT</div>
+            </div>
+          </div>
+
+          <div class="sheet-foot" data-preview-page="2" data-page-hidden="false"><span>BIM Design &amp; Engineering Consultants</span><span>Instrument of Service — Confidential</span></div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+/* ---------------- data model ---------------- */
+let itemState = {
+  proposal: [
+    {desc:'', qty:1, unit:'LOT', price:0},
+  ],
+  invoice: [
+    {desc:'', qty:1, unit:'LOT', price:0},
+  ],
+  ack: [
+    {desc:'', amount:0},
+  ]
+};
+// Snapshot of the defaults, taken before anything can mutate itemState, so a saved
+// draft written by an older version of this file (missing a key, e.g. "ack" before
+// the itemized Particulars feature existed) can never leave itemState.<kind> undefined.
+const ITEM_STATE_DEFAULTS = JSON.parse(JSON.stringify(itemState));
+
+const PHP = n => 'Php ' + (Number(n)||0).toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+/* ---------------- digital signatures (PNG/JPG) ---------------- */
+const SIG_KEYS = ['p_prepby', 'i_prepby', 'i_appby', 'a_recvby', 'a_appby'];
+let sigState = { p_prepby:null, i_prepby:null, i_appby:null, a_recvby:null, a_appby:null };
+const SIG_MAX_BYTES = 2 * 1024 * 1024; // 2MB
+
+function handleSigUpload(key, inputEl){
+  const file = inputEl.files && inputEl.files[0];
+  if(!file) return;
+  if(!/^image\/(png|jpe?g)$/i.test(file.type)){
+    alert('Please choose a PNG or JPG image.');
+    inputEl.value = '';
+    return;
+  }
+  if(file.size > SIG_MAX_BYTES){
+    alert('Image is too large — please use a file under 2MB.');
+    inputEl.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    sigState[key] = reader.result;
+    renderSigThumb(key);
+    renderPreview();
+    scheduleSave();
+  };
+  reader.readAsDataURL(file);
+  inputEl.value = '';
+}
+
+function removeSig(key){
+  sigState[key] = null;
+  renderSigThumb(key);
+  renderPreview();
+  scheduleSave();
+}
+
+function renderSigThumb(key){
+  const wrap = document.getElementById(key + '_sigpreview');
+  if(!wrap) return;
+  if(sigState[key]){
+    wrap.innerHTML = `<img class="sig-thumb" src="${sigState[key]}" alt="Signature preview">
+      <button type="button" class="sig-remove-btn" onclick="removeSig('${key}')">Remove</button>`;
+  } else {
+    wrap.innerHTML = '';
+  }
+}
+
+function renderAllSigThumbs(){
+  SIG_KEYS.forEach(renderSigThumb);
+}
+
+function applySigToPreview(key, imgId){
+  const img = document.getElementById(imgId);
+  if(!img) return;
+  if(sigState[key]){
+    img.src = sigState[key];
+    img.classList.remove('hidden');
+  } else {
+    img.removeAttribute('src');
+    img.classList.add('hidden');
+  }
+}
+
+/* ---------------- lock toggles (Issuer letterhead / Payment channel) ---------------- */
+const LOCK_GROUPS = {
+  letterhead: { fieldClass:'lk-letterhead', btnIds:['lockbtn-letterhead-proposal','lockbtn-letterhead-invoice','lockbtn-letterhead-ack'] },
+  paych:      { fieldClass:'lk-paych',      btnIds:['lockbtn-paych-proposal','lockbtn-paych-invoice'] }
+};
+let lockState = { letterhead:false, paych:false };
+
+function applyLockDisplay(group){
+  const g = LOCK_GROUPS[group];
+  const locked = lockState[group];
+  document.querySelectorAll('.'+g.fieldClass).forEach(field=>{
+    field.classList.toggle('locked', locked);
+    field.querySelectorAll('input, select, textarea').forEach(el=>{ el.disabled = locked; });
+  });
+  g.btnIds.forEach(id=>{
+    const btn = document.getElementById(id);
+    if(!btn) return;
+    btn.classList.toggle('locked', locked);
+    btn.querySelector('span').textContent = locked ? 'Locked' : 'Editable';
+  });
+}
+function toggleLock(group){
+  lockState[group] = !lockState[group];
+  applyLockDisplay(group);
+  scheduleSave();
+}
+function applyAllLocks(){ Object.keys(LOCK_GROUPS).forEach(applyLockDisplay); }
+
+/* ---------------- date prepared: tickable day/month/year auto-fill ---------------- */
+function syncAutoDateDisabled(baseId){
+  const dayEl = document.getElementById(baseId+'_day');
+  const monthEl = document.getElementById(baseId+'_month');
+  const yearEl = document.getElementById(baseId+'_year');
+  if(!dayEl || !monthEl || !yearEl) return;
+  const dateField = document.getElementById(baseId);
+  if(!dateField) return;
+  dateField.disabled = (dayEl.checked || monthEl.checked || yearEl.checked);
+}
+function updateAutoDate(baseId){
+  const day = document.getElementById(baseId+'_day').checked;
+  const month = document.getElementById(baseId+'_month').checked;
+  const year = document.getElementById(baseId+'_year').checked;
+  const dateField = document.getElementById(baseId);
+  if(!day && !month && !year){
+    dateField.disabled = false;
+    scheduleSave();
+    return;
+  }
+  const now = new Date();
+  const dd = now.getDate();
+  const mmName = now.toLocaleString('en-US', {month:'long'});
+  const yyyy = now.getFullYear();
+  let parts = [];
+  if(day) parts.push(dd);
+  if(month) parts.push(mmName);
+  if(year) parts.push(yyyy);
+  // keep natural "Day Month Year" reading order regardless of tick order
+  let out = [];
+  if(day && month){ out.push(dd + ' ' + mmName); } else { if(day) out.push(dd); if(month) out.push(mmName); }
+  if(year) out.push(yyyy);
+  dateField.value = out.join(' ');
+  dateField.disabled = true;
+  renderPreview();
+  scheduleSave();
+}
+
+const TAB_LABELS = { proposal:'Proposal', invoice:'Billing Invoice', ack:'Acknowledgement Receipt' };
+const ALL_TABS = Object.keys(TAB_LABELS);
+
+/* ---------------- preview zoom ---------------- */
+let zoomState = { proposal:0.8, invoice:0.8, ack:0.8 };
+let previewPage = { proposal:1, invoice:1, ack:1 };
+let previewPageCount = { proposal:1, invoice:1, ack:1 };
+const ZOOM_MIN = 0.5, ZOOM_MAX = 2, ZOOM_STEP = 0.1;
+
+function applyZoom(kind){
+  const sheet = document.getElementById('sheet-'+kind);
+  if(sheet) sheet.style.zoom = zoomState[kind];
+  const label = document.getElementById('zoomLevel_'+kind);
+  if(label) label.textContent = Math.round(zoomState[kind]*100) + '%';
+  paginateActive();
+}
+function zoomIn(kind){
+  zoomState[kind] = Math.min(ZOOM_MAX, +(zoomState[kind] + ZOOM_STEP).toFixed(2));
+  applyZoom(kind);
+}
+function zoomOut(kind){
+  zoomState[kind] = Math.max(ZOOM_MIN, +(zoomState[kind] - ZOOM_STEP).toFixed(2));
+  applyZoom(kind);
+}
+function resetZoom(kind){
+  zoomState[kind] = 1;
+  applyZoom(kind);
+}
+function bindZoomWheel(){
+  document.querySelectorAll('.preview-wrap[data-kind]').forEach(wrap=>{
+    const kind = wrap.dataset.kind;
+    wrap.addEventListener('wheel', e=>{
+      if(!e.ctrlKey) return;
+      e.preventDefault();
+      if(e.deltaY < 0) zoomIn(kind); else zoomOut(kind);
+    }, { passive:false });
+  });
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tabbtn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  ALL_TABS.forEach(t=>{
+    const ws = document.getElementById('workspace-'+t);
+    if(ws) ws.classList.toggle('hidden', tab!==t);
+  });
+  document.getElementById('activeTabLabel').textContent = TAB_LABELS[tab] || tab;
+  paginateActive();
+}
+
+function suggestedFilename(which){
+  const stamp = new Date().toISOString().slice(0,10);
+  if(which==='proposal') return `BIMDEC-Proposal-${(document.getElementById('p_qno').value||stamp).replace(/[\\/:*?"<>|]/g,'-')}`;
+  if(which==='invoice')  return `BIMDEC-Invoice-${(document.getElementById('i_invno').value||stamp).replace(/[\\/:*?"<>|]/g,'-')}`;
+  if(which==='ack')      return `BIMDEC-Receipt-${(document.getElementById('a_recno').value||stamp).replace(/[\\/:*?"<>|]/g,'-')}`;
+  return `BIMDEC-Document-${stamp}`;
+}
+
+/* ---------------- Send to email (renders the sheet to a PDF, then emails it) ---------------- */
+const DOC_EMAIL_META = {
+  proposal: { subject: n => `Proposal${n ? ' — ' + n : ''} — BIMDEC`, noun: 'proposal', bodyIntro: 'Please see the attached proposal.' },
+  invoice:  { subject: n => `Billing Invoice${n ? ' ' + n : ''} — BIMDEC`, noun: 'billing invoice', bodyIntro: 'Please see the attached billing invoice.' },
+  ack:      { subject: n => `Acknowledgement Receipt${n ? ' ' + n : ''} — BIMDEC`, noun: 'acknowledgement receipt', bodyIntro: 'Please see the attached acknowledgement receipt.' },
+};
+
+function docNumberFor(which){
+  if(which==='proposal') return document.getElementById('p_qno').value;
+  if(which==='invoice')  return document.getElementById('i_invno').value;
+  if(which==='ack')      return document.getElementById('a_recno').value;
+  return '';
+}
+
+async function sendDocumentEmail(which){
+  const emailInput = document.getElementById('sendEmail_' + which);
+  const status = document.getElementById('sendStatus_' + which);
+  const btn = document.getElementById('sendBtn_' + which);
+  const to = emailInput.value.trim();
+
+  if(!to){
+    status.className = 'send-status bad';
+    status.textContent = 'Enter a recipient email address first.';
+    return;
+  }
+  if(typeof EmailClient === 'undefined' || !EmailClient.isConfigured()){
+    status.className = 'send-status bad';
+    status.textContent = 'Email service isn\'t connected yet — open the Email page and enter your backend URL + API key first.';
+    return;
+  }
+  if(typeof html2pdf === 'undefined'){
+    status.className = 'send-status bad';
+    status.textContent = 'PDF generator failed to load (check your internet connection) — try again.';
+    return;
+  }
+
+  const sheet = document.getElementById('sheet-' + which);
+  if(!sheet){
+    status.className = 'send-status bad';
+    status.textContent = 'Could not find the document preview to send.';
+    return;
+  }
+
+  btn.disabled = true;
+  status.className = 'send-status pending';
+  status.textContent = 'Rendering PDF…';
+
+  try{
+    // Render the full sheet at full scale (ignore the on-screen zoom) so the
+    // PDF matches what "Print / Save as PDF" produces, not the shrunk preview.
+    const prevZoom = sheet.style.zoom;
+    sheet.style.zoom = 1;
+    const filename = suggestedFilename(which) + '.pdf';
+    const pdfBlob = await html2pdf()
+      .set({
+        margin: 8,
+        filename,
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'] },
+      })
+      .from(sheet)
+      .outputPdf('blob');
+    sheet.style.zoom = prevZoom;
+
+    status.textContent = 'Sending email…';
+    const base64 = await blobToBase64(pdfBlob);
+    const meta = DOC_EMAIL_META[which];
+    const docNo = docNumberFor(which);
+
+    await EmailClient.send({
+      to,
+      subject: meta.subject(docNo),
+      html: `<p>${meta.bodyIntro}</p><p>— BIMDEC Design &amp; Engineering Consultants</p>`,
+      attachments: [{ filename, content: base64, contentType: 'application/pdf' }],
+    });
+
+    status.className = 'send-status ok';
+    status.textContent = 'Sent to ' + to + '.';
+  }catch(err){
+    status.className = 'send-status bad';
+    status.textContent = 'Failed: ' + err.message;
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+function blobToBase64(blob){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(String(reader.result).split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+let pendingPrintKind = null;
+const PRINT_PAPER_SIZES = {
+  legal:'8.5in 14in',
+  letter:'8.5in 11in',
+  a3:'297mm 420mm',
+  a4:'210mm 297mm',
+  executive:'7.25in 10.5in',
+  tabloid:'11in 17in',
+  statement:'5.5in 8.5in'
+};
+function printSheet(which){
+  pendingPrintKind = which;
+  const modal = document.getElementById('printPaperModal');
+  if(modal) modal.classList.add('open');
+}
+function closePrintPaperModal(){
+  const modal = document.getElementById('printPaperModal');
+  if(modal) modal.classList.remove('open');
+  pendingPrintKind = null;
+}
+function applyPrintPaperSize(size){
+  const value = PRINT_PAPER_SIZES[size] || PRINT_PAPER_SIZES.a4;
+  let style = document.getElementById('dynamicPrintPageStyle');
+  if(!style){
+    style = document.createElement('style');
+    style.id = 'dynamicPrintPageStyle';
+    document.head.appendChild(style);
+  }
+  style.textContent = `@media print { @page { size: ${value} portrait; margin: 8mm; } }`;
+}
+function confirmPrintPaper(){
+  const which = pendingPrintKind;
+  if(!which) return closePrintPaperModal();
+  const select = document.getElementById('printPaperSize');
+  const size = select ? select.value : 'a4';
+  applyPrintPaperSize(size);
+  closePrintPaperModal();
+
+  // Print the complete selected document. Preview-only page hiding is disabled
+  // by the print stylesheet, so Home/Previous/Next/End never limit the export.
+  ALL_TABS.forEach(t=>{
+    const el = document.getElementById('sheet-'+t);
+    if(el) el.classList.toggle('hidden-print', t!==which);
+  });
+  const prevTitle = document.title;
+  document.title = suggestedFilename(which);
+  // Give the browser one frame to apply the selected @page rule before opening print.
+  requestAnimationFrame(()=>{
+    window.print();
+    setTimeout(()=>{ document.title = prevTitle; }, 800);
+  });
+}
+
+/* ---------------- autosave (localStorage) ---------------- */
+const AUTOSAVE_KEY = 'bimdec_doc_autosave_v1';
+let autosaveTimer = null;
+
+function collectFieldValues(){
+  const fields = {};
+  document.querySelectorAll('.editor input[id], .editor textarea[id], .editor select[id]').forEach(el=>{
+    fields[el.id] = (el.type === 'checkbox') ? el.checked : el.value;
+  });
+  return fields;
+}
+
+function saveState(){
+  try{
+    const payload = {
+      fields: collectFieldValues(),
+      itemState: itemState,
+      sigState: sigState,
+      lockState: lockState,
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(payload));
+    const stamp = document.getElementById('autosaveStamp');
+    if(stamp){
+      const t = new Date(payload.savedAt);
+      stamp.textContent = 'Draft autosaved ' + t.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    }
+  }catch(e){ /* storage unavailable - fail silently (e.g. quota exceeded by large signature images) */ }
+}
+
+function scheduleSave(){
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(saveState, 300);
+}
+
+function loadState(){
+  let saved = null;
+  try{ saved = JSON.parse(localStorage.getItem(AUTOSAVE_KEY) || 'null'); }catch(e){ saved = null; }
+  if(!saved) return false;
+  if(saved.itemState){
+    // Merge per-kind instead of replacing the whole object, so an older draft
+    // that predates a given tab's item list (e.g. no "ack" key yet) falls back
+    // to the built-in default for that tab instead of leaving it undefined.
+    itemState = {
+      proposal: Array.isArray(saved.itemState.proposal) ? saved.itemState.proposal : ITEM_STATE_DEFAULTS.proposal,
+      invoice: Array.isArray(saved.itemState.invoice) ? saved.itemState.invoice : ITEM_STATE_DEFAULTS.invoice,
+      ack: Array.isArray(saved.itemState.ack) ? saved.itemState.ack : ITEM_STATE_DEFAULTS.ack,
+    };
+  }
+  if(saved.sigState) sigState = Object.assign({p_prepby:null,i_prepby:null,i_appby:null,a_recvby:null,a_appby:null}, saved.sigState);
+  if(saved.lockState) lockState = Object.assign({letterhead:false, paych:false}, saved.lockState);
+  if(saved.fields){
+    Object.keys(saved.fields).forEach(id=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      if(el.type === 'checkbox') el.checked = !!saved.fields[id];
+      else el.value = saved.fields[id];
+    });
+  }
+  const stamp = document.getElementById('autosaveStamp');
+  if(stamp && saved.savedAt){
+    const t = new Date(saved.savedAt);
+    stamp.textContent = 'Draft restored · saved ' + t.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }
+  return true;
+}
+
+function clearSavedDraft(){
+  if(!confirm('Clear the autosaved draft? This cannot be undone.')) return;
+  localStorage.removeItem(AUTOSAVE_KEY);
+  location.reload();
+}
+
+/* ---------------- line item editor rendering ---------------- */
+let dragItem = null;
+
+function renderItemEditor(kind){
+  const wrap = document.getElementById(kind==='proposal' ? 'p_items' : 'i_items');
+  if(!Array.isArray(itemState[kind])) itemState[kind] = ITEM_STATE_DEFAULTS[kind] ? JSON.parse(JSON.stringify(ITEM_STATE_DEFAULTS[kind])) : [];
+  wrap.innerHTML = '';
+  itemState[kind].forEach((item, idx)=>{
+    const div = document.createElement('div');
+    div.className = 'item-editor';
+    div.draggable = true;
+    div.dataset.index = idx;
+    div.innerHTML = `
+      <button type="button" class="drag-handle" title="Drag this fee item to reorder" aria-label="Drag this fee item to reorder">⋮⋮</button>
+      <button class="rm-btn" onclick="removeItem('${kind}',${idx})" title="Remove">✕</button>
+      <div class="drag-hint">Drag this item anywhere on the card to reorder</div>
+      <div class="desc"><textarea rows="1" data-idx="${idx}" data-field="desc" oninput="updateItem('${kind}',this)" placeholder="Description">${esc(item.desc)}</textarea></div>
+      <div class="grid5">
+        <input data-idx="${idx}" data-field="qty" type="number" step="0.01" value="${item.qty}" oninput="updateItem('${kind}',this)" placeholder="Qty">
+        <select data-idx="${idx}" data-field="unit" onchange="updateItem('${kind}',this)">
+          <option value="LOT" ${item.unit==='LOT' ? 'selected' : ''}>LOT</option>
+          <option value="EA" ${item.unit==='EA' ? 'selected' : ''}>EA</option>
+        </select>
+        <input data-idx="${idx}" data-field="price" type="number" step="0.01" value="${item.price}" oninput="updateItem('${kind}',this)" placeholder="Unit price">
+      </div>`;
+
+    div.addEventListener('dragstart', e=>{
+      // Inputs/buttons remain editable/clickable; everything else on the card can start a reorder.
+      if(e.target.closest('input,select,textarea,button')){
+        if(!e.target.closest('.drag-handle')){
+          e.preventDefault();
+          return;
+        }
+      }
+      dragItem = {kind, index: idx};
+      div.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(idx));
+    });
+    div.addEventListener('dragend', ()=>{
+      div.classList.remove('dragging');
+      wrap.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'));
+      dragItem = null;
+    });
+    div.addEventListener('dragover', e=>{
+      if(!dragItem || dragItem.kind !== kind) return;
+      e.preventDefault();
+      if(dragItem.index !== idx) div.classList.add('drop-target');
+    });
+    div.addEventListener('dragleave', ()=>div.classList.remove('drop-target'));
+    div.addEventListener('drop', e=>{
+      if(!dragItem || dragItem.kind !== kind) return;
+      e.preventDefault();
+
+      const from = dragItem.index;
+      const rect = div.getBoundingClientRect();
+      const before = e.clientY < rect.top + rect.height / 2;
+      let to = idx + (before ? 0 : 1);
+
+      const moved = itemState[kind].splice(from, 1)[0];
+      if(from < to) to--;
+      itemState[kind].splice(Math.max(0, Math.min(to, itemState[kind].length)), 0, moved);
+
+      dragItem = null;
+      renderItemEditor(kind);
+      renderPreview();
+      scheduleSave();
+    });
+
+    wrap.appendChild(div);
+  });
+}
+function addItem(kind){
+  itemState[kind].push({desc:'New line item', qty:1, unit:'LOT', price:0});
+  renderItemEditor(kind);
+  renderPreview();
+  scheduleSave();
+}
+function removeItem(kind, idx){
+  itemState[kind].splice(idx,1);
+  renderItemEditor(kind);
+  renderPreview();
+  scheduleSave();
+}
+function updateItem(kind, el){
+  const idx = el.dataset.idx, field = el.dataset.field;
+  itemState[kind][idx][field] = (field==='qty'||field==='price') ? parseFloat(el.value||0) : el.value;
+  renderPreview();
+  scheduleSave();
+}
+
+/* ---------------- Acknowledgement Receipt: particulars line items ---------------- */
+function renderAckItemEditor(){
+  const wrap = document.getElementById('a_items');
+  if(!wrap) return;
+  if(!Array.isArray(itemState.ack)) itemState.ack = JSON.parse(JSON.stringify(ITEM_STATE_DEFAULTS.ack));
+  wrap.innerHTML = '';
+  itemState.ack.forEach((item, idx)=>{
+    const div = document.createElement('div');
+    div.className = 'item-editor';
+    div.draggable = true;
+    div.dataset.index = idx;
+    div.innerHTML = `
+      <button type="button" class="drag-handle" title="Drag this line to reorder" aria-label="Drag this line to reorder">⋮⋮</button>
+      <button class="rm-btn" onclick="removeAckItem(${idx})" title="Remove">✕</button>
+      <div class="drag-hint">Drag this line anywhere on the card to reorder</div>
+      <div class="desc"><textarea rows="1" data-idx="${idx}" data-field="desc" oninput="updateAckItem(this)" placeholder="Particulars / description">${esc(item.desc)}</textarea></div>
+      <div class="field" style="margin:6px 0 0;"><label style="font-size:9.5px;">Amount</label><input data-idx="${idx}" data-field="amount" type="number" step="0.01" value="${item.amount}" oninput="updateAckItem(this)" placeholder="Amount"></div>`;
+
+    div.addEventListener('dragstart', e=>{
+      if(e.target.closest('input,select,textarea,button')){
+        if(!e.target.closest('.drag-handle')){ e.preventDefault(); return; }
+      }
+      dragItem = {kind:'ack', index: idx};
+      div.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(idx));
+    });
+    div.addEventListener('dragend', ()=>{
+      div.classList.remove('dragging');
+      wrap.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'));
+      dragItem = null;
+    });
+    div.addEventListener('dragover', e=>{
+      if(!dragItem || dragItem.kind !== 'ack') return;
+      e.preventDefault();
+      if(dragItem.index !== idx) div.classList.add('drop-target');
+    });
+    div.addEventListener('dragleave', ()=>div.classList.remove('drop-target'));
+    div.addEventListener('drop', e=>{
+      if(!dragItem || dragItem.kind !== 'ack') return;
+      e.preventDefault();
+      const from = dragItem.index;
+      const rect = div.getBoundingClientRect();
+      const before = e.clientY < rect.top + rect.height / 2;
+      let to = idx + (before ? 0 : 1);
+      const moved = itemState.ack.splice(from, 1)[0];
+      if(from < to) to--;
+      itemState.ack.splice(Math.max(0, Math.min(to, itemState.ack.length)), 0, moved);
+      dragItem = null;
+      renderAckItemEditor();
+      renderPreview();
+      scheduleSave();
+    });
+
+    wrap.appendChild(div);
+  });
+}
+function addAckItem(){
+  itemState.ack.push({desc:'New particulars line', amount:0});
+  renderAckItemEditor();
+  renderPreview();
+  scheduleSave();
+}
+function removeAckItem(idx){
+  itemState.ack.splice(idx,1);
+  renderAckItemEditor();
+  renderPreview();
+  scheduleSave();
+}
+function updateAckItem(el){
+  const idx = el.dataset.idx, field = el.dataset.field;
+  itemState.ack[idx][field] = field==='amount' ? parseFloat(el.value||0) : el.value;
+  renderPreview();
+  scheduleSave();
+}
+/* ---------------- preview rendering ---------------- */
+function esc(s){ return (s||'').toString(); }
+function nl2li(text){
+  return text.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>`<li>${esc(l)}</li>`).join('');
+}
+function textToHtml(text){
+  return esc(text).replace(/\n/g, '<br>');
+}
+function itemRows(items){
+  return items.map(it => `<tr>
+      <td>${esc(it.desc)}</td>
+      <td class="num">${it.qty} ${esc(it.unit)}</td>
+      <td class="num">${PHP(it.price)}</td>
+      <td class="num">${PHP(it.qty*it.price)}</td>
+    </tr>`).join('');
+}
+function sumItems(items){ return items.reduce((s,it)=>s+ (it.qty*it.price), 0); }
+
+function renderPreview(){
+  const g = id => document.getElementById(id);
+
+  /* ---- PROPOSAL ---- */
+  const p = id => document.getElementById('p_'+id).value;
+  g('pv_p_letterhead').textContent =
+    `${g('p_addr').value}\n${g('p_email').value}\n${g('p_phone').value}\n${g('p_tin').value}`;
+  g('pv_p_qno').textContent = p('qno');
+  g('pv_p_client').textContent = p('client');
+  g('pv_p_date').textContent = p('date');
+  g('pv_p_clientco').textContent = p('clientco');
+  g('pv_p_valid').textContent = p('valid');
+  g('pv_p_project').textContent = p('project');
+  g('pv_p_loc').textContent = p('loc');
+  g('pv_p_scope').innerHTML = nl2li(p('scope'));
+  g('pv_p_items').innerHTML = itemRows(itemState.proposal);
+  const pTotal = sumItems(itemState.proposal);
+  g('pv_p_totals').innerHTML = `
+    <div class="trow"><span class="k">Total professional fee</span><span>${PHP(pTotal)}</span></div>
+    <div class="trow grand"><span class="k">Total contract price <span class="nonvat-badge">NON‑VAT</span></span><span>${PHP(pTotal)}</span></div>`;
+  g('pv_p_sitevisit').textContent = p('sitevisit');
+  g('pv_p_terms').innerHTML = textToHtml(p('terms'));
+  g('pv_p_revisions').innerHTML = textToHtml(p('revisions'));
+  g('pv_p_payment').innerHTML = textToHtml(p('payment'));
+  g('pv_p_paych').innerHTML = textToHtml(`Bank: ${p('bankname')}\nAccount Name: ${p('acctname')}\nAccount Number: ${p('acctno')}`);
+  g('pv_p_lead').textContent = 'Lead time: ' + p('lead');
+  g('pv_p_prepby').textContent = p('prepby') + '  ·  ' + p('prepdate');
+  applySigToPreview('p_prepby', 'pv_p_prepby_sig');
+  g('tb_p_qno').textContent = p('qno');
+  g('tb_p_date').textContent = p('date');
+
+  /* ---- INVOICE ---- */
+  const i = id => document.getElementById('i_'+id).value;
+  g('pv_i_letterhead').textContent =
+    `${g('i_addr').value}\n${g('i_email').value}\n${g('i_phone').value}\n${g('i_tin').value}`;
+  g('pv_i_invno').textContent = i('invno');
+  g('pv_i_customer').textContent = i('customer');
+  g('pv_i_date').textContent = i('date');
+  g('pv_i_custaddr').textContent = i('custaddr');
+  g('pv_i_project').textContent = i('project');
+  g('pv_i_loc').textContent = i('loc');
+  g('pv_i_items').innerHTML = itemRows(itemState.invoice);
+  const iSub = sumItems(itemState.invoice);
+  const dp = parseFloat(g('i_dp').value||0);
+  const disc = parseFloat(g('i_disc').value||0);
+  const iDue = iSub - dp - disc;
+  let totalsHtml = `<div class="trow"><span class="k">Subtotal (Non‑VAT)</span><span>${PHP(iSub)}</span></div>`;
+  if(dp) totalsHtml += `<div class="trow"><span class="k">Less: Down payment</span><span>- ${PHP(dp)}</span></div>`;
+  if(disc) totalsHtml += `<div class="trow"><span class="k">Less: Discount</span><span>- ${PHP(disc)}</span></div>`;
+  totalsHtml += `<div class="trow grand"><span class="k">Total amount due <span class="nonvat-badge">NON‑VAT</span></span><span>${PHP(iDue)}</span></div>`;
+  g('pv_i_totals').innerHTML = totalsHtml;
+  g('pv_i_paych').innerHTML = textToHtml(`Bank: ${i('bankname')}\nAccount Name: ${i('acctname')}\nAccount Number: ${i('acctno')}`);
+  g('pv_i_prepby').textContent = (i('prepby') || '—') + (i('prepdate') ? '  ·  ' + i('prepdate') : '');
+  applySigToPreview('i_prepby', 'pv_i_prepby_sig');
+  g('pv_i_appby').textContent = (i('appby') || '—') + (i('appdate') ? '  ·  ' + i('appdate') : '');
+  applySigToPreview('i_appby', 'pv_i_appby_sig');
+  g('tb_i_invno').textContent = i('invno');
+  g('tb_i_date').textContent = i('date');
+
+  /* ---- ACKNOWLEDGEMENT RECEIPT ---- */
+  const a = id => document.getElementById('a_'+id).value;
+  g('pv_a_letterhead').textContent =
+    `${g('a_addr').value}\n${g('a_email').value}\n${g('a_phone').value}\n${g('a_tin').value}`;
+  g('pv_a_recno').textContent = a('recno');
+  g('pv_a_receivedfrom').textContent = a('receivedfrom');
+  g('pv_a_date').textContent = a('date');
+  g('pv_a_refno').textContent = a('refno');
+  g('pv_a_paymethod').textContent = a('paymethod');
+  g('pv_a_paydetails').textContent = a('paydetails');
+  g('pv_a_particulars').innerHTML = itemState.ack.map(it =>
+    `<div class="ack-line"><span>${esc(it.desc)}</span><span class="num">${PHP(it.amount)}</span></div>`
+  ).join('');
+  const ackSubtotal = itemState.ack.reduce((s,it)=>s+(parseFloat(it.amount)||0), 0);
+  g('pv_a_subtotal').textContent = 'Particulars subtotal: ' + PHP(ackSubtotal);
+  const aAmount = parseFloat(g('a_amount').value||0);
+  g('pv_a_totals').innerHTML = `<div class="trow grand"><span class="k">Amount received <span class="nonvat-badge">NON‑VAT</span></span><span>${PHP(aAmount)}</span></div>`;
+  g('pv_a_amountwords').textContent = 'Amount in words: ' + a('amountwords');
+  g('pv_a_recvby').textContent = a('recvby') + '  ·  ' + a('recvdate');
+  applySigToPreview('a_recvby', 'pv_a_recvby_sig');
+  g('pv_a_appby').textContent = (a('appby') || '—') + (a('appdate') ? '  ·  ' + a('appdate') : '');
+  applySigToPreview('a_appby', 'pv_a_appby_sig');
+  g('tb_a_recno').textContent = a('recno');
+  g('tb_a_date').textContent = a('date');
+
+  paginateActive();
+}
+
+/* ---------------- wire up live updates ---------------- */
+function bindLiveInputs(){
+  document.querySelectorAll('.editor input, .editor textarea').forEach(el=>{
+    el.addEventListener('input', renderPreview);
+    el.addEventListener('input', scheduleSave);
+  });
+}
+
+/* ---------------- on-screen page-break preview ----------------
+   This never touches what actually prints — real pagination in the PDF
+   is handled by the @media print rules / @page size. This just estimates
+   the same A4 page height on screen so the live preview shows a document
+   that has grown past one page as separate stacked "papers" with a
+   page-break marker, instead of one endless sheet. */
+const PAGE_H = 1123;      // on-screen px approximating an A4 page (matches .sheet's base height)
+const PAD_TOP = 46, PAD_BOTTOM = 40; // matches .sheet's own padding
+const CONTENT_H = PAGE_H - PAD_TOP - PAD_BOTTOM;
+const SEAM = 30;          // visible gray gap drawn between two "papers"
+
+function updatePageNav(kind){
+  const total = previewPageCount[kind] || 1;
+  const page = Math.min(Math.max(previewPage[kind] || 1, 1), total);
+  previewPage[kind] = page;
+
+  const status = document.getElementById('pageNav_'+kind);
+  if(status) status.textContent = page + ' / ' + total;
+
+  const states = {
+    pageHome: page <= 1,
+    pagePrev: page <= 1,
+    pageNext: page >= total,
+    pageEnd: page >= total
+  };
+  Object.keys(states).forEach(prefix=>{
+    const btn = document.getElementById(prefix+'_'+kind);
+    if(btn) btn.disabled = states[prefix];
+  });
+}
+
+function setPreviewPage(kind, page){
+  const total = previewPageCount[kind] || 1;
+  previewPage[kind] = Math.min(Math.max(Number(page)||1, 1), total);
+  updatePageNav(kind);
+
+  // Continuous preview: navigation buttons scroll to the requested printed
+  // page position instead of hiding every other page.
+  const sheet = document.getElementById('sheet-'+kind);
+  if(!sheet) return;
+  const target = [...sheet.querySelectorAll('[data-preview-page]')]
+    .find(el => Number(el.dataset.previewPage) === previewPage[kind]);
+  if(target){
+    target.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+}
+
+function goHome(kind){ setPreviewPage(kind, 1); }
+function prevPage(kind){ setPreviewPage(kind, (previewPage[kind]||1) - 1); }
+function nextPage(kind){ setPreviewPage(kind, (previewPage[kind]||1) + 1); }
+function goEnd(kind){ setPreviewPage(kind, previewPageCount[kind] || 1); }
+
+function paginateSheet(sheetId, noteId){
+  const sheet = document.getElementById(sheetId);
+  if(!sheet) return;
+
+  const kind = sheetId.replace(/^sheet-/, '');
+  // Always measure the complete document first. Hidden page blocks must not
+  // affect the next pagination pass.
+  sheet.querySelectorAll('[data-page-hidden="true"]').forEach(el=>el.removeAttribute('data-page-hidden'));
+  sheet.querySelectorAll('.page-gap').forEach(n=>n.remove());
+
+  const upper = sheet.querySelector('.sheet-upper');
+  const lower = sheet.querySelector('.sheet-lower');
+  const foot = sheet.querySelector('.sheet-foot');
+  const blocks = [...upper.children, ...lower.children, foot].filter(Boolean);
+
+  const zoom = zoomState[kind] || 1;
+  let used = 0;
+  let currentPage = 1;
+  blocks.forEach(el=>{
+    const cs = getComputedStyle(el);
+    const h = (el.offsetHeight + parseFloat(cs.marginTop||0) + parseFloat(cs.marginBottom||0)) / zoom;
+    if(used > 0 && used + h > CONTENT_H){
+      currentPage++;
+      used = h;
+    } else {
+      used += h;
+    }
+    el.dataset.previewPage = currentPage;
+  });
+
+  const pages = Math.max(currentPage, 1);
+  previewPageCount[kind] = pages;
+  if(previewPage[kind] > pages) previewPage[kind] = pages;
+  if(previewPage[kind] < 1) previewPage[kind] = 1;
+
+  // Continuous preview: keep every block visible. The page number is only
+  // used by the navigation controls to scroll to the corresponding printed
+  // page position.
+  blocks.forEach(el=>{ el.dataset.pageHidden = 'false'; });
+  sheet.classList.remove('page-viewing');
+
+  const note = document.getElementById(noteId);
+  if(note){
+    note.textContent = pages > 1
+      ? `Continuous preview — ${pages} printed pages`
+      : 'Continuous preview — 1 printed page';
+  }
+  updatePageNav(kind);
+}
+
+function paginateActive(){
+  requestAnimationFrame(()=>{
+    paginateSheet('sheet-proposal', 'pageCountProposal');
+    paginateSheet('sheet-invoice', 'pageCountInvoice');
+    paginateSheet('sheet-ack', 'pageCountAck');
+  });
+}
+
+const hadSavedDraft = loadState();
+function safeInit(label, fn){
+  try{ fn(); }catch(e){ console.error('Init step failed: '+label, e); }
+}
+safeInit('renderItemEditor(proposal)', ()=>renderItemEditor('proposal'));
+safeInit('renderItemEditor(invoice)', ()=>renderItemEditor('invoice'));
+safeInit('renderAckItemEditor', renderAckItemEditor);
+safeInit('renderAllSigThumbs', renderAllSigThumbs);
+safeInit('applyAllLocks', applyAllLocks);
+safeInit('syncAutoDateDisabled(p_prepdate)', ()=>syncAutoDateDisabled('p_prepdate'));
+safeInit('syncAutoDateDisabled(i_prepdate)', ()=>syncAutoDateDisabled('i_prepdate'));
+safeInit('syncAutoDateDisabled(a_appdate)', ()=>syncAutoDateDisabled('a_appdate'));
+// These two are what make typing show up in the preview — they always run,
+// even if a step above failed, so a bad saved draft can never again result
+// in a page where input silently stops reaching the preview.
+safeInit('bindLiveInputs', bindLiveInputs);
+safeInit('renderPreview', renderPreview);
+safeInit('applyZoom(all tabs)', ()=>ALL_TABS.forEach(applyZoom));
+safeInit('bindZoomWheel', bindZoomWheel);
+if(!hadSavedDraft) saveState();
+document.getElementById('printPaperModal')?.addEventListener('click', e=>{ if(e.target.id==='printPaperModal') closePrintPaperModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closePrintPaperModal(); });
+window.addEventListener('beforeunload', saveState);
+
+if(document.fonts && document.fonts.ready){ document.fonts.ready.then(paginateActive); }
+window.addEventListener('resize', paginateActive);
+paginateActive();
+</script>
+
+<div class="print-paper-modal no-print" id="printPaperModal" role="dialog" aria-modal="true" aria-labelledby="printPaperTitle">
+  <div class="print-paper-card">
+    <h3 id="printPaperTitle">Print / Save as PDF</h3>
+    <p>Select the paper size for the exported document. All pages will be printed, regardless of which page is currently visible in Preview.</p>
+    <select class="print-paper-select" id="printPaperSize">
+      <option value="legal">Legal — 8.5 × 14 in</option>
+      <option value="letter">Letter — 8.5 × 11 in</option>
+      <option value="a3">A3 — 297 × 420 mm</option>
+      <option value="a4" selected="">A4 — 210 × 297 mm</option>
+      <option value="executive">Executive — 7.25 × 10.5 in</option>
+      <option value="tabloid">Tabloid — 11 × 17 in</option>
+      <option value="statement">Statement — 5.5 × 8.5 in</option>
+    </select>
+    <div class="print-paper-actions">
+      <button type="button" onclick="closePrintPaperModal()">Cancel</button>
+      <button type="button" class="primary" onclick="confirmPrintPaper()">Continue to Print</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+<style id="lock-toggle-clickable">
+.lock-btn,.lock-btn.locked{pointer-events:auto;cursor:pointer;}
+</style>
+<div role="status" aria-live="polite" aria-atomic="true" style="position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0px; border: 0px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); clip-path: inset(50%); white-space: nowrap;"></div><div role="alert" aria-live="assertive" aria-atomic="true" style="position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0px; border: 0px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); clip-path: inset(50%); white-space: nowrap;"></div></body></html>

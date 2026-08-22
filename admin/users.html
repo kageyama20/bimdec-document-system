@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Users &amp; Invitations — BIMDEC Document System</title>
+<link rel="icon" type="image/png" href="../assets/logo.png">
+<link rel="stylesheet" href="../assets/css/portal.css">
+</head>
+<body>
+  <div class="appbar">
+    <div class="appbar-inner">
+      <img class="mark" src="../assets/logo.png" alt="BIMDEC logo">
+      <div class="brandtext">
+        <div class="name">BIMDEC Document System</div>
+        <div class="tag">Admin Portal</div>
+      </div>
+      <div class="spacer"></div>
+      <div class="who">Signed in as <b id="whoName">—</b></div>
+      <button class="logout" onclick="doLogout()">Log out</button>
+    </div>
+  </div>
+  <div class="adminnav">
+    <div class="adminnav-inner">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="documents.html">Documents</a>
+      <a href="users.html" class="active">Users &amp; Invitations</a>
+      <a href="email.html">Email</a>
+    </div>
+  </div>
+
+  <div class="shell">
+    <div class="welcome-banner">
+      <div class="txt">
+        <h1>Users &amp; Invitations</h1>
+        <p>Invite new admins or clients, track open invite codes, and see everyone currently registered.</p>
+      </div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Registered users</h3>
+        <div class="big" id="statUsers">—</div>
+        <p>Admin and client accounts currently registered in this system.</p>
+      </div>
+      <div class="card">
+        <h3>Open invitations</h3>
+        <div class="big" id="statInvites">—</div>
+        <p>Invite codes generated but not yet used to create an account.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="panel-title">Invite a new user</div>
+      <p class="sub" style="color:var(--muted); font-size:13px; margin-top:-8px;">Signup is invitation-only — generate a code below and share it directly with the person you're inviting.</p>
+      <form class="inline-form" onsubmit="return createInvite(event)">
+        <div class="field">
+          <label for="inviteRole">Role</label>
+          <select id="inviteRole">
+            <option value="client">Client</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="inviteNote">Note (optional)</label>
+          <input type="text" id="inviteNote" placeholder="e.g. For Future Objects, Inc.">
+        </div>
+        <div class="field">
+          <label for="inviteEmail">Email invite (optional)</label>
+          <input type="email" id="inviteEmail" placeholder="send the code directly by email">
+        </div>
+        <button class="btn-small" type="submit">Generate invite code</button>
+      </form>
+      <div class="send-status" id="inviteEmailStatus"></div>
+    </div>
+
+    <div class="section">
+      <div class="panel-title">Invitations</div>
+      <div id="invitesWrap"></div>
+    </div>
+
+    <div class="section">
+      <div class="panel-title">Registered users</div>
+      <div id="usersWrap"></div>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/supabase-config.js"></script>
+<script src="../assets/js/db.js"></script>
+<script src="../assets/js/emailClient.js"></script>
+<script>
+let session = null;
+
+async function doLogout(){ await DB.logout(); window.location.href = '../login.html'; }
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function render(){
+  document.getElementById('whoName').textContent = session.fullName;
+
+  const users = await DB.listUsers();
+  const invites = await DB.listInvites();
+  document.getElementById('statUsers').textContent = users.length;
+  document.getElementById('statInvites').textContent = invites.filter(i=>!i.usedBy).length;
+
+  const invitesWrap = document.getElementById('invitesWrap');
+  if(invites.length === 0){
+    invitesWrap.innerHTML = '<div class="empty"><div class="icon">✉</div>No invitations yet — generate one above.</div>';
+  } else {
+    invitesWrap.innerHTML = `<table class="table"><thead><tr>
+        <th>Code</th><th>Role</th><th>Note</th><th>Status</th><th></th>
+      </tr></thead><tbody>` +
+      invites.map(i => `<tr>
+          <td><span class="copy-code" title="Click to copy" onclick="copyCode('${i.code}')">${i.code}</span></td>
+          <td><span class="pill role-${i.role}">${i.role}</span></td>
+          <td>${escapeHtml(i.note) || '<span style="color:var(--muted)">—</span>'}</td>
+          <td>${i.usedBy ? `<span class="pill used">Used · ${escapeHtml(i.usedBy)}</span>` : '<span class="pill unused">Unused</span>'}</td>
+          <td>${i.usedBy ? '' : `<button class="btn-small" style="background:var(--danger)" onclick="removeInvite('${i.code}')">Revoke</button>`}</td>
+        </tr>`).join('') +
+      `</tbody></table>`;
+  }
+
+  const usersWrap = document.getElementById('usersWrap');
+  usersWrap.innerHTML = `<table class="table"><thead><tr>
+      <th>Name</th><th>Email</th><th>Role</th><th>Company / Position</th><th>Joined</th>
+    </tr></thead><tbody>` +
+    users.map(u => `<tr>
+        <td>${escapeHtml(u.fullName)}</td>
+        <td>${escapeHtml(u.email)}</td>
+        <td><span class="pill role-${u.role}">${u.role}</span></td>
+        <td>${escapeHtml(u.company || u.position) || '<span style="color:var(--muted)">—</span>'}</td>
+        <td>${new Date(u.createdAt).toLocaleDateString('en-PH', {year:'numeric', month:'short', day:'numeric'})}</td>
+      </tr>`).join('') +
+    `</tbody></table>`;
+}
+
+async function createInvite(evt){
+  evt.preventDefault();
+  const role = document.getElementById('inviteRole').value;
+  const note = document.getElementById('inviteNote').value.trim();
+  const email = document.getElementById('inviteEmail').value.trim();
+  const code = await DB.createInvite(role, note);
+  document.getElementById('inviteNote').value = '';
+  await render();
+  copyCode(code);
+
+  const status = document.getElementById('inviteEmailStatus');
+  if(email){
+    if(!EmailClient.isConfigured()){
+      status.className = 'send-status bad';
+      status.textContent = 'Code generated, but the email service isn\'t connected yet — connect it on the Email page to send invites directly.';
+    } else {
+      status.className = 'send-status pending';
+      status.textContent = 'Emailing invite to ' + email + '…';
+      try{
+        await EmailClient.send({
+          to: email,
+          subject: 'You\'re invited to the BIMDEC Document System',
+          html: `<p>You've been invited to join the BIMDEC Document System as ${role === 'admin' ? 'an Admin' : 'a Client'}.</p>
+                 <p>Your invite code:</p>
+                 <p style="font-family:monospace; font-size:16px; background:#EEF1F6; padding:8px 12px; display:inline-block; border-radius:6px;">${code}</p>
+                 <p>Go to the signup page and enter this code to create your account.</p>`,
+        });
+        status.className = 'send-status ok';
+        status.textContent = 'Invite emailed to ' + email + '.';
+      }catch(err){
+        status.className = 'send-status bad';
+        status.textContent = 'Code generated, but the email failed to send: ' + err.message;
+      }
+    }
+    document.getElementById('inviteEmail').value = '';
+  } else {
+    status.textContent = '';
+  }
+  return false;
+}
+
+async function removeInvite(code){
+  if(!confirm('Revoke invite ' + code + '? This cannot be undone.')) return;
+  await DB.revokeInvite(code);
+  render();
+}
+
+function copyCode(code){
+  if(navigator.clipboard){ navigator.clipboard.writeText(code).catch(()=>{}); }
+}
+
+(async function main(){
+  session = await DB.requireSession('admin');
+  if(!session) return;
+  render();
+})();
+</script>
+</body>
+</html>

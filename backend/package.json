@@ -1,0 +1,23 @@
+{
+  "name": "bimdec-email-service",
+  "version": "1.0.0",
+  "description": "Small always-on service that sends mail via SMTP and watches an IMAP inbox in real time for the BIMDEC Document System admin portal.",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "imapflow": "^1.0.167",
+    "mailparser": "^3.7.1",
+    "nodemailer": "^6.9.14",
+    "socket.io": "^4.7.5"
+  }
+}

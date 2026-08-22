@@ -1,0 +1,13 @@
+{
+  "_comment": "Reference copy of the bootstrap data used by /assets/js/db.js. This example admin invite code should be used or revoked, then replaced with codes generated from the Admin Portal.",
+  "invites": [
+    {
+      "code": "ADMIN-BOOTSTRAP-0001",
+      "role": "admin",
+      "note": "Example admin invite — revoke or use this, then generate fresh codes from the Admin Portal.",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "usedBy": null,
+      "usedAt": null
+    }
+  ]
+}

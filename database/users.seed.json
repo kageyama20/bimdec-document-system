@@ -1,0 +1,17 @@
+{
+  "_comment": "Reference copy of the bootstrap data used by /assets/js/db.js. Change the bootstrap admin password after first login — see database/SCHEMA.md.",
+  "users": [
+    {
+      "id": "u_admin_bootstrap",
+      "role": "admin",
+      "fullName": "BIMDEC Administrator",
+      "email": "admin@bimphilippines.org",
+      "password": "BIMDEC-Admin-2026",
+      "position": "System Administrator",
+      "company": "",
+      "phone": "",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "mustChangePassword": true
+    }
+  ]
+}

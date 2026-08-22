@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email — BIMDEC Document System</title>
+<link rel="icon" type="image/png" href="../assets/logo.png">
+<link rel="stylesheet" href="../assets/css/portal.css">
+</head>
+<body>
+  <div class="appbar">
+    <div class="appbar-inner">
+      <img class="mark" src="../assets/logo.png" alt="BIMDEC logo">
+      <div class="brandtext">
+        <div class="name">BIMDEC Document System</div>
+        <div class="tag">Admin Portal</div>
+      </div>
+      <div class="spacer"></div>
+      <div class="who">Signed in as <b id="whoName">—</b></div>
+      <button class="logout" onclick="doLogout()">Log out</button>
+    </div>
+  </div>
+  <div class="adminnav">
+    <div class="adminnav-inner">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="documents.html">Documents</a>
+      <a href="users.html">Users &amp; Invitations</a>
+      <a href="email.html" class="active">Email</a>
+    </div>
+  </div>
+
+  <div class="shell">
+    <div class="welcome-banner">
+      <div class="txt">
+        <h1>Emailing System</h1>
+        <p>Send mail through your own SMTP account and read replies as they arrive — powered by the backend service connected below.</p>
+      </div>
+      <div class="spacer"></div>
+      <span class="conn-badge pending" id="connBadge"><span class="dot"></span><span id="connBadgeText">Not connected</span></span>
+    </div>
+
+    <div class="section" id="settingsSection">
+      <div class="panel-title">Connection settings</div>
+      <p class="sub" style="color:var(--muted); font-size:13px; margin-top:-8px;">
+        Enter the backend email service's URL and API key (see <code>/backend/README.md</code> for how to deploy it to Render or Railway). This is saved only in this browser.
+      </p>
+      <form class="inline-form" onsubmit="return saveSettings(event)">
+        <div class="field">
+          <label for="cfgApiBase">Backend URL</label>
+          <input type="text" id="cfgApiBase" placeholder="https://bimdec-email.onrender.com">
+        </div>
+        <div class="field">
+          <label for="cfgApiKey">API key</label>
+          <input type="text" id="cfgApiKey" placeholder="paste the API_KEY you set on the backend">
+        </div>
+        <button class="btn-small" type="submit">Save &amp; connect</button>
+      </form>
+      <div class="send-status" id="settingsStatus"></div>
+    </div>
+
+    <div class="email-layout">
+      <div>
+        <div class="section">
+          <div class="panel-title" style="display:flex; align-items:center; justify-content:space-between;">
+            <span>Inbox</span>
+            <button class="btn-small" style="padding:6px 10px; font-size:11px;" onclick="refreshInbox()">Refresh</button>
+          </div>
+          <ul class="inbox-list" id="inboxList"><div class="empty"><div class="icon">✉</div>Connect the backend above to load your inbox.</div></ul>
+        </div>
+      </div>
+
+      <div>
+        <div class="section" id="messageSection" style="display:none;">
+          <div class="panel-title">Message</div>
+          <div class="msg-view" id="msgView"></div>
+        </div>
+
+        <div class="section">
+          <div class="panel-title">Compose</div>
+          <form class="compose-grid" onsubmit="return sendCompose(event)">
+            <div class="field" style="margin-bottom:0;">
+              <label for="cTo">To</label>
+              <input type="email" id="cTo" required placeholder="client@example.com">
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label for="cSubject">Subject</label>
+              <input type="text" id="cSubject" required placeholder="e.g. Following up on your proposal">
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label for="cBody">Message</label>
+              <textarea id="cBody" required placeholder="Write your message…"></textarea>
+            </div>
+            <button class="btn-small" type="submit" style="justify-self:start;">Send email</button>
+            <div class="send-status" id="composeStatus"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/supabase-config.js"></script>
+<script src="../assets/js/db.js"></script>
+<script src="../assets/js/emailClient.js"></script>
+<script>
+(async function(){
+  const session = await DB.requireSession('admin');
+  if(!session) return;
+  document.getElementById('whoName').textContent = session.fullName;
+})();
+
+async function doLogout(){ await DB.logout(); window.location.href = '../login.html'; }
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+let liveSocket = null;
+let activeUid = null;
+
+function setConnBadge(status, text){
+  const badge = document.getElementById('connBadge');
+  badge.className = 'conn-badge ' + status;
+  document.getElementById('connBadgeText').textContent = text;
+}
+
+function loadSettingsIntoForm(){
+  const cfg = EmailClient.getConfig();
+  document.getElementById('cfgApiBase').value = cfg.apiBase || '';
+  document.getElementById('cfgApiKey').value = cfg.apiKey || '';
+}
+
+async function saveSettings(evt){
+  evt.preventDefault();
+  const apiBase = document.getElementById('cfgApiBase').value.trim();
+  const apiKey = document.getElementById('cfgApiKey').value.trim();
+  EmailClient.setConfig({ apiBase, apiKey });
+  document.getElementById('settingsStatus').textContent = 'Saved. Checking connection…';
+  document.getElementById('settingsStatus').className = 'send-status pending';
+  await connectAndLoad();
+  return false;
+}
+
+async function connectAndLoad(){
+  if(!EmailClient.isConfigured()){
+    setConnBadge('pending', 'Not connected');
+    return;
+  }
+  try{
+    await EmailClient.checkHealth();
+    setConnBadge('ok', 'Connected');
+    document.getElementById('settingsStatus').textContent = 'Connected to backend.';
+    document.getElementById('settingsStatus').className = 'send-status ok';
+  }catch(err){
+    setConnBadge('bad', 'Backend unreachable');
+    document.getElementById('settingsStatus').textContent = 'Could not reach backend: ' + err.message;
+    document.getElementById('settingsStatus').className = 'send-status bad';
+  }
+  refreshInbox();
+  startLive();
+}
+
+function startLive(){
+  if(liveSocket) { liveSocket.disconnect(); liveSocket = null; }
+  liveSocket = EmailClient.connectLive({
+    onNewMail(msg){ prependInboxItem(msg); },
+    onConnectionState(state){
+      if(state.status === 'ok') setConnBadge('ok', 'Live — ' + state.detail);
+      else if(state.status === 'bad') setConnBadge('bad', state.detail);
+      else setConnBadge('pending', state.detail);
+    }
+  });
+}
+
+function timeAgo(iso){
+  const d = new Date(iso);
+  return d.toLocaleString('en-PH', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+function renderInboxList(messages){
+  const list = document.getElementById('inboxList');
+  if(!messages || messages.length === 0){
+    list.innerHTML = '<div class="empty"><div class="icon">✉</div>No messages yet.</div>';
+    return;
+  }
+  list.innerHTML = messages.map(m => inboxItemHtml(m)).join('');
+}
+
+function inboxItemHtml(m){
+  return `<li class="inbox-item${m.unread?' unread':''}${activeUid===String(m.uid)?' active':''}" data-uid="${escapeHtml(m.uid)}" onclick="openMessage('${escapeHtml(String(m.uid))}')">
+      <span class="when">${timeAgo(m.date)}</span>
+      <div class="from">${escapeHtml(m.from)}</div>
+      <div class="subj">${escapeHtml(m.subject)}</div>
+      <div class="snip">${escapeHtml(m.snippet)}</div>
+    </li>`;
+}
+
+function prependInboxItem(m){
+  const list = document.getElementById('inboxList');
+  const empty = list.querySelector('.empty');
+  if(empty) list.innerHTML = '';
+  list.insertAdjacentHTML('afterbegin', inboxItemHtml(m));
+}
+
+async function refreshInbox(){
+  if(!EmailClient.isConfigured()) return;
+  try{
+    const data = await EmailClient.listInbox({ limit: 50 });
+    renderInboxList(data.messages);
+  }catch(err){
+    document.getElementById('inboxList').innerHTML = `<div class="empty"><div class="icon">⚠</div>${escapeHtml(err.message)}</div>`;
+  }
+}
+
+async function openMessage(uid){
+  activeUid = uid;
+  document.querySelectorAll('.inbox-item').forEach(el => el.classList.toggle('active', el.dataset.uid === uid));
+  const section = document.getElementById('messageSection');
+  const view = document.getElementById('msgView');
+  section.style.display = 'block';
+  view.innerHTML = '<p style="color:var(--muted)">Loading…</p>';
+  try{
+    const data = await EmailClient.getMessage(uid);
+    const m = data.message;
+    view.innerHTML = `<div class="hdr">
+        <p class="subj">${escapeHtml(m.subject)}</p>
+        <div class="meta">From ${escapeHtml(m.from)} &nbsp;·&nbsp; ${timeAgo(m.date)}</div>
+      </div>
+      <div class="body">${m.html ? m.html : escapeHtml(m.text || '(no body)')}</div>
+      <div style="margin-top:16px;">
+        <button class="btn-small" onclick="replyTo('${escapeHtml(m.from.replace(/.*<|>.*/g,''))}','${escapeHtml('Re: ' + m.subject)}')">Reply</button>
+      </div>`;
+    if(m.unread){ EmailClient.markRead(uid).catch(()=>{}); }
+  }catch(err){
+    view.innerHTML = `<p style="color:var(--danger)">${escapeHtml(err.message)}</p>`;
+  }
+}
+
+function replyTo(to, subject){
+  document.getElementById('cTo').value = to;
+  document.getElementById('cSubject').value = subject;
+  document.getElementById('cBody').focus();
+}
+
+async function sendCompose(evt){
+  evt.preventDefault();
+  const to = document.getElementById('cTo').value.trim();
+  const subject = document.getElementById('cSubject').value.trim();
+  const body = document.getElementById('cBody').value;
+  const status = document.getElementById('composeStatus');
+  status.className = 'send-status pending';
+  status.textContent = 'Sending…';
+  try{
+    await EmailClient.send({ to, subject, html: escapeHtml(body).replace(/\n/g,'<br>'), text: body });
+    status.className = 'send-status ok';
+    status.textContent = 'Sent to ' + to + '.';
+    document.getElementById('cBody').value = '';
+  }catch(err){
+    status.className = 'send-status bad';
+    status.textContent = 'Failed: ' + err.message;
+  }
+  return false;
+}
+
+loadSettingsIntoForm();
+connectAndLoad();
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Portal — BIMDEC Document System</title>
+<link rel="icon" type="image/png" href="../assets/logo.png">
+<link rel="stylesheet" href="../assets/css/portal.css">
+</head>
+<body>
+  <div class="appbar">
+    <div class="appbar-inner">
+      <img class="mark" src="../assets/logo.png" alt="BIMDEC logo">
+      <div class="brandtext">
+        <div class="name">BIMDEC Document System</div>
+        <div class="tag">Admin Portal</div>
+      </div>
+      <div class="spacer"></div>
+      <div class="who">Signed in as <b id="whoName">—</b></div>
+      <button class="logout" onclick="doLogout()">Log out</button>
+    </div>
+  </div>
+  <div class="adminnav">
+    <div class="adminnav-inner">
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="documents.html">Documents</a>
+      <a href="users.html">Users &amp; Invitations</a>
+      <a href="email.html">Email</a>
+    </div>
+  </div>
+
+  <div class="shell">
+    <div class="welcome-banner">
+      <div class="txt">
+        <h1 id="greet">Welcome back</h1>
+        <p>Prepare proposals, invoices, and acknowledgement receipts, email them out, and manage who can access the system.</p>
+      </div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Document Generator</h3>
+        <div class="big">3</div>
+        <p>Proposal, billing invoice, and acknowledgement receipt templates with your letterhead and payment details pre-filled. Send any of them straight to a client's email from the preview.</p>
+        <a class="linkbtn" href="documents.html">Open Documents &rarr;</a>
+      </div>
+      <div class="card">
+        <h3>Emailing System</h3>
+        <div class="big" id="statConn">—</div>
+        <p>Send mail through your own SMTP account and read replies in real time.</p>
+        <a class="linkbtn amber" href="email.html">Open Email &rarr;</a>
+      </div>
+      <div class="card">
+        <h3>Registered users</h3>
+        <div class="big" id="statUsers">—</div>
+        <p>Admin and client accounts currently registered in this system.</p>
+        <a class="linkbtn" href="users.html">Manage users &rarr;</a>
+      </div>
+      <div class="card">
+        <h3>Open invitations</h3>
+        <div class="big" id="statInvites">—</div>
+        <p>Invite codes generated but not yet used to create an account.</p>
+        <a class="linkbtn" href="users.html">Invite a user &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/supabase-config.js"></script>
+<script src="../assets/js/db.js"></script>
+<script src="../assets/js/emailClient.js"></script>
+<script>
+async function doLogout(){ await DB.logout(); window.location.href = '../login.html'; }
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function render(session){
+  document.getElementById('whoName').textContent = session.fullName;
+  document.getElementById('greet').textContent = 'Welcome back, ' + session.fullName.split(' ')[0] + '.';
+
+  const users = await DB.listUsers();
+  const invites = await DB.listInvites();
+  document.getElementById('statUsers').textContent = users.length;
+  document.getElementById('statInvites').textContent = invites.filter(i=>!i.usedBy).length;
+
+  const connEl = document.getElementById('statConn');
+  if(typeof EmailClient !== 'undefined' && EmailClient.isConfigured()){
+    connEl.textContent = 'On';
+    connEl.style.color = 'var(--ok)';
+  } else {
+    connEl.textContent = 'Off';
+    connEl.style.color = 'var(--muted)';
+  }
+}
+
+(async function main(){
+  const session = await DB.requireSession('admin');
+  if(!session) return;
+  render(session);
+})();
+</script>
+</body>
+</html>
