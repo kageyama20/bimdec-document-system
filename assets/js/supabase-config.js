@@ -10,6 +10,6 @@
  * must never reach the browser.
  */
 window.SUPABASE_CONFIG = {
-  url: 'https://tardsfjvpfusgrzruit.supabase.co/rest/v1',
-  anonKey: 'sb_publishable_GL-WOu1J7bXAlYG7achf0Q_YJb2XkqT'
+  url: 'https://tardsfjvpfusgrgzruit.supabase.co/rest/v1/',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhcmRzZmp2cGZ1c2dyZ3pydWl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczOTQyNjYsImV4cCI6MjEwMjk3MDI2Nn0.E3ksg3Co0hR8r7Sv7R6-I5wM1BtvOQ7DqCkD1WTtXIk'
 };
