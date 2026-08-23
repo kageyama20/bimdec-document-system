@@ -1,0 +1,12 @@
+# Real credentials — SMTP/IMAP mailbox passwords live here.
+# Only .env.example (placeholders) belongs in git.
+.env
+.env.*
+!.env.example
+
+node_modules/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.log
