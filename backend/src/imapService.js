@@ -49,15 +49,55 @@ function toSummary(parsed, uid, unread) {
   };
 }
 
-async function fetchAndStore(client, uid, { announce } = { announce: false }) {
+/*
+ * Downloads one message and stores it. `unread` is passed in from the
+ * caller's earlier fetch rather than looked up here — one less IMAP
+ * round trip per message, and see collectUids() for why we can't issue
+ * an extra command at this point anyway.
+ */
+async function fetchAndStore(client, uid, { announce = false, unread = true } = {}) {
   const { content } = await client.download(uid, undefined, { uid: true });
   const parsed = await simpleParser(content);
-  const flagsData = await client.fetchOne(uid, { flags: true }, { uid: true });
-  const unread = !(flagsData && flagsData.flags && flagsData.flags.has('\\Seen'));
   const summary = toSummary(parsed, uid, unread);
   store.addMessage(summary);
   if (announce && io) io.emit('newMail', summary);
   return summary;
+}
+
+/*
+ * Drains a fetch range into a plain array of { uid, unread } BEFORE any
+ * message body is downloaded.
+ *
+ * This split is not cosmetic. ImapFlow runs one command at a time per
+ * connection, and client.fetch() holds that connection until its
+ * iterator is fully drained. Calling client.download() from inside the
+ * loop queues a command behind a FETCH that cannot complete until the
+ * loop advances — and the loop cannot advance because it is awaiting
+ * the download. That deadlock sat there until socketTimeout fired,
+ * surfacing as "Socket timeout" followed by "Connection not available",
+ * and it meant the very first message of every poll failed and nothing
+ * was ever cached.
+ */
+async function collectUids(client, range) {
+  const out = [];
+  for await (const msg of client.fetch(range, { uid: true, flags: true })) {
+    out.push({ uid: msg.uid, unread: !(msg.flags && msg.flags.has('\\Seen')) });
+  }
+  return out;
+}
+
+async function downloadAll(client, pending, { announce, context }) {
+  for (const { uid, unread } of pending) {
+    if (client._connectionLost) {
+      console.error(`[imap] aborting ${context} — connection lost`);
+      break;
+    }
+    try {
+      await fetchAndStore(client, uid, { announce, unread });
+    } catch (err) {
+      console.error(`[imap] failed to fetch message uid=${uid} during ${context}`, err.message);
+    }
+  }
 }
 
 function openClient() {
@@ -102,27 +142,33 @@ async function doPollFetch({ announceNew }) {
     const mailbox = process.env.IMAP_MAILBOX || 'INBOX';
     lock = await client.getMailboxLock(mailbox);
     const total = client.mailbox.exists || 0;
+
+    let range = null;
+    let announce = false;
+    let context = '';
     if (lastKnownExists === null) {
       // First ever check: seed the cache with the most recent N messages
       // without treating all of them as "new" pushes.
       const initialFetch = Number(process.env.IMAP_INITIAL_FETCH || 10);
       const start = Math.max(1, total - initialFetch + 1);
       if (total > 0) {
-        const range = `${start}:${total}`;
-        for await (const msg of client.fetch(range, { uid: true })) {
-          if (client._connectionLost) { console.error('[imap] aborting initial fetch — connection lost'); break; }
-          try { await fetchAndStore(client, msg.uid, { announce: false }); }
-          catch (err) { console.error('[imap] parse failed during initial fetch', err.message); }
-        }
+        range = `${start}:${total}`;
+        context = 'initial fetch';
       }
     } else if (total > lastKnownExists) {
-      const range = `${lastKnownExists + 1}:${total}`;
-      for await (const msg of client.fetch(range, { uid: true })) {
-        if (client._connectionLost) { console.error('[imap] aborting poll fetch — connection lost'); break; }
-        try { await fetchAndStore(client, msg.uid, { announce: announceNew }); }
-        catch (err) { console.error('[imap] parse failed during poll', err.message); }
-      }
+      range = `${lastKnownExists + 1}:${total}`;
+      announce = announceNew;
+      context = 'poll';
     }
+
+    if (range) {
+      await downloadAll(client, await collectUids(client, range), { announce, context });
+    }
+
+    // Only advanced once we've actually seen the mailbox. A single
+    // message that won't download is logged and skipped above rather
+    // than re-attempted forever — otherwise one bad message stalls
+    // every later poll behind it.
     lastKnownExists = total;
     store.setConnectionState('ok', `Checked ${new Date().toLocaleTimeString()} — polling every ${MIN_POLL_INTERVAL_MS / 1000}s.`);
   } finally {
@@ -188,10 +234,8 @@ async function connectIdleOnce() {
     const initialFetch = Number(process.env.IMAP_INITIAL_FETCH || 30);
     const start = Math.max(1, total - initialFetch + 1);
     if (total > 0) {
-      for await (const msg of idleClient.fetch(`${start}:${total}`, { uid: true })) {
-        try { await fetchAndStore(idleClient, msg.uid, { announce: false }); }
-        catch (err) { console.error('[imap] failed to parse message during initial sync', err.message); }
-      }
+      const pending = await collectUids(idleClient, `${start}:${total}`);
+      await downloadAll(idleClient, pending, { announce: false, context: 'initial sync' });
     }
     lastKnownExists = total;
   } finally {
@@ -205,9 +249,8 @@ async function connectIdleOnce() {
         const total = idleClient.mailbox.exists || 0;
         const prev = data.prevCount || (total - 1);
         if (total <= prev) return;
-        for await (const msg of idleClient.fetch(`${prev + 1}:${total}`, { uid: true })) {
-          await fetchAndStore(idleClient, msg.uid, { announce: true });
-        }
+        const pending = await collectUids(idleClient, `${prev + 1}:${total}`);
+        await downloadAll(idleClient, pending, { announce: true, context: 'new mail' });
         lastKnownExists = total;
       } finally {
         lock2.release();
