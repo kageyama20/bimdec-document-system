@@ -3,102 +3,128 @@
 A client/admin portal in front of the BIMDEC document generator (proposal,
 billing invoice, and acknowledgement receipt templates).
 
-## Getting started
+Two deployables, both on Render's free tier, both described by
+[`render.yaml`](render.yaml):
 
-Open `index.html` in a browser (or serve the folder with any static file
-server). No build step or server-side install is required.
+| | What | Render service |
+|---|---|---|
+| `frontend/` | Vite + React single-page app — the whole portal | Static Site (free, never sleeps) |
+| `backend/` | Express + Socket.IO service: SMTP send + IMAP inbox | Web Service (free, sleeps after ~15 min idle) |
 
-1. **Welcome page** (`index.html`) — entry point with Client / Admin login options.
-2. **Sign in** (`login.html`) — use the bootstrap admin account to get started:
-   - Email: `admin@bimphilippines.org`
-   - Password: `BIMDEC-Admin-2026`
-   - Change this password's account details from a real backend before
-     using this with real client data — see the security note in
-     `database/SCHEMA.md`.
-3. From the **Admin Portal** (`admin/dashboard.html`), you can still generate
-   invite codes for new admins or clients under "Invite a new user" — but
-   this is **not required right now**: see the note below.
-4. **Invite-code gating is temporarily switched off.** `signup.html` no
-   longer requires a code — anyone who reaches the signup page picks
-   "Admin" or "Client" and creates an account directly. Turn this back on
-   before sharing the link publicly (see "Re-enabling invites" below).
-5. Locked out of the bootstrap admin account? Use "Reset demo data & try
-   again" on `login.html` — it clears this browser's local copy of the
-   simulated database (`localStorage`) and restores the original bootstrap
-   admin login. Note this only resets *that browser*; it doesn't affect
-   what other visitors' browsers have stored.
-5. Admins open **Documents** (`admin/documents.html`) to prepare proposals,
-   invoices, and receipts — this is the original document generator, with
-   client-specific sample data (names, dates, project details, invoice/
-   receipt numbers, amounts, and fee line items) cleared out. The firm's
-   letterhead, payment channel details, and the boilerplate Terms &
-   Conditions / Revision Policy / Payment Schedule text are unchanged.
-6. **Users & Invitations** (`admin/users.html`) — dedicated page for
-   inviting new admins/clients, tracking open invite codes, and viewing
-   everyone currently registered. (This used to live inline on the
-   dashboard; it now has its own page, linked from the top nav.)
-7. **Email** (`admin/email.html`) — a real emailing system: send mail
-   through your own SMTP account, and read replies as they arrive in
-   real time. This talks to a small backend service in `/backend` — see
-   `backend/README.md` to deploy it (Netlify alone can't hold an open
-   IMAP connection or keep a mail password safe). Until that backend is
-   deployed and connected (Email page → Connection settings), sending
-   and reading mail will show a "not connected" message.
-8. From **Documents**, each of the three templates now has a
-   **"Send this to email"** box under the print button — it renders the
-   current preview to a PDF in the browser and emails it as an
-   attachment through the same backend service.
+Accounts, profiles, and invite codes live in Supabase (see
+`database/SCHEMA.md`), not in the browser.
+
+## Running it locally
+
+```bash
+cd frontend
+cp .env.example .env      # Supabase project + default backend URL
+npm install
+npm run dev               # http://localhost:5173
+```
+
+`npm run build && npm run preview` runs the production bundle on
+http://localhost:4173 — worth doing before any deploy, because it is the only
+way to catch bundling problems (and the SPA fallback) that `npm run dev` hides.
+
+The frontend talks to the deployed email backend by default. Expect a 30-50
+second wait on the first request while Render wakes the free instance. To run
+the backend locally instead, see `backend/README.md`, then set
+`VITE_API_BASE=http://localhost:8080` in `frontend/.env`.
+
+Either way the backend must list your dev origin in `ALLOWED_ORIGINS`
+(`http://localhost:5173`, plus `http://localhost:4173` for `preview`) or every
+request — including the live-inbox WebSocket — is rejected by CORS.
+
+## Using it
+
+1. **Welcome** (`/`) — Client / Admin entry point.
+2. **Sign in** (`/login`) — the role tabs decide which portal you land in;
+   signing in with the wrong tab is rejected rather than silently redirected.
+3. **Sign up** (`/signup`) — invitation-only. Enter a code from an admin
+   first; the profile form only appears once the code validates.
+4. **Admin portal** (`/admin`) — stats and links into the sections below.
+5. **Documents** (`/admin/documents`) — the generator: proposals, invoices,
+   and receipts, with the firm's letterhead, payment channel details, and the
+   boilerplate Terms / Revision Policy / Payment Schedule pre-filled. Each
+   template can be printed, saved as a PDF at a chosen paper size, or emailed
+   to a client as a PDF attachment. Drafts autosave to the browser.
+6. **Users & Invitations** (`/admin/users`) — generate and revoke invite
+   codes (optionally emailing them), and see everyone registered.
+7. **Email** (`/admin/email`) — send mail through your own SMTP account and
+   read replies as they arrive. Needs the backend connected: the URL comes
+   preconfigured from `VITE_API_BASE`, so each admin only pastes the API key
+   once per browser.
+8. **Client portal** (`/client`) — profile and the documents issued to them.
 
 ## Folder structure
 
 ```
-BIMDEC-Document-System/
-├── index.html              Welcome page — entry point
-├── login.html               Client / Admin sign-in
-├── signup.html               Invitation-only account creation
-├── admin/
-│   ├── dashboard.html        Admin home — stats + links into the sections below
-│   ├── documents.html        The document generator (Proposal / Invoice / Receipt),
-│   │                         each with a "Send this to email" box
-│   ├── users.html            Registered users, invitations, invite-a-new-user
-│   └── email.html            Emailing System — compose/send + real-time inbox
-├── client/
-│   └── dashboard.html        Client home — profile, documents issued to them
-├── assets/
-│   ├── css/portal.css        Shared styling for login/signup/dashboards
-│   ├── js/db.js              Simulated database + auth (see security note)
-│   ├── js/emailClient.js     Frontend helper that talks to /backend's API
-│   └── logo.png               BIMDEC logo, reused across login/signup/portals
+bimdec-document-system/
+├── render.yaml               Blueprint: both services, free tier
+├── frontend/                 The portal (Vite + React)
+│   ├── index.html            Single SPA entry
+│   ├── .env.example          VITE_SUPABASE_* + VITE_API_BASE
+│   └── src/
+│       ├── App.jsx           Route table, incl. redirects from the old .html URLs
+│       ├── lib/              supabaseClient · db · emailClient
+│       ├── session/          SessionProvider — one session fetch for the app
+│       ├── components/       ProtectedRoute · PortalShell · AuthCard · Msg
+│       ├── styles/           portal.css · documents.css (scoped under .docgen)
+│       └── pages/
+│           ├── Welcome · Login · Signup
+│           ├── client/Dashboard
+│           └── admin/
+│               ├── Dashboard · Users · Email
+│               └── documents/   the generator (see the note below)
+├── backend/                  SMTP send + real-time IMAP inbox. See backend/README.md.
 ├── database/
-│   ├── SCHEMA.md              Data model + security notes (read this)
-│   ├── users.seed.json        Reference shape for the users table
-│   └── invites.seed.json      Reference shape for the invites table
-└── backend/                  Small always-on Node service: SMTP send +
-                               real-time IMAP inbox. See backend/README.md —
-                               this is NOT hosted on Netlify (deploy it to
-                               Render or Railway and connect it from the
-                               Email page).
+│   ├── SCHEMA.md             Data model + security notes (read this)
+│   ├── supabase-schema.sql   Tables, RLS policies, invite RPCs
+│   └── *.seed.json           Reference shapes
+└── .github/workflows/        Daily keep-alive ping (Supabase pauses after 7 idle days)
 ```
 
-## Important: this is a front-end prototype
+### A note on `src/pages/admin/documents/`
 
-There is no server here. `assets/js/db.js` simulates a database using the
-browser's `localStorage`, seeded with one bootstrap admin account and one
-example admin invite code. That's enough to demo the full flow —
-welcome → login → invite → signup → portal — but it is **not secure**
-and **not multi-device**: each browser has its own separate copy of the
-data, and anyone with devtools access to that browser can read or edit it.
+The generator is still driven imperatively — `documentsController.js` owns the
+DOM inside `DocumentMarkup.jsx`, which renders once and is never re-rendered.
+That is deliberate: the page addresses ~180 element ids directly, autosaves by
+walking `.editor input[id]` and reading `el.value`, and paginates by measuring
+live element heights against an A4 page. Converting all of that to React state
+is a separate piece of work; the header comments in both files spell out the
+invariants to respect until then.
 
-Read `database/SCHEMA.md` for what a real backend would need to replace
-`db.js` with before this handles real client accounts or documents.
+## Deploying
 
-## Re-enabling invites
+`render.yaml` describes both services; Render creates both from it. **Read the
+header comment in that file first** — the frontend needs the backend's public
+URL baked in at build time, and Render only assigns that at creation, so the
+first deploy takes two passes.
 
-Signup is currently open (no code required) so you can get back into an
-admin account and start using the portal. To restore invitation-only
-signup later:
-1. In `signup.html`, put back the invite-code step before the profile
-   form (an earlier version of this file gates the form behind
-   `DB.validateInvite(code)` — regenerate that step, or ask for it).
-2. Keep `assets/js/db.js`'s `createUser()` as-is — it already accepts
-   either an `invite` object or a plain `role`, so it works either way.
+After the frontend moves to a new origin, three things must be updated or the
+portal will look broken in ways that give no error message:
+
+1. **`ALLOWED_ORIGINS`** on the backend — exact-match, comma-separated, and it
+   gates the Socket.IO handshake as well as the REST calls. It fails *open*
+   when empty, so never blank it to "fix" a CORS error.
+2. **Supabase → Authentication → URL Configuration** — Site URL and Redirect
+   URLs, or confirmation and password-reset links keep pointing at the old
+   domain.
+3. **Tell the admins.** `localStorage` is per-origin, so a domain change signs
+   everyone out and clears their saved API key *and any autosaved document
+   draft, including uploaded signature images*. Ask them to finish or export
+   anything in progress first.
+
+## Security notes
+
+- The Supabase key shipped in the frontend bundle is the publishable/anon key.
+  It is safe to expose; the RLS policies in `database/supabase-schema.sql` are
+  what actually protect the data. The `service_role` key must never be put in
+  `frontend/.env` or `render.yaml` — Vite would inline it into a public file.
+- The backend API key is intentionally *not* a build-time variable, for the
+  same reason. It stays in each admin's browser.
+- HTML email bodies are rendered as received on the Email page, exactly as the
+  old page did. That trusts whatever lands in the mailbox — worth revisiting
+  before widening who can send to it.
+- Read `database/SCHEMA.md` for the data model and its security notes.

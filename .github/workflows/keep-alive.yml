@@ -3,6 +3,8 @@ name: Keep free-tier services awake
 # Free hosting tiers pause/sleep after a period of total inactivity:
 #  - Render free web services sleep after ~15 minutes idle (fine — the
 #    admin portal wakes it on demand, no action needed for that part).
+#    This applies to the email backend only. The frontend is a Render
+#    static site, which is CDN-served and never sleeps.
 #  - Supabase free projects PAUSE after 7 days with zero database
 #    activity, and have to be manually resumed from the dashboard.
 # This workflow runs once a day and pings both, which is enough to keep

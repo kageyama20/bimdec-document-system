@@ -1,7 +1,7 @@
 # BIMDEC Email Service (backend)
 
-A small service that gives the static, Netlify-hosted BIMDEC Document
-System admin portal a real emailing system:
+A small service that gives the BIMDEC Document System admin portal — a
+static single-page app served from Render — a real emailing system:
 
 - **Sends mail** via your SMTP account (`POST /api/send`) — used by the
   Emailing System page and by the "Send to email" button in the
@@ -9,8 +9,8 @@ System admin portal a real emailing system:
 - **Reads your inbox** via IMAP (`GET /api/inbox`) and shows new
   messages in the admin portal.
 
-This exists because a static site (Netlify) cannot hold an SMTP/IMAP
-connection or keep your mail password safe — that needs a real server.
+This exists because a static site cannot hold an SMTP/IMAP connection
+or keep your mail password safe — that needs a real server.
 This is that server. It's intentionally small and dependency-light,
 and it's designed to run entirely on **free hosting tiers**.
 
@@ -36,13 +36,15 @@ Set with `IMAP_MODE` in your environment variables:
 Sending mail (SMTP) works the same either way and isn't affected by
 sleep — it just wakes the free instance on demand when you hit "Send".
 
-## Why this can't just live on Netlify
+## Why this can't just live in the static site
 
 - Browsers can't open raw SMTP/IMAP sockets, and mail servers wouldn't
   accept a browser connecting directly anyway.
-- Netlify Functions are short-lived and can't hold a connection open
-  even in poll mode's brief per-check sense — a small standalone
+- Even a serverless function is too short-lived to hold a connection
+  open in poll mode's brief per-check sense — a small standalone
   service like this one is the simplest fit.
+- And the mailbox password has to live somewhere the browser can't
+  read, which rules out anything shipped in the frontend bundle.
 - Your mail password must never be shipped to the browser. It lives
   only in this service's environment variables.
 
@@ -61,50 +63,76 @@ Visit `http://localhost:8080/health` — you should see
 
 ## 2. Deploy it for free
 
-Netlify can't run this (see above). **Render's free tier** is the
-easiest fit — 750 free instance-hours/month is enough to run one
-service continuously, and no credit card is required:
+This service is deployed by the repo-root [`render.yaml`](../render.yaml)
+Blueprint, alongside the frontend static site — **Render's free tier**,
+750 instance-hours/month (enough to run one service continuously), no
+credit card required.
 
-### Render (free)
-1. Push this repo (or just the `backend/` folder) to GitHub.
-2. Render dashboard → New → Web Service → connect the repo.
-3. Root directory: `backend`
-4. Build command: `npm install`
-5. Start command: `npm start`
-6. Instance type: **Free**
-7. Add all the variables from `.env.example` under **Environment**
-   (leave `IMAP_MODE=poll` — that's the free-tier-compatible default).
-8. Deploy. Render gives you a URL like `https://bimdec-email.onrender.com`.
+Read the header comment in `render.yaml` before creating the Blueprint.
+The short version:
 
-That's it — $0/month. The trade-off is the ~20-second poll delay and a
-30-60 second "wake up" the first time it's used after being idle a
-while (Render's cold start) — both fine for an internal admin tool.
+1. Render dashboard → **New → Blueprint** → connect this repo → branch
+   `main`. It prompts for every `sync: false` variable — copy them from
+   your local `backend/.env`.
+2. Note the URL Render assigns (something like
+   `https://bimdec-email.onrender.com`), put it in `VITE_API_BASE` in
+   `render.yaml`, put the frontend's URL in this service's
+   `ALLOWED_ORIGINS`, and sync again. The public URL can't be wired
+   automatically — Render's `fromService` only exposes private-network
+   hostnames.
+
+The trade-off of the free tier is the ~20-second poll delay and a 30-60
+second "wake up" the first time it's used after being idle a while
+(Render's cold start) — both fine for an internal admin tool. The
+frontend is a Render **static site**, which is also free but never
+sleeps, so only mail is affected.
+
+### Running it locally on Windows
+
+If IMAP or SMTP fails with `unable to verify the first certificate`,
+check whether an antivirus is intercepting mail traffic:
+
+```bash
+openssl s_client -connect shu23.u-srv.com:993 -servername shu23.u-srv.com </dev/null 2>/dev/null | grep issuer=
+```
+
+An issuer like `Avast Web/Mail Shield Untrusted Root` means the AV is
+re-signing the connection with a root Node doesn't trust. Turn off its
+Mail Shield while developing. This is local-only — it does not happen on
+Render.
 
 ### If you later want true instant push
 Upgrade the Render service to a paid **Starter** instance (~$7/month,
 always-on), set `IMAP_MODE=idle`, and redeploy. Nothing else changes.
 
-### Railway (alternative)
-Railway's free tier has become far more limited than Render's, so
-Render is the better default for a genuinely free setup. If you still
-prefer Railway, the steps are the same: root directory `backend`, same
-environment variables, `npm start`.
+### `ALLOWED_ORIGINS`
 
-Either way, **set `ALLOWED_ORIGINS` to your real Netlify site URL**
-(e.g. `https://bimphilippines.org`) so only your site can call this API.
+**Set this to the portal's real URL** (e.g.
+`https://bimdec-portal.onrender.com`, plus `http://localhost:5173` while
+developing) so only your site can call this API. Three things to know:
+
+- It is an **exact string match** — no wildcards, no trailing slash, and
+  the scheme is part of it.
+- The same allowlist gates the **Socket.IO handshake**, so a missing
+  origin breaks the live inbox in exactly the same silent way it breaks
+  the REST calls.
+- It **fails open when empty**: with no value set, every origin is
+  allowed. Never blank it out to make a CORS error go away.
 
 ## 3. Point the admin portal at your deployed service
 
-Open the admin portal → **Email** page → **Connection settings**, and
-enter:
+The portal already knows the URL — it comes from `VITE_API_BASE`, set on
+the static site in `render.yaml`. Each admin only needs to supply the key:
 
-- **API base URL**: the URL Render/Railway gave you
-  (e.g. `https://bimdec-email.onrender.com`)
-- **API key**: the same value you set as `API_KEY` in step 2
+Admin portal → **Email** page → **Connection settings** → paste the same
+value you set as `API_KEY`, then **Save & connect**. The badge turns
+green once `/health` answers (allow up to a minute for a cold start).
 
-This is saved in the browser's `localStorage` on the admin's device —
-it is *not* committed to the code, so each admin sets it once on
-whatever device they use to manage the portal.
+The key is saved in that browser's `localStorage` and is deliberately not
+a build-time variable — Vite would inline it into a publicly downloadable
+bundle. So each admin sets it once per device. You can also override the
+backend URL in the same form to point a browser at a local or staging
+instance without rebuilding.
 
 ## Environment variables
 

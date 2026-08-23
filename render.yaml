@@ -1,0 +1,183 @@
+# Render Blueprint — both halves of the BIMDEC Document System.
+#
+# Everything here fits Render's free tier:
+#   - the frontend is a Static Site. Static sites are free, CDN-served, and
+#     (unlike a free web service) they never sleep.
+#   - the backend is a free Web Service. It spins down after ~15 minutes idle
+#     and cold-starts in ~30-50s on the next request; the Email page's
+#     20-second poll is what wakes it. Sending mail wakes it on demand too.
+#
+# Both services are created fresh by this Blueprint. (An earlier README
+# referenced https://bimdec-email.onrender.com, but nothing was ever deployed
+# there — Render answers that hostname with `x-render-routing: no-server`.)
+#
+# ── The one manual step: VITE_API_BASE ──────────────────────────────────────
+# The frontend calls the backend from the *browser*, so it needs the backend's
+# public https:// URL. Render only assigns that at creation time, and its
+# `fromService` helper exposes the private-network hostname rather than the
+# public one — so this cannot be resolved automatically. Deploy in two passes:
+#
+#   1. First sync creates both services. Note the backend's real URL.
+#   2. Put it in VITE_API_BASE below, and put the frontend's real URL in the
+#      backend's ALLOWED_ORIGINS (dashboard). Commit and sync again; the
+#      frontend rebuilds with the right value baked in.
+#
+# Until pass 2, the Email page and the document "Send to email" buttons will
+# report the backend as unreachable. Everything else works from pass 1.
+#
+# Render appends a suffix if a service name is already taken in the workspace,
+# so confirm the URLs after the first sync rather than assuming them.
+
+services:
+  # ──────────────────────────────────────────────────────────────────────
+  # Frontend — Vite + React SPA (frontend/)
+  # ──────────────────────────────────────────────────────────────────────
+  - type: web
+    runtime: static
+    name: bimdec-portal
+    branch: main
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist # relative to rootDir -> frontend/dist
+    autoDeployTrigger: commit
+    buildFilter:
+      paths:
+        - frontend/**
+        - render.yaml
+
+    envVars:
+      # Vite inlines these into the bundle at BUILD time, so all three are
+      # public by design. The Supabase key is the publishable/anon key —
+      # RLS (database/supabase-schema.sql) is the actual security boundary.
+      # The service_role key must never appear here.
+      - key: VITE_SUPABASE_URL
+        value: https://ygsufcxhvsdfjlhoekxd.supabase.co
+      - key: VITE_SUPABASE_ANON_KEY
+        value: sb_publishable_JDyd5wTlqBJV80EC7YCyow_326MVpRc
+      # >>> Replace with the backend's real URL after the first sync. <<<
+      # Admins can still override it per-browser on the Email page, but
+      # without a correct default here the portal looks broken to them.
+      # The matching API key is deliberately NOT here — it is a real secret
+      # and would be readable in the published bundle.
+      - key: VITE_API_BASE
+        value: https://bimdec-email.onrender.com
+
+    headers:
+      # Vite fingerprints everything under /assets, so it is safe to cache
+      # these forever. index.html is deliberately not cached.
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+
+    routes:
+      # Real HTTP redirects for bookmarks from the old static site. The
+      # router in src/App.jsx handles these too (which is what covers
+      # /index.html, since a file exists at that path and Render therefore
+      # never applies a rule to it), but these save a round trip.
+      - type: redirect
+        source: /login.html
+        destination: /login
+      - type: redirect
+        source: /signup.html
+        destination: /signup
+      - type: redirect
+        source: /admin/dashboard.html
+        destination: /admin
+      - type: redirect
+        source: /admin/documents.html
+        destination: /admin/documents
+      - type: redirect
+        source: /admin/users.html
+        destination: /admin/users
+      - type: redirect
+        source: /admin/email.html
+        destination: /admin/email
+      - type: redirect
+        source: /client/dashboard.html
+        destination: /client
+      # SPA fallback. Must stay last. Render skips rewrites for paths where a
+      # file actually exists, so this never shadows the built assets.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  # ──────────────────────────────────────────────────────────────────────
+  # Backend — Express + Socket.IO email service (backend/)
+  # ──────────────────────────────────────────────────────────────────────
+  - type: web
+    runtime: node
+    name: bimdec-email
+    plan: free
+    region: singapore # closest region to Manila; immutable after creation
+    branch: main
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    buildFilter:
+      # Without this, every frontend commit restarts the mail service — and a
+      # restart drops the in-memory inbox cache in backend/src/store.js.
+      paths:
+        - backend/**
+        - render.yaml
+
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+
+      # `sync: false` means "this Blueprint declares the variable but never
+      # supplies its value" — Render prompts for it on first sync and keeps
+      # whatever is set thereafter. No credential lands in git. Copy the
+      # values from your local backend/.env; the keys mirror
+      # backend/.env.example plus the three IMAP timeouts read in
+      # backend/src/imapService.js. PORT is injected by Render — don't
+      # declare it.
+      #
+      # ALLOWED_ORIGINS must be the frontend's real URL once you know it
+      # (see the two-pass note at the top). Exact string match, no trailing
+      # slash, and it gates the Socket.IO handshake as well as the REST
+      # calls. It fails OPEN when empty — never blank it to fix a CORS error.
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: API_KEY
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_SECURE
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM_NAME
+        sync: false
+      - key: IMAP_HOST
+        sync: false
+      - key: IMAP_PORT
+        sync: false
+      - key: IMAP_SECURE
+        sync: false
+      - key: IMAP_USER
+        sync: false
+      - key: IMAP_PASS
+        sync: false
+      - key: IMAP_MAILBOX
+        sync: false
+      - key: IMAP_INITIAL_FETCH
+        sync: false
+      - key: IMAP_POLL_INTERVAL_SECONDS
+        sync: false
+      - key: IMAP_CONNECTION_TIMEOUT_MS
+        sync: false
+      - key: IMAP_GREETING_TIMEOUT_MS
+        sync: false
+      - key: IMAP_SOCKET_TIMEOUT_MS
+        sync: false
+
+      # Keep "poll" on the free tier: free instances sleep, so an idle IMAP
+      # connection just gets dropped. See backend/README.md.
+      - key: IMAP_MODE
+        value: poll
