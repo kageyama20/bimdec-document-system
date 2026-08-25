@@ -143,7 +143,13 @@ function DocumentMarkup({ rootRef }) {
                     <label>
                       Quotation no.
                     </label>
-                    <input id="p_qno" defaultValue="" placeholder="e.g. 2026-01-001" />
+                    <div className="gen-no-row">
+                      <input id="p_qno" defaultValue="" placeholder="e.g. 2026-0001" />
+                      <button type="button" className="gen-no-btn" data-onclick="generateDocNumber('proposal')">
+                        Generate No.
+                      </button>
+                    </div>
+                    <div className="gen-no-status" id="qnoStatus_proposal"></div>
                   </div>
                   <div className="field">
                     <label>
@@ -326,7 +332,11 @@ function DocumentMarkup({ rootRef }) {
                     </svg>
                     Print / Save as PDF
                   </button>
+                  <button type="button" className="btn btn-print" id="saveRecordBtn_proposal" data-onclick="saveDocumentRecord('proposal')">
+                    Save to records
+                  </button>
                 </div>
+                <div className="send-status" id="saveRecordStatus_proposal"></div>
                 <div className="print-hint no-print">
                   <b>
                     Before you print:
@@ -643,7 +653,13 @@ Non-VAT Registered TIN: 343-962-880-00000
                     <label>
                       Invoice no.
                     </label>
-                    <input id="i_invno" defaultValue="" placeholder="e.g. BI-2026-0001" />
+                    <div className="gen-no-row">
+                      <input id="i_invno" defaultValue="" placeholder="e.g. 2026-0001" />
+                      <button type="button" className="gen-no-btn" data-onclick="generateDocNumber('invoice')">
+                        Generate No.
+                      </button>
+                    </div>
+                    <div className="gen-no-status" id="qnoStatus_invoice"></div>
                   </div>
                   <div className="field">
                     <label>
@@ -821,7 +837,11 @@ Non-VAT Registered TIN: 343-962-880-00000
                     </svg>
                     Print / Save as PDF
                   </button>
+                  <button type="button" className="btn btn-print" id="saveRecordBtn_invoice" data-onclick="saveDocumentRecord('invoice')">
+                    Save to records
+                  </button>
                 </div>
+                <div className="send-status" id="saveRecordStatus_invoice"></div>
                 <div className="print-hint no-print">
                   <b>
                     Before you print:
@@ -1125,7 +1145,13 @@ Non-VAT Registered TIN: 343-962-880-00000
                     <label>
                       Receipt no.
                     </label>
-                    <input id="a_recno" defaultValue="" placeholder="e.g. AR-2026-0001" />
+                    <div className="gen-no-row">
+                      <input id="a_recno" defaultValue="" placeholder="e.g. 2026-0001" />
+                      <button type="button" className="gen-no-btn" data-onclick="generateDocNumber('ack')">
+                        Generate No.
+                      </button>
+                    </div>
+                    <div className="gen-no-status" id="qnoStatus_ack"></div>
                   </div>
                   <div className="field">
                     <label>
@@ -1277,7 +1303,11 @@ Non-VAT Registered TIN: 343-962-880-00000
                     </svg>
                     Print / Save as PDF
                   </button>
+                  <button type="button" className="btn btn-print" id="saveRecordBtn_ack" data-onclick="saveDocumentRecord('ack')">
+                    Save to records
+                  </button>
                 </div>
+                <div className="send-status" id="saveRecordStatus_ack"></div>
                 <div className="print-hint no-print">
                   <b>
                     Before you print:

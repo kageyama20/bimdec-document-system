@@ -265,6 +265,123 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     return '';
   }
 
+  /* ---------------- computer-generated document numbers ----------------
+     Maps the three tabs to the doc_type values the database side (see
+     database/documents-schema.sql) understands, and to the on-screen
+     number field each tab keeps its number in. */
+  const DOC_TYPE = { proposal:'quotation', invoice:'invoice', ack:'receipt' };
+  const DOC_NO_FIELD = { proposal:'p_qno', invoice:'i_invno', ack:'a_recno' };
+  const DOC_NO_STATUS = { proposal:'qnoStatus_proposal', invoice:'qnoStatus_invoice', ack:'qnoStatus_ack' };
+
+  async function generateDocNumber(which){
+    const field = byId(DOC_NO_FIELD[which]);
+    const status = byId(DOC_NO_STATUS[which]);
+    if(!field) return;
+
+    if(field.value && !window.confirm('This already has a number ('+field.value+'). Replace it with a newly generated one?')){
+      return;
+    }
+
+    const btn = root.querySelector('[data-onclick="generateDocNumber(\''+which+'\')"]');
+    if(btn) btn.disabled = true;
+    if(status){ status.className = 'gen-no-status pending'; status.textContent = 'Generating…'; }
+
+    try{
+      const number = await DB.nextDocumentNumber(DOC_TYPE[which]);
+      field.value = number;
+      renderPreview();
+      scheduleSave();
+      if(status){ status.className = 'gen-no-status ok'; status.textContent = 'Generated.'; }
+    }catch(err){
+      if(status){ status.className = 'gen-no-status bad'; status.textContent = 'Failed: ' + err.message; }
+    }finally{
+      if(btn) btn.disabled = false;
+    }
+  }
+
+  /* ---------------- shared PDF render (used by "Save to records" and "Send email") ---------------- */
+  async function renderSheetToPdfBlob(which){
+    const sheet = byId('sheet-' + which);
+    if(!sheet) throw new Error('Could not find the document preview to render.');
+
+    const { default: html2pdf } = await import('html2pdf.js');
+    const filename = suggestedFilename(which) + '.pdf';
+    const prevZoom = sheet.style.zoom;
+    sheet.style.zoom = 1;
+    try{
+      const pdfBlob = await html2pdf()
+        .set({
+          margin: 8,
+          filename,
+          image: { type: 'jpeg', quality: 0.95 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['css', 'legacy'] },
+        })
+        .from(sheet)
+        .outputPdf('blob');
+      return { pdfBlob, filename };
+    }finally{
+      sheet.style.zoom = prevZoom;
+    }
+  }
+
+  /* Metadata (client name / company / project / total) saved alongside each
+     PDF — pulled straight from whatever the current tab's fields hold. */
+  function docRecordMetaFor(which){
+    if(which==='proposal') return {
+      clientName: byId('p_client').value, company: byId('p_clientco').value,
+      project: byId('p_project').value, totalAmount: sumItems(itemState.proposal),
+    };
+    if(which==='invoice'){
+      const sub = sumItems(itemState.invoice);
+      const dp = parseFloat(byId('i_dp').value||0);
+      const disc = parseFloat(byId('i_disc').value||0);
+      return {
+        clientName: byId('i_customer').value, company: '',
+        project: byId('i_project').value, totalAmount: sub - dp - disc,
+      };
+    }
+    if(which==='ack') return {
+      clientName: byId('a_receivedfrom').value, company: '',
+      project: '', totalAmount: parseFloat(byId('a_amount').value||0),
+    };
+    return {};
+  }
+
+  async function saveDocumentRecord(which, { silent = false } = {}){
+    const status = byId('saveRecordStatus_' + which);
+    const btn = byId('saveRecordBtn_' + which);
+    const docNumber = docNumberFor(which);
+
+    if(!docNumber){
+      if(status){ status.className = 'send-status bad'; status.textContent = 'Generate a document number first.'; }
+      return;
+    }
+
+    if(btn) btn.disabled = true;
+    if(status){ status.className = 'send-status pending'; status.textContent = 'Rendering PDF…'; }
+
+    try{
+      const { pdfBlob } = await renderSheetToPdfBlob(which);
+      if(status) status.textContent = 'Saving to records…';
+      await DB.saveGeneratedDocument({
+        docType: DOC_TYPE[which],
+        docNumber,
+        pdfBlob,
+        ...docRecordMetaFor(which),
+      });
+      if(status){ status.className = 'send-status ok'; status.textContent = 'Saved to records.'; }
+      return true;
+    }catch(err){
+      if(status){ status.className = 'send-status bad'; status.textContent = 'Failed: ' + err.message; }
+      if(!silent) throw err;
+      return false;
+    }finally{
+      if(btn) btn.disabled = false;
+    }
+  }
+
   async function sendDocumentEmail(which){
     const emailInput = byId('sendEmail_' + which);
     const status = byId('sendStatus_' + which);
@@ -293,35 +410,9 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     status.className = 'send-status pending';
     status.textContent = 'Loading PDF generator…';
 
-    let html2pdf;
     try{
-      ({ default: html2pdf } = await import('html2pdf.js'));
-    }catch(e){
-      status.className = 'send-status bad';
-      status.textContent = 'PDF generator failed to load (check your internet connection) — try again.';
-      btn.disabled = false;
-      return;
-    }
-    status.textContent = 'Rendering PDF…';
-
-    let prevZoom = null;
-    try{
-      // Render the full sheet at full scale (ignore the on-screen zoom) so the
-      // PDF matches what "Print / Save as PDF" produces, not the shrunk preview.
-      prevZoom = sheet.style.zoom;
-      sheet.style.zoom = 1;
-      const filename = suggestedFilename(which) + '.pdf';
-      const pdfBlob = await html2pdf()
-        .set({
-          margin: 8,
-          filename,
-          image: { type: 'jpeg', quality: 0.95 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-          pagebreak: { mode: ['css', 'legacy'] },
-        })
-        .from(sheet)
-        .outputPdf('blob');
+      status.textContent = 'Rendering PDF…';
+      const { pdfBlob, filename } = await renderSheetToPdfBlob(which);
 
       status.textContent = 'Sending email…';
       const base64 = await blobToBase64(pdfBlob);
@@ -337,11 +428,20 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
 
       status.className = 'send-status ok';
       status.textContent = 'Sent to ' + to + '.';
+
+      // Best-effort: also keep the sent copy in the document records. A
+      // failure here must never make an already-sent email look failed,
+      // so it's silent and only ever softens the success message.
+      if(docNo){
+        const saved = await saveDocumentRecord(which, { silent: true });
+        if(saved) status.textContent = 'Sent to ' + to + ' and saved to records.';
+      }
     }catch(err){
       status.className = 'send-status bad';
-      status.textContent = 'Failed: ' + err.message;
+      status.textContent = err.message.includes('html2pdf')
+        ? 'PDF generator failed to load (check your internet connection) — try again.'
+        : 'Failed: ' + err.message;
     }finally{
-      if(prevZoom !== null) sheet.style.zoom = prevZoom;
       btn.disabled = false;
     }
   }
@@ -911,6 +1011,7 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     goHome, prevPage, nextPage, goEnd,
     printSheet, confirmPrintPaper, closePrintPaperModal,
     clearSavedDraft, sendDocumentEmail, portalLogout,
+    generateDocNumber, saveDocumentRecord,
   };
   const ACTION_NAMES = Object.keys(ACTIONS);
   const ACTION_FNS = ACTION_NAMES.map((n) => ACTIONS[n]);
