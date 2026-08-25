@@ -416,6 +416,12 @@
       print-color-adjust: exact !important;
       color-adjust: exact !important;
     }
+    /* .docgen's own blueprint-grid background (declared above, unconditionally)
+       otherwise keeps showing on print/PDF export as faint vertical ruled
+       lines wherever .preview-wrap/.sheet don't fully cover it — e.g. the
+       left/right margins. html/body are whited out below, but .docgen is a
+       separate element in between that also needs resetting. */
+    &{ background:#fff !important; background-image:none !important; }
     .appbar, .tabbar, .editor, .actions, .no-print, .cloud-note{ display:none !important; }
     .page{ padding:0; max-width:none; }
     .panel{ border:none; box-shadow:none; border-radius:0; }
