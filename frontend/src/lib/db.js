@@ -161,6 +161,68 @@ const DB = {
   async revokeInvite(code) {
     const { error } = await sb.from('invites').delete().eq('code', code);
     if (error) throw error;
+  },
+
+  /* --- Document numbers + saved records (see database/documents-schema.sql) --- */
+
+  /* Atomically reserves the next number for docType ('quotation' | 'invoice' |
+     'receipt') for the current year and returns it pre-formatted, e.g.
+     "2026-0001". The RPC does the locking — never compute this client-side. */
+  async nextDocumentNumber(docType) {
+    const year = new Date().getFullYear();
+    const { data, error } = await sb.rpc('next_document_number', { p_doc_type: docType, p_year: year });
+    if (error) throw error;
+    return `${year}-${String(data).padStart(4, '0')}`;
+  },
+
+  /* Uploads the rendered PDF to the private "documents" bucket and
+     upserts a row in public.documents keyed by docNumber, so saving the
+     same document again (e.g. after edits, or via "Send email" right
+     after "Save to records") updates it in place instead of erroring on
+     the unique constraint or leaving a duplicate row. */
+  async saveGeneratedDocument({ docType, docNumber, clientName, company, project, totalAmount, pdfBlob }) {
+    if (!docNumber) throw new Error('This document has no number yet — click "Generate No." first.');
+    const path = `${docType}/${docNumber.replace(/[\\/:*?"<>|]/g, '-')}.pdf`;
+
+    const { error: uploadErr } = await sb.storage.from('documents').upload(path, pdfBlob, {
+      contentType: 'application/pdf',
+      upsert: true,
+    });
+    if (uploadErr) throw uploadErr;
+
+    const { data: sessionData } = await sb.auth.getSession();
+    const createdBy = sessionData && sessionData.session ? sessionData.session.user.id : null;
+
+    const { error: rowErr } = await sb.from('documents').upsert({
+      doc_type: docType,
+      doc_number: docNumber,
+      client_name: clientName || '',
+      company: company || '',
+      project: project || '',
+      total_amount: Number.isFinite(totalAmount) ? totalAmount : null,
+      pdf_path: path,
+      created_by: createdBy,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'doc_number' });
+    if (rowErr) throw rowErr;
+
+    return { path };
+  },
+
+  async listDocuments(docType) {
+    let q = sb.from('documents').select('*').order('created_at', { ascending: false });
+    if (docType) q = q.eq('doc_type', docType);
+    const { data, error } = await q;
+    if (error) throw error;
+    return data || [];
+  },
+
+  /* Short-lived signed URL — the bucket is private, so this is the only
+     way to fetch a saved PDF back out. */
+  async getDocumentPdfUrl(pdfPath, expiresInSeconds = 60) {
+    const { data, error } = await sb.storage.from('documents').createSignedUrl(pdfPath, expiresInSeconds);
+    if (error) throw error;
+    return data.signedUrl;
   }
 };
 
