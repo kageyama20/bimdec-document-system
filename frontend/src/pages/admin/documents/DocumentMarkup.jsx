@@ -144,7 +144,7 @@ function DocumentMarkup({ rootRef }) {
                       Quotation no.
                     </label>
                     <div className="gen-no-row">
-                      <input id="p_qno" defaultValue="" placeholder="e.g. 2026-0001" />
+                      <input id="p_qno" defaultValue="" placeholder="e.g. 20260826-0001" />
                       <button type="button" className="gen-no-btn" data-onclick="generateDocNumber('proposal')">
                         Generate No.
                       </button>
@@ -654,7 +654,7 @@ Non-VAT Registered TIN: 343-962-880-00000
                       Invoice no.
                     </label>
                     <div className="gen-no-row">
-                      <input id="i_invno" defaultValue="" placeholder="e.g. 2026-0001" />
+                      <input id="i_invno" defaultValue="" placeholder="e.g. 20260826-0001" />
                       <button type="button" className="gen-no-btn" data-onclick="generateDocNumber('invoice')">
                         Generate No.
                       </button>
@@ -1146,7 +1146,7 @@ Non-VAT Registered TIN: 343-962-880-00000
                       Receipt no.
                     </label>
                     <div className="gen-no-row">
-                      <input id="a_recno" defaultValue="" placeholder="e.g. 2026-0001" />
+                      <input id="a_recno" defaultValue="" placeholder="e.g. 20260826-0001" />
                       <button type="button" className="gen-no-btn" data-onclick="generateDocNumber('ack')">
                         Generate No.
                       </button>
@@ -1177,7 +1177,7 @@ Non-VAT Registered TIN: 343-962-880-00000
                     <label>
                       Reference no. (invoice/proposal)
                     </label>
-                    <input id="a_refno" defaultValue="" placeholder="e.g. BI-2026-0001" />
+                    <input id="a_refno" defaultValue="" placeholder="e.g. BI-20260826-0001" />
                   </div>
                 </div>
                 <div className="field">
