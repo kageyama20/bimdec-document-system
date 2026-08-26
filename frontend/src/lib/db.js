@@ -166,13 +166,13 @@ const DB = {
   /* --- Document numbers + saved records (see database/documents-schema.sql) --- */
 
   /* Atomically reserves the next number for docType ('quotation' | 'invoice' |
-     'receipt') for the current year and returns it pre-formatted, e.g.
-     "2026-0001". The RPC does the locking — never compute this client-side. */
+     'receipt') and returns it pre-formatted as "YYYYMMDD-####" (resets to
+     0001 each day). The RPC computes the date and does the locking server
+     side — never compute this client-side. */
   async nextDocumentNumber(docType) {
-    const year = new Date().getFullYear();
-    const { data, error } = await sb.rpc('next_document_number', { p_doc_type: docType, p_year: year });
+    const { data, error } = await sb.rpc('next_document_number', { p_doc_type: docType });
     if (error) throw error;
-    return `${year}-${String(data).padStart(4, '0')}`;
+    return data;
   },
 
   /* Uploads the rendered PDF to the private "documents" bucket and
