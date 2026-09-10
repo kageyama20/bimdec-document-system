@@ -590,6 +590,11 @@ input[type="date"]::-webkit-calendar-picker-indicator{
 @media print{ .sheet{ zoom:1 !important; } }
 </style>
 
+<style id="solar-calc-tab-style">
+#workspace-solar{ display:block; min-height:0; }
+#workspace-solar .actions{ display:flex; margin-top:0; padding-top:0; border-top:none; }
+</style>
+
 <style id="bimdec-files-tab">
 .files-tab{
   display:inline-flex;
@@ -661,7 +666,8 @@ input[type="date"]::-webkit-calendar-picker-indicator{
   <button class="tabbtn" data-tab="proposal" onclick="switchTab(&#39;proposal&#39;)"><span class="num">01</span>Proposal</button>
   <button class="tabbtn" data-tab="invoice" onclick="switchTab(&#39;invoice&#39;)"><span class="num">02</span>Billing Invoice</button>
   <button class="tabbtn active" data-tab="ack" onclick="switchTab(&#39;ack&#39;)"><span class="num">03</span>Acknowledgement Receipt</button>
-  <a class="tabbtn onedrive-files-tab" href="https://1drv.ms/f/c/1b24af0211eb28f6/IgCiehFET-cvRoksHIhBMlUUAZfDrgcspTIPXajOdDfLMek?e=xTy2ED" target="_blank" rel="noopener noreferrer" title="Open OneDrive Files"><span class="num">04</span>OneDrive Files</a>
+  <button class="tabbtn" data-tab="solar" onclick="switchTab(&#39;solar&#39;)"><span class="num">04</span>Solar Calculator</button>
+  <a class="tabbtn onedrive-files-tab" href="https://1drv.ms/f/c/1b24af0211eb28f6/IgCiehFET-cvRoksHIhBMlUUAZfDrgcspTIPXajOdDfLMek?e=xTy2ED" target="_blank" rel="noopener noreferrer" title="Open OneDrive Files"><span class="num">05</span>OneDrive Files</a>
 </div>
 
 <div class="page">
@@ -1205,6 +1211,28 @@ Non-VAT Registered TIN: 343-962-880-00000</div>
       </div>
     </div>
   </div>
+
+  <div class="workspace hidden" id="workspace-solar">
+    <div class="solar-embed-head no-print">
+      <h3 style="margin:0 0 4px;">BIMDEC Solar Calculator</h3>
+      <p style="margin:0 0 12px; font-size:12.5px; color:var(--muted);">
+        Size a PV system from a Meralco bill and get panel, Deye inverter, and battery recommendations with savings/ROI —
+        then print or save the recommendation as a PDF.
+      </p>
+      <div class="actions" style="margin:0 0 12px;">
+        <button class="btn btn-print" onclick="printSolarCalc()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          Print / Save recommendation as PDF
+        </button>
+      </div>
+      <div class="print-hint no-print">
+        <b>Before you print:</b> run the calculation on the Inputs tab first (inside the calculator below), then either use this button or the calculator's own "Print / Save as PDF" button on the Results/Savings tabs. In the print dialog, turn <b>Headers and footers</b> off for a clean recommendation PDF.
+      </div>
+    </div>
+    <iframe id="solarCalcFrame" src="solar-calculator.html" title="BIMDEC Solar Calculator"
+      style="width:100%; min-height:900px; border:1px solid var(--line); border-radius:8px; background:#fff; display:block;"
+      loading="lazy"></iframe>
+  </div>
 </div>
 </div>
 
@@ -1357,8 +1385,11 @@ function updateAutoDate(baseId){
   scheduleSave();
 }
 
-const TAB_LABELS = { proposal:'Proposal', invoice:'Billing Invoice', ack:'Acknowledgement Receipt' };
+const TAB_LABELS = { proposal:'Proposal', invoice:'Billing Invoice', ack:'Acknowledgement Receipt', solar:'Solar Calculator' };
 const ALL_TABS = Object.keys(TAB_LABELS);
+// Tabs in this list don't have a printable "sheet-<tab>" document (e.g. the
+// embedded Solar Calculator), so pagination/zoom code skips them safely.
+const NON_SHEET_TABS = ['solar'];
 
 /* ---------------- preview zoom ---------------- */
 let zoomState = { proposal:0.8, invoice:0.8, ack:0.8 };
@@ -1561,6 +1592,53 @@ function confirmPrintPaper(){
   requestAnimationFrame(()=>{
     window.print();
     setTimeout(()=>{ document.title = prevTitle; }, 800);
+  });
+}
+
+/* ---------------- Solar Calculator embed (iframe) ---------------- */
+function printSolarCalc(){
+  const frame = document.getElementById('solarCalcFrame');
+  if(!frame || !frame.contentWindow){
+    alert('The Solar Calculator hasn\'t finished loading yet — try again in a moment.');
+    return;
+  }
+  try{
+    // Prefer the calculator's own printResults() — it expands the Results and
+    // Savings panels (the recommendation) for print before calling window.print()
+    // on its own document, so the PDF is unaffected by this page's print rules.
+    if(typeof frame.contentWindow.printResults === 'function'){
+      frame.contentWindow.printResults();
+    }else{
+      frame.contentWindow.focus();
+      frame.contentWindow.print();
+    }
+  }catch(e){
+    alert('Could not open the print dialog automatically. Open the calculator\'s Results tab below and use its own "Print / Save as PDF" button instead.');
+  }
+}
+
+function initSolarCalcFrame(){
+  const frame = document.getElementById('solarCalcFrame');
+  if(!frame) return;
+  function resizeFrame(){
+    try{
+      const doc = frame.contentWindow.document;
+      const h = Math.max(doc.documentElement.scrollHeight, doc.body ? doc.body.scrollHeight : 0);
+      if(h) frame.style.height = (h + 32) + 'px';
+    }catch(e){ /* cross-origin — keep the default min-height */ }
+  }
+  frame.addEventListener('load', ()=>{
+    resizeFrame();
+    try{
+      const body = frame.contentWindow.document.body;
+      if(window.ResizeObserver && body){
+        new ResizeObserver(resizeFrame).observe(body);
+      }
+      // The calculator's own internal tabs (Inputs/Results/Savings) change
+      // content height without resizing the iframe itself, so re-check
+      // shortly after any click inside it (calc, print, tab switches, etc).
+      frame.contentWindow.document.addEventListener('click', ()=>setTimeout(resizeFrame, 60));
+    }catch(e){ /* cross-origin fallback: static min-height still applies */ }
   });
 }
 
@@ -2043,8 +2121,9 @@ safeInit('syncAutoDateDisabled(a_appdate)', ()=>syncAutoDateDisabled('a_appdate'
 // in a page where input silently stops reaching the preview.
 safeInit('bindLiveInputs', bindLiveInputs);
 safeInit('renderPreview', renderPreview);
-safeInit('applyZoom(all tabs)', ()=>ALL_TABS.forEach(applyZoom));
+safeInit('applyZoom(all tabs)', ()=>ALL_TABS.filter(t=>!NON_SHEET_TABS.includes(t)).forEach(applyZoom));
 safeInit('bindZoomWheel', bindZoomWheel);
+safeInit('initSolarCalcFrame', initSolarCalcFrame);
 if(!hadSavedDraft) saveState();
 document.getElementById('printPaperModal')?.addEventListener('click', e=>{ if(e.target.id==='printPaperModal') closePrintPaperModal(); });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') closePrintPaperModal(); });
