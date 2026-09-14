@@ -56,7 +56,10 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     ],
     ack: [
       {desc:'', amount:0},
-    ]
+    ],
+    contract: [
+      {desc:'', qty:1, unit:'LOT', price:0},
+    ],
   };
   // Snapshot of the defaults, taken before anything can mutate itemState, so a saved
   // draft written by an older version of this file (missing a key, e.g. "ack" before
@@ -66,8 +69,8 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
   const PHP = n => 'Php ' + (Number(n)||0).toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2});
 
   /* ---------------- digital signatures (PNG/JPG) ---------------- */
-  const SIG_KEYS = ['p_prepby', 'i_prepby', 'i_appby', 'a_recvby', 'a_appby'];
-  let sigState = { p_prepby:null, i_prepby:null, i_appby:null, a_recvby:null, a_appby:null };
+  const SIG_KEYS = ['p_prepby', 'i_prepby', 'i_appby', 'a_recvby', 'a_appby', 'c_prepby'];
+  let sigState = { p_prepby:null, i_prepby:null, i_appby:null, a_recvby:null, a_appby:null, c_prepby:null };
   const SIG_MAX_BYTES = 2 * 1024 * 1024; // 2MB
 
   function handleSigUpload(key, inputEl){
@@ -130,7 +133,7 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
 
   /* ---------------- lock toggles (Issuer letterhead / Payment channel) ---------------- */
   const LOCK_GROUPS = {
-    letterhead: { fieldClass:'lk-letterhead', btnIds:['lockbtn-letterhead-proposal','lockbtn-letterhead-invoice','lockbtn-letterhead-ack'] },
+    letterhead: { fieldClass:'lk-letterhead', btnIds:['lockbtn-letterhead-proposal','lockbtn-letterhead-invoice','lockbtn-letterhead-ack','lockbtn-letterhead-contract'] },
     paych:      { fieldClass:'lk-paych',      btnIds:['lockbtn-paych-proposal','lockbtn-paych-invoice'] }
   };
   let lockState = { letterhead:false, paych:false };
@@ -194,13 +197,13 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     scheduleSave();
   }
 
-  const TAB_LABELS = { proposal:'Proposal', invoice:'Billing Invoice', ack:'Acknowledgement Receipt', solar:'Solar Calculator' };
+  const TAB_LABELS = { proposal:'Proposal', contract:'Contract', invoice:'Billing Invoice', ack:'Acknowledgement Receipt', solar:'Solar Calculator' };
   const ALL_TABS = Object.keys(TAB_LABELS);
 
   /* ---------------- preview zoom ---------------- */
-  let zoomState = { proposal:0.8, invoice:0.8, ack:0.8 };
-  let previewPage = { proposal:1, invoice:1, ack:1 };
-  let previewPageCount = { proposal:1, invoice:1, ack:1 };
+  let zoomState = { proposal:0.8, invoice:0.8, ack:0.8, contract:0.8 };
+  let previewPage = { proposal:1, invoice:1, ack:1, contract:1 };
+  let previewPageCount = { proposal:1, invoice:1, ack:1, contract:1 };
   const ZOOM_MIN = 0.5, ZOOM_MAX = 2, ZOOM_STEP = 0.1;
 
   /* ---------------- Solar Calculator embed (iframe) ---------------- */
@@ -242,6 +245,92 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
         frame.contentWindow.document.addEventListener('click', ()=>setTimeout(resizeFrame, 60));
       }catch(e){ /* cross-origin fallback: static min-height still applies */ }
     });
+  }
+
+  /* ---------------- Contract: category boilerplate + load-from-quotation ---------------- */
+  const CONTRACT_TEMPLATES = {
+    solar_installation: {
+      title: 'SOLAR PV INSTALLATION AGREEMENT',
+      scope: 'Supply, delivery, installation, testing and commissioning of the solar photovoltaic (PV) system itemized below, in accordance with the Client-approved proposal/quotation referenced above.',
+      payment: '30% Down payment upon signing of this Agreement, before mobilization.\n40% upon delivery of major equipment (solar panels, inverters, batteries, mounting structures) to site.\n30% upon completion of installation, successful testing and commissioning, and the Client\'s written acceptance.',
+      timeline: 'Installation, testing, and commissioning shall be completed within thirty (30) to forty-five (45) calendar days from receipt of the down payment and site mobilization, subject to weather conditions, permitting, and unobstructed site access.',
+      warranty: 'Installation workmanship is warranted for twelve (12) months from the date of commissioning, covering defects in installation only. Solar panels, inverters, batteries, and other equipment carry their respective manufacturers\' warranties, which the Contractor shall assist the Client in registering/claiming.',
+      terms: 'a. Scope of Work — Limited to supply, delivery, installation, testing, and commissioning of the itemized equipment. Civil/structural works (e.g. roof reinforcement), electrical panel upgrades, and utility net-metering application fees are excluded unless separately quoted.\nb. Permits — The Client shall provide access to the site and existing electrical documents, and shall shoulder all applicable permit and utility (e.g. net-metering, distribution utility) processing fees unless expressly included above.\nc. Site Conditions — Any concealed/pre-existing defect (roofing, wiring, structural) discovered and not disclosed prior to signing may result in additional cost and time, subject to the Client\'s written approval before proceeding.\nd. Equipment Substitution — The Contractor may substitute a listed brand/model with an equivalent or better specification, with prior notice to the Client, where the original is unavailable.\ne. Change Orders — Any change in scope after signing shall be documented in a written Change Order specifying the adjustment in price and schedule, signed by both parties before implementation.\nf. Limitation of Liability — The Contractor\'s liability under this Agreement shall not exceed the total contract price. The Contractor is not liable for losses arising from grid outages, utility actions, or force majeure.\ng. Suspension/Termination — Either party may terminate for the other\'s material breach not cured within fifteen (15) days of written notice. Upon termination, the Client shall pay for work completed and materials procured up to that point.\nh. Governing Law — This Agreement is governed by the laws of the Republic of the Philippines. Disputes shall first be settled amicably; failing which, venue shall be the proper courts of Metro Manila, Philippines.',
+    },
+    electrical_design: {
+      title: 'ELECTRICAL DESIGN SERVICES AGREEMENT',
+      scope: 'Professional electrical engineering design services for the project described above, in accordance with the Client-approved proposal/quotation referenced above and the applicable provisions of the Philippine Electrical Code (PEC) and other governing codes.',
+      payment: '50% Down payment upon signing of this Agreement.\n50% upon submission and the Client\'s written acceptance of the sealed As-Built/final design drawings (soft copy). Hard/printed copies are released only upon written confirmation to proceed with printing and full settlement of fees.',
+      timeline: 'Deliverables shall be released within the lead time stated in the approved proposal, counted from the Contractor\'s receipt of complete design references (architectural plans, load requirements, and other inputs) from the Client or other project consultants.',
+      warranty: 'The Contractor warrants that the design conforms to accepted engineering practice and the applicable codes in force at the time of design, based on the information and design references provided by the Client. The Contractor is not responsible for construction means, methods, installation quality, or as-built deviations by the installing contractor.',
+      terms: 'a. Scope of Services — Limited to the professional design and "sign and seal" services stated in the approved proposal. Site supervision, construction management, and actual installation are excluded unless separately contracted.\nb. Design Basis — Designs are based on data, drawings, and requirements furnished by the Client and/or other project consultants. Inaccurate or incomplete information supplied by the Client may require rework at additional cost.\nc. Revisions — Reasonable revisions arising from consolidated Client/PMO comments are included. Revisions due to material changes in scope, layout, or requirements after design approval are treated as additional services subject to separate fees.\nd. Coordination — The Client shall provide timely access to other project consultants (architectural, structural, mechanical, etc.) as needed for coordinated design output.\ne. Document Ownership — Drawings and design documents remain the intellectual property of the Contractor as instruments of service until full settlement of fees, after which the Client may use them solely for this project.\nf. Confidentiality — Project information shared under this Agreement shall be treated as confidential, except where disclosure is required for permitting or regulatory compliance.\ng. Limitation of Liability — The Contractor\'s liability is limited to the total professional fees actually received for this engagement.\nh. Suspension/Cancellation — If the Client suspends or cancels the engagement, the Contractor shall be compensated for services rendered to date, in an amount not less than seventy percent (70%) of the corresponding milestone fee.',
+    },
+    mepfs_design: {
+      title: 'MEPFS DESIGN SERVICES AGREEMENT',
+      scope: 'Professional Mechanical, Electrical, Plumbing, Fire Protection and Sanitary (MEPFS) design services for the project described above, in accordance with the Client-approved proposal/quotation referenced above and the applicable provisions of the Philippine Mechanical Engineering Code, Philippine Electrical Code, National Plumbing Code, Fire Code of the Philippines, and other governing codes.',
+      payment: '50% Down payment upon signing of this Agreement.\n50% upon submission and the Client\'s written acceptance of the sealed As-Built/final MEPFS design drawings (soft copy). Hard/printed copies and individually sealed discipline sets are released only upon written confirmation to proceed with printing and full settlement of fees.',
+      timeline: 'Deliverables shall be released within the lead time stated in the approved proposal, counted from the Contractor\'s receipt of complete design references (architectural plans, load requirements, and other inputs) from the Client or other project consultants. A multi-discipline package may release per-discipline as each is finalized.',
+      warranty: 'The Contractor warrants that each MEPFS discipline design conforms to accepted engineering practice and its applicable code in force at the time of design, based on the information and design references provided by the Client. The Contractor is not responsible for construction means, methods, installation quality, or as-built deviations by the installing contractor(s).',
+      terms: 'a. Scope of Services — Limited to the MEPFS disciplines and professional "sign and seal" services stated in the approved proposal. A discipline not listed in the approved scope (e.g. fire alarm & detection, if excluded) is treated as additional scope subject to separate fees. Site supervision, construction management, and actual installation are excluded unless separately contracted.\nb. Design Basis — Designs are based on data, drawings, and requirements furnished by the Client and/or other project consultants (architectural, structural, etc.). Inaccurate or incomplete information supplied by the Client may require rework at additional cost.\nc. Inter-discipline Coordination — Coordination among the MEPFS disciplines within this package is included. Coordination with disciplines/consultants outside this package remains the Client\'s responsibility unless separately agreed.\nd. Revisions — Reasonable revisions arising from consolidated Client/PMO comments are included. Revisions due to material changes in scope, layout, or requirements after design approval are treated as additional services subject to separate fees.\ne. Document Ownership — Drawings and design documents remain the intellectual property of the Contractor as instruments of service until full settlement of fees, after which the Client may use them solely for this project.\nf. Confidentiality — Project information shared under this Agreement shall be treated as confidential, except where disclosure is required for permitting or regulatory compliance.\ng. Limitation of Liability — The Contractor\'s liability is limited to the total professional fees actually received for this engagement.\nh. Suspension/Cancellation — If the Client suspends or cancels the engagement, the Contractor shall be compensated for services rendered to date on each discipline, in an amount not less than seventy percent (70%) of the corresponding milestone fee.',
+    },
+  };
+  const CONTRACT_CATEGORY_LABELS = {
+    solar_installation: 'Solar Installation',
+    electrical_design: 'Electrical Design',
+    mepfs_design: 'MEPFS Design Package',
+  };
+
+  function applyContractTemplate(categoryKey){
+    const tpl = CONTRACT_TEMPLATES[categoryKey];
+    if(!tpl) return;
+    byId('c_scope').value = tpl.scope;
+    byId('c_payment').value = tpl.payment;
+    byId('c_timeline').value = tpl.timeline;
+    byId('c_warranty').value = tpl.warranty;
+    byId('c_terms').value = tpl.terms;
+  }
+
+  async function loadContractFromQuotation(){
+    const qnoInput = byId('c_srcqno');
+    const status = byId('c_loadStatus');
+    const qno = (qnoInput.value || '').trim();
+    if(!qno){
+      if(status){ status.className = 'send-status bad'; status.textContent = 'Enter a Quotation No. first.'; }
+      return;
+    }
+    if(status){ status.className = 'send-status pending'; status.textContent = 'Looking up saved record…'; }
+
+    try{
+      const rec = await DB.getDocumentByNumber(qno);
+      if(!rec || rec.doc_type !== 'quotation'){
+        if(status){ status.className = 'send-status bad'; status.textContent = 'No saved Proposal/Quotation found with that number. Save the Proposal to records first.'; }
+        return;
+      }
+      if(!rec.category || !CONTRACT_TEMPLATES[rec.category]){
+        if(status){ status.className = 'send-status bad'; status.textContent = 'That Proposal has no Category set — open it, pick a Category, and save it to records again.'; }
+        return;
+      }
+
+      byId('c_client').value = rec.client_name || '';
+      byId('c_clientco').value = rec.company || '';
+      byId('c_project').value = rec.project || '';
+      byId('c_category').value = rec.category;
+      byId('c_categoryLabel').textContent = CONTRACT_CATEGORY_LABELS[rec.category] || rec.category;
+      byId('pv_c_doctitle').textContent = CONTRACT_TEMPLATES[rec.category].title;
+
+      applyContractTemplate(rec.category);
+
+      itemState.contract = (Array.isArray(rec.items) && rec.items.length)
+        ? JSON.parse(JSON.stringify(rec.items))
+        : JSON.parse(JSON.stringify(ITEM_STATE_DEFAULTS.contract));
+      renderItemEditor('contract');
+
+      renderPreview();
+      scheduleSave();
+      if(status){ status.className = 'send-status ok'; status.textContent = `Loaded from Quotation ${qno} (${CONTRACT_CATEGORY_LABELS[rec.category] || rec.category}). Review the Scope of Work and terms below before printing.`; }
+    }catch(err){
+      if(status){ status.className = 'send-status bad'; status.textContent = 'Failed: ' + err.message; }
+    }
   }
 
   function applyZoom(kind){
@@ -287,6 +376,7 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
   function suggestedFilename(which){
     const stamp = new Date().toISOString().slice(0,10);
     if(which==='proposal') return `BIMDEC-Proposal-${(byId('p_qno').value||stamp).replace(/[\\/:*?"<>|]/g,'-')}`;
+    if(which==='contract') return `BIMDEC-Contract-${(byId('c_ctrno').value||stamp).replace(/[\\/:*?"<>|]/g,'-')}`;
     if(which==='invoice')  return `BIMDEC-Invoice-${(byId('i_invno').value||stamp).replace(/[\\/:*?"<>|]/g,'-')}`;
     if(which==='ack')      return `BIMDEC-Receipt-${(byId('a_recno').value||stamp).replace(/[\\/:*?"<>|]/g,'-')}`;
     return `BIMDEC-Document-${stamp}`;
@@ -295,24 +385,27 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
   /* ---------------- Send to email (renders the sheet to a PDF, then emails it) ---------------- */
   const DOC_EMAIL_META = {
     proposal: { subject: n => `Proposal${n ? ' — ' + n : ''} — BIMDEC`, noun: 'proposal', bodyIntro: 'Please see the attached proposal.' },
+    contract: { subject: n => `Contract${n ? ' — ' + n : ''} — BIMDEC`, noun: 'contract', bodyIntro: 'Please see the attached contract for review and signature.' },
     invoice:  { subject: n => `Billing Invoice${n ? ' ' + n : ''} — BIMDEC`, noun: 'billing invoice', bodyIntro: 'Please see the attached billing invoice.' },
     ack:      { subject: n => `Acknowledgement Receipt${n ? ' ' + n : ''} — BIMDEC`, noun: 'acknowledgement receipt', bodyIntro: 'Please see the attached acknowledgement receipt.' },
   };
 
   function docNumberFor(which){
     if(which==='proposal') return byId('p_qno').value;
+    if(which==='contract') return byId('c_ctrno').value;
     if(which==='invoice')  return byId('i_invno').value;
     if(which==='ack')      return byId('a_recno').value;
     return '';
   }
 
   /* ---------------- computer-generated document numbers ----------------
-     Maps the three tabs to the doc_type values the database side (see
-     database/documents-schema.sql) understands, and to the on-screen
-     number field each tab keeps its number in. */
-  const DOC_TYPE = { proposal:'quotation', invoice:'invoice', ack:'receipt' };
-  const DOC_NO_FIELD = { proposal:'p_qno', invoice:'i_invno', ack:'a_recno' };
-  const DOC_NO_STATUS = { proposal:'qnoStatus_proposal', invoice:'qnoStatus_invoice', ack:'qnoStatus_ack' };
+     Maps the tabs to the doc_type values the database side (see
+     database/documents-schema.sql + database/contracts-migration.sql)
+     understands, and to the on-screen number field each tab keeps its
+     number in. */
+  const DOC_TYPE = { proposal:'quotation', contract:'contract', invoice:'invoice', ack:'receipt' };
+  const DOC_NO_FIELD = { proposal:'p_qno', contract:'c_ctrno', invoice:'i_invno', ack:'a_recno' };
+  const DOC_NO_STATUS = { proposal:'qnoStatus_proposal', contract:'qnoStatus_contract', invoice:'qnoStatus_invoice', ack:'qnoStatus_ack' };
 
   async function generateDocNumber(which){
     const field = byId(DOC_NO_FIELD[which]);
@@ -373,6 +466,12 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     if(which==='proposal') return {
       clientName: byId('p_client').value, company: byId('p_clientco').value,
       project: byId('p_project').value, totalAmount: sumItems(itemState.proposal),
+      category: byId('p_category').value || null, items: itemState.proposal,
+    };
+    if(which==='contract') return {
+      clientName: byId('c_client').value, company: byId('c_clientco').value,
+      project: byId('c_project').value, totalAmount: sumItems(itemState.contract),
+      category: byId('c_category').value || null, items: itemState.contract,
     };
     if(which==='invoice'){
       const sub = sumItems(itemState.invoice);
@@ -596,9 +695,10 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
         proposal: Array.isArray(saved.itemState.proposal) ? saved.itemState.proposal : ITEM_STATE_DEFAULTS.proposal,
         invoice: Array.isArray(saved.itemState.invoice) ? saved.itemState.invoice : ITEM_STATE_DEFAULTS.invoice,
         ack: Array.isArray(saved.itemState.ack) ? saved.itemState.ack : ITEM_STATE_DEFAULTS.ack,
+        contract: Array.isArray(saved.itemState.contract) ? saved.itemState.contract : ITEM_STATE_DEFAULTS.contract,
       };
     }
-    if(saved.sigState) sigState = Object.assign({p_prepby:null,i_prepby:null,i_appby:null,a_recvby:null,a_appby:null}, saved.sigState);
+    if(saved.sigState) sigState = Object.assign({p_prepby:null,i_prepby:null,i_appby:null,a_recvby:null,a_appby:null,c_prepby:null}, saved.sigState);
     if(saved.lockState) lockState = Object.assign({letterhead:false, paych:false}, saved.lockState);
     if(saved.fields){
       Object.keys(saved.fields).forEach(id=>{
@@ -626,7 +726,8 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
   let dragItem = null;
 
   function renderItemEditor(kind){
-    const wrap = byId(kind==='proposal' ? 'p_items' : 'i_items');
+    const wrapId = kind==='proposal' ? 'p_items' : kind==='invoice' ? 'i_items' : kind==='contract' ? 'c_items' : kind+'_items';
+    const wrap = byId(wrapId);
     if(!Array.isArray(itemState[kind])) itemState[kind] = ITEM_STATE_DEFAULTS[kind] ? JSON.parse(JSON.stringify(ITEM_STATE_DEFAULTS[kind])) : [];
     wrap.innerHTML = '';
     itemState[kind].forEach((item, idx)=>{
@@ -837,6 +938,34 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     g('tb_p_qno').textContent = p('qno');
     g('tb_p_date').textContent = p('date');
 
+    /* ---- CONTRACT ---- */
+    const c = id => byId('c_'+id).value;
+    g('pv_c_letterhead').textContent =
+      `${g('c_addr').value}\n${g('c_email').value}\n${g('c_phone').value}\n${g('c_tin').value}`;
+    const cCategory = c('category');
+    g('pv_c_doctitle').textContent = (CONTRACT_TEMPLATES[cCategory] && CONTRACT_TEMPLATES[cCategory].title) || 'SERVICES AGREEMENT';
+    g('pv_c_ctrno').textContent = c('ctrno');
+    g('pv_c_srcqno').textContent = c('srcqno');
+    g('pv_c_client').textContent = c('client');
+    g('pv_c_date').textContent = c('date');
+    g('pv_c_clientco').textContent = c('clientco');
+    g('pv_c_category').textContent = CONTRACT_CATEGORY_LABELS[cCategory] || '—';
+    g('pv_c_project').textContent = c('project');
+    g('pv_c_loc').textContent = c('loc');
+    g('pv_c_scope').textContent = c('scope');
+    g('pv_c_items').innerHTML = itemRows(itemState.contract);
+    const cTotal = sumItems(itemState.contract);
+    g('pv_c_totals').innerHTML = `
+      <div class="trow grand"><span class="k">Total contract price <span class="nonvat-badge">NON‑VAT</span></span><span>${PHP(cTotal)}</span></div>`;
+    g('pv_c_timeline').innerHTML = textToHtml(c('timeline'));
+    g('pv_c_warranty').innerHTML = textToHtml(c('warranty'));
+    g('pv_c_terms').innerHTML = textToHtml(c('terms'));
+    g('pv_c_payment').innerHTML = textToHtml(c('payment'));
+    g('pv_c_prepby').textContent = c('prepby') + '  ·  ' + c('prepdate');
+    applySigToPreview('c_prepby', 'pv_c_prepby_sig');
+    g('tb_c_ctrno').textContent = c('ctrno');
+    g('tb_c_date').textContent = c('date');
+
     /* ---- INVOICE ---- */
     const i = id => byId('i_'+id).value;
     g('pv_i_letterhead').textContent =
@@ -1006,6 +1135,7 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
   function paginateActive(){
     requestAnimationFrame(()=>{
       paginateSheet('sheet-proposal', 'pageCountProposal');
+      paginateSheet('sheet-contract', 'pageCountContract');
       paginateSheet('sheet-invoice', 'pageCountInvoice');
       paginateSheet('sheet-ack', 'pageCountAck');
     });
@@ -1016,11 +1146,13 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     try{ fn(); }catch(e){ console.error('Init step failed: '+label, e); }
   }
   safeInit('renderItemEditor(proposal)', ()=>renderItemEditor('proposal'));
+  safeInit('renderItemEditor(contract)', ()=>renderItemEditor('contract'));
   safeInit('renderItemEditor(invoice)', ()=>renderItemEditor('invoice'));
   safeInit('renderAckItemEditor', renderAckItemEditor);
   safeInit('renderAllSigThumbs', renderAllSigThumbs);
   safeInit('applyAllLocks', applyAllLocks);
   safeInit('syncAutoDateDisabled(p_prepdate)', ()=>syncAutoDateDisabled('p_prepdate'));
+  safeInit('syncAutoDateDisabled(c_prepdate)', ()=>syncAutoDateDisabled('c_prepdate'));
   safeInit('syncAutoDateDisabled(i_prepdate)', ()=>syncAutoDateDisabled('i_prepdate'));
   safeInit('syncAutoDateDisabled(a_appdate)', ()=>syncAutoDateDisabled('a_appdate'));
   // These two are what make typing show up in the preview — they always run,
@@ -1054,6 +1186,7 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     printSheet, confirmPrintPaper, closePrintPaperModal,
     clearSavedDraft, sendDocumentEmail, portalLogout,
     generateDocNumber, saveDocumentRecord, printSolarCalc,
+    loadContractFromQuotation, applyContractTemplate,
   };
   const ACTION_NAMES = Object.keys(ACTIONS);
   const ACTION_FNS = ACTION_NAMES.map((n) => ACTIONS[n]);

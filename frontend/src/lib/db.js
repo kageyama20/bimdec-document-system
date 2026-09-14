@@ -179,8 +179,11 @@ const DB = {
      upserts a row in public.documents keyed by docNumber, so saving the
      same document again (e.g. after edits, or via "Send email" right
      after "Save to records") updates it in place instead of erroring on
-     the unique constraint or leaving a duplicate row. */
-  async saveGeneratedDocument({ docType, docNumber, clientName, company, project, totalAmount, pdfBlob }) {
+     the unique constraint or leaving a duplicate row.
+     category/items are only meaningful for a saved Proposal (doc_type
+     'quotation') — that's what lets the Contract tab look a quotation
+     number up later and auto-fill its category + Scope of Work. */
+  async saveGeneratedDocument({ docType, docNumber, clientName, company, project, totalAmount, category, items, pdfBlob }) {
     if (!docNumber) throw new Error('This document has no number yet — click "Generate No." first.');
     const path = `${docType}/${docNumber.replace(/[\\/:*?"<>|]/g, '-')}.pdf`;
 
@@ -200,6 +203,8 @@ const DB = {
       company: company || '',
       project: project || '',
       total_amount: Number.isFinite(totalAmount) ? totalAmount : null,
+      category: category || null,
+      items: Array.isArray(items) ? items : [],
       pdf_path: path,
       created_by: createdBy,
       updated_at: new Date().toISOString(),
@@ -215,6 +220,16 @@ const DB = {
     const { data, error } = await q;
     if (error) throw error;
     return data || [];
+  },
+
+  /* Looks a single saved document up by its doc_number — used by the
+     Contract tab's "Load from Quotation" button. Returns null rather
+     than throwing when there's no match, so the caller can show a plain
+     "not found" message instead of an error. */
+  async getDocumentByNumber(docNumber) {
+    const { data, error } = await sb.from('documents').select('*').eq('doc_number', docNumber).maybeSingle();
+    if (error) throw error;
+    return data || null;
   },
 
   /* Short-lived signed URL — the bucket is private, so this is the only

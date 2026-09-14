@@ -62,27 +62,33 @@ function DocumentMarkup({ rootRef }) {
             </span>
             Proposal
           </button>
-          <button className="tabbtn" data-tab="invoice" data-onclick="switchTab('invoice')">
+          <button className="tabbtn" data-tab="contract" data-onclick="switchTab('contract')">
             <span className="num">
               02
+            </span>
+            Contract
+          </button>
+          <button className="tabbtn" data-tab="invoice" data-onclick="switchTab('invoice')">
+            <span className="num">
+              03
             </span>
             Billing Invoice
           </button>
           <button className="tabbtn active" data-tab="ack" data-onclick="switchTab('ack')">
             <span className="num">
-              03
+              04
             </span>
             Acknowledgement Receipt
           </button>
           <button className="tabbtn" data-tab="solar" data-onclick="switchTab('solar')">
             <span className="num">
-              04
+              05
             </span>
             Solar Calculator
           </button>
           <a className="tabbtn onedrive-files-tab" href="https://1drv.ms/f/c/1b24af0211eb28f6/IgCiehFET-cvRoksHIhBMlUUAZfDrgcspTIPXajOdDfLMek?e=xTy2ED" target="_blank" rel="noopener noreferrer" title="Open OneDrive Files">
             <span className="num">
-              05
+              06
             </span>
             OneDrive Files
           </a>
@@ -143,6 +149,20 @@ function DocumentMarkup({ rootRef }) {
                     Client company
                   </label>
                   <input id="p_clientco" defaultValue="" placeholder="e.g. Client Company, Inc." />
+                </div>
+                <div className="field">
+                  <label>
+                    Category (for contract generation)
+                  </label>
+                  <select id="p_category" data-onchange="renderPreview(); scheduleSave();">
+                    <option value="">— Select category —</option>
+                    <option value="solar_installation">Solar Installation</option>
+                    <option value="electrical_design">Electrical Design</option>
+                    <option value="mepfs_design">MEPFS Design Package</option>
+                  </select>
+                  <span className="hint">
+                    Saved with this proposal so the Contract tab can look it up by Quotation No. and pick the matching contract template.
+                  </span>
                 </div>
                 <div className="row2">
                   <div className="field">
@@ -590,6 +610,480 @@ Non-VAT Registered TIN: 343-962-880-00000
                             Date
                           </span>
                           <span id="tb_p_date"></span>
+                        </div>
+                        <div className="tb-cell">
+                          <span className="tb-label">
+                            Tax status
+                          </span>
+                          Non‑VAT
+                        </div>
+                      </div>
+                    </div>
+                    <div className="sheet-foot" data-preview-page="1" data-page-hidden="false">
+                      <span>
+                        BIM Design & Engineering Consultants
+                      </span>
+                      <span>
+                        Instrument of Service — Confidential
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="workspace hidden" id="workspace-contract">
+              <div className="editor no-print">
+                <div className="h3row">
+                  <h3>
+                    Issuer letterhead
+                  </h3>
+                  <button type="button" className="lock-btn locked" id="lockbtn-letterhead-contract" data-onclick="toggleLock('letterhead')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="4" y="11" width="16" height="10" rx="2"></rect>
+                      <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+                    </svg>
+                    <span>
+                      Locked
+                    </span>
+                  </button>
+                </div>
+                <div className="field lk-letterhead locked">
+                  <label>
+                    Firm address
+                  </label>
+                  <input id="c_addr" defaultValue="1187 Don Quijote St. Sampaloc, Brgy. 480, Metro Manila, Philippines" disabled />
+                </div>
+                <div className="field lk-letterhead locked">
+                  <label>
+                    Email
+                  </label>
+                  <input id="c_email" defaultValue="joemel.baccal@bimphilippines.org" disabled />
+                </div>
+                <div className="field lk-letterhead locked">
+                  <label>
+                    Phone
+                  </label>
+                  <input id="c_phone" defaultValue="(02)8832-3530/(63)917-541-3963" disabled />
+                </div>
+                <div className="field lk-letterhead locked">
+                  <label>
+                    Tax status
+                  </label>
+                  <input id="c_tin" defaultValue="Non-VAT Registered TIN: 343-962-880-00000" disabled />
+                </div>
+
+                <h3>
+                  Load from a saved Proposal
+                </h3>
+                <div className="field">
+                  <label>
+                    Quotation No. to generate this contract from
+                  </label>
+                  <div className="gen-no-row">
+                    <input id="c_srcqno" defaultValue="" placeholder="e.g. 20260826-0001" />
+                    <button type="button" className="gen-no-btn" data-onclick="loadContractFromQuotation()">
+                      Load from Quotation
+                    </button>
+                  </div>
+                  <div className="send-status" id="c_loadStatus"></div>
+                  <span className="hint">
+                    Pulls the client, project and line items from that Proposal (it must have been saved to records with a Category set first) and picks the matching contract template below.
+                  </span>
+                </div>
+                <div className="field">
+                  <label>
+                    Category
+                  </label>
+                  <input id="c_categoryLabel" defaultValue="— none loaded yet —" disabled />
+                  <input type="hidden" id="c_category" defaultValue="" data-oninput="renderPreview(); scheduleSave();" />
+                </div>
+
+                <h3>
+                  Client & reference
+                </h3>
+                <div className="field">
+                  <label>
+                    Client / attention to
+                  </label>
+                  <input id="c_client" defaultValue="" placeholder="e.g. MS. JUAN DELA CRUZ" />
+                </div>
+                <div className="field">
+                  <label>
+                    Client company
+                  </label>
+                  <input id="c_clientco" defaultValue="" placeholder="e.g. Client Company, Inc." />
+                </div>
+                <div className="row2">
+                  <div className="field">
+                    <label>
+                      Contract no.
+                    </label>
+                    <div className="gen-no-row">
+                      <input id="c_ctrno" defaultValue="" placeholder="e.g. 20260826-0001" />
+                      <button type="button" className="gen-no-btn" data-onclick="generateDocNumber('contract')">
+                        Generate No.
+                      </button>
+                    </div>
+                    <div className="gen-no-status" id="qnoStatus_contract"></div>
+                  </div>
+                  <div className="field">
+                    <label>
+                      Date
+                    </label>
+                    <input id="c_date" defaultValue="" placeholder="e.g. 20 August 2026" />
+                  </div>
+                </div>
+                <div className="row2">
+                  <div className="field">
+                    <label>
+                      Project name
+                    </label>
+                    <input id="c_project" defaultValue="" placeholder="e.g. Project name" />
+                  </div>
+                  <div className="field">
+                    <label>
+                      Project location
+                    </label>
+                    <input id="c_loc" defaultValue="" placeholder="e.g. Project site address" />
+                  </div>
+                </div>
+
+                <h3>
+                  Scope of work
+                </h3>
+                <div className="field">
+                  <label>
+                    Scope intro paragraph
+                  </label>
+                  <textarea id="c_scope" style={{ minHeight: "70px" }} defaultValue="" placeholder="Filled in automatically once you load a Proposal above — editable after." />
+                </div>
+                <div id="c_items"></div>
+                <button className="add-item-btn" data-onclick="addItem('contract')">
+                  + Add line item
+                </button>
+
+                <h3>
+                  Project timeline
+                </h3>
+                <div className="field">
+                  <label>
+                    Timeline text
+                  </label>
+                  <textarea id="c_timeline" style={{ minHeight: "70px" }} defaultValue="" placeholder="Filled in automatically once you load a Proposal above — editable after." />
+                </div>
+                <h3>
+                  Warranty
+                </h3>
+                <div className="field">
+                  <label>
+                    Warranty text
+                  </label>
+                  <textarea id="c_warranty" style={{ minHeight: "70px" }} defaultValue="" placeholder="Filled in automatically once you load a Proposal above — editable after." />
+                </div>
+                <h3>
+                  Terms & conditions
+                </h3>
+                <div className="field">
+                  <label>
+                    Editable clauses
+                  </label>
+                  <textarea id="c_terms" style={{ minHeight: "190px" }} defaultValue="" placeholder="Filled in automatically once you load a Proposal above — editable after." />
+                </div>
+                <h3>
+                  Payment terms
+                </h3>
+                <div className="field">
+                  <label>
+                    Payment schedule
+                  </label>
+                  <textarea id="c_payment" style={{ minHeight: "70px" }} defaultValue="" placeholder="Filled in automatically once you load a Proposal above — editable after." />
+                </div>
+
+                <h3>
+                  Prepared by
+                </h3>
+                <div className="row2">
+                  <div className="field">
+                    <label>
+                      Prepared by (name)
+                    </label>
+                    <select id="c_prepby" data-onchange="renderPreview(); scheduleSave();">
+                      <option defaultValue="ENGR. ______________">
+                        ENGR. ______________
+                      </option>
+                      <option defaultValue="Engr. Joemel Baccal">
+                        Engr. Joemel Baccal
+                      </option>
+                      <option defaultValue="Engr. Joseph Domingo">
+                        Engr. Joseph Domingo
+                      </option>
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label>
+                      Date prepared
+                    </label>
+                    <input id="c_prepdate" defaultValue="" placeholder="e.g. 20 August 2026" />
+                  </div>
+                </div>
+                <div className="datetick-row">
+                  <label className="tickopt">
+                    <input type="checkbox" id="c_prepdate_day" data-onchange="updateAutoDate('c_prepdate')" />
+                    Day
+                  </label>
+                  <label className="tickopt">
+                    <input type="checkbox" id="c_prepdate_month" data-onchange="updateAutoDate('c_prepdate')" />
+                    Month
+                  </label>
+                  <label className="tickopt">
+                    <input type="checkbox" id="c_prepdate_year" data-onchange="updateAutoDate('c_prepdate')" />
+                    Year
+                  </label>
+                  <span className="hint" style={{ margin: "0" }}>
+                    Tick to auto-fill today's date parts
+                  </span>
+                </div>
+                <div className="field">
+                  <label>
+                    Digital signature (PNG/JPG, optional)
+                  </label>
+                  <div className="sig-upload">
+                    <input type="file" accept="image/png,image/jpeg" data-onchange="handleSigUpload('c_prepby', this)" />
+                  </div>
+                  <div className="sig-thumb-row" id="c_prepby_sigpreview"></div>
+                </div>
+                <div className="actions">
+                  <button className="btn btn-print" data-onclick="printSheet('contract')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M6 9V2h12v7"></path>
+                      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                      <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                    Print / Save as PDF
+                  </button>
+                  <button type="button" className="btn btn-print" id="saveRecordBtn_contract" data-onclick="saveDocumentRecord('contract')">
+                    Save to records
+                  </button>
+                </div>
+                <div className="send-status" id="saveRecordStatus_contract"></div>
+                <div className="print-hint no-print">
+                  <b>
+                    Before you print:
+                  </b>
+                  in the print dialog, open “More settings” and turn
+                  <b>
+                    Headers and footers
+                  </b>
+                  off (and set Margins to “Default” or “None”).
+                </div>
+                <div className="send-email-box no-print">
+                  <h4>
+                    Send this to email
+                  </h4>
+                  <div className="send-email-row">
+                    <input type="email" id="sendEmail_contract" placeholder="client@example.com" />
+                    <button type="button" className="btn btn-print" style={{ padding: "9px 16px" }} data-onclick="sendDocumentEmail('contract')" id="sendBtn_contract">
+                      Send contract
+                    </button>
+                  </div>
+                  <div className="send-status" id="sendStatus_contract"></div>
+                </div>
+              </div>
+              <div className="preview-wrap" data-kind="contract">
+                <div className="preview-inner">
+                  <div className="zoom-bar no-print">
+                    <button type="button" className="zoom-btn" data-onclick="zoomOut('contract')" aria-label="Zoom out">
+                      −
+                    </button>
+                    <span className="zoom-level" id="zoomLevel_contract">
+                      80%
+                    </span>
+                    <button type="button" className="zoom-btn" data-onclick="zoomIn('contract')" aria-label="Zoom in">
+                      +
+                    </button>
+                    <button type="button" className="zoom-reset-btn" data-onclick="resetZoom('contract')">
+                      Reset
+                    </button>
+                    <span className="preview-page-nav" aria-label="Preview page navigation">
+                      <button type="button" className="page-nav-btn" data-onclick="goHome('contract')" id="pageHome_contract" disabled>
+                        Home
+                      </button>
+                      <button type="button" className="page-nav-btn" data-onclick="prevPage('contract')" id="pagePrev_contract" disabled>
+                        Previous
+                      </button>
+                      <span className="page-nav-status" id="pageNav_contract">
+                        1 / 1
+                      </span>
+                      <button type="button" className="page-nav-btn" data-onclick="nextPage('contract')" id="pageNext_contract" disabled>
+                        Next
+                      </button>
+                      <button type="button" className="page-nav-btn" data-onclick="goEnd('contract')" id="pageEnd_contract" disabled>
+                        End
+                      </button>
+                    </span>
+                    <span className="zoom-hint">
+                      Ctrl+scroll to zoom
+                    </span>
+                  </div>
+                  <div className="page-count-note no-print" id="pageCountContract">
+                    Continuous preview — 1 printed page
+                  </div>
+                  <div className="sheet" id="sheet-contract" style={{ zoom: "0.8" }}>
+                    <div className="screen-frame no-print"></div>
+                    <div className="sheet-upper">
+                      <div className="sheet-head" data-preview-page="1" data-page-hidden="false">
+                        <div className="sheet-brand">
+                          <img className="brand-logo" src={LETTERHEAD_LOGO} alt="BIMDEC logo" />
+                          <div>
+                            <div className="bname">
+                              BIM Design & Engineering Consultants
+                            </div>
+                          </div>
+                        </div>
+                        <div className="sheet-meta" id="pv_c_letterhead">
+                          1187 Don Quijote St. Sampaloc, Metro Manila, Philippines
+joemel.baccal@bimphilippines.org
+(02)8832-3530/(63)917-541-3963
+Non-VAT Registered TIN: 343-962-880-00000
+                        </div>
+                      </div>
+                      <span className="doctitle" id="pv_c_doctitle" data-preview-page="1" data-page-hidden="false">
+                        SERVICES AGREEMENT
+                      </span>
+                      <div className="docsub" data-preview-page="1" data-page-hidden="false">
+                        Contract No.
+                        <span id="pv_c_ctrno"></span>
+                        ·  Ref. Quotation No.
+                        <span id="pv_c_srcqno"></span>
+                        ·  Non‑VAT
+                      </div>
+                      <div className="kv-grid" data-preview-page="1" data-page-hidden="false">
+                        <div className="kv">
+                          <span className="k">
+                            Client
+                          </span>
+                          <span className="v" id="pv_c_client"></span>
+                        </div>
+                        <div className="kv">
+                          <span className="k">
+                            Date
+                          </span>
+                          <span className="v" id="pv_c_date"></span>
+                        </div>
+                        <div className="kv">
+                          <span className="k">
+                            Company
+                          </span>
+                          <span className="v" id="pv_c_clientco"></span>
+                        </div>
+                        <div className="kv">
+                          <span className="k">
+                            Category
+                          </span>
+                          <span className="v" id="pv_c_category"></span>
+                        </div>
+                        <div className="kv">
+                          <span className="k">
+                            Project
+                          </span>
+                          <span className="v" id="pv_c_project"></span>
+                        </div>
+                        <div className="kv">
+                          <span className="k">
+                            Location
+                          </span>
+                          <span className="v" id="pv_c_loc"></span>
+                        </div>
+                      </div>
+                      <div className="sec-title" data-preview-page="1" data-page-hidden="false">
+                        Scope of work
+                      </div>
+                      <div className="hint" id="pv_c_scope" data-preview-page="1" data-page-hidden="false"></div>
+                      <table className="doc-table" data-preview-page="1" data-page-hidden="false">
+                        <thead>
+                          <tr>
+                            <th style={{ width: "52%" }}>
+                              Description
+                            </th>
+                            <th className="num">
+                              Qty
+                            </th>
+                            <th className="num">
+                              Unit price
+                            </th>
+                            <th className="num">
+                              Total
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody id="pv_c_items"></tbody>
+                      </table>
+                      <div className="totals" id="pv_c_totals" data-preview-page="1" data-page-hidden="false">
+                        <div className="trow grand">
+                          <span className="k">
+                            Total contract price
+                            <span className="nonvat-badge">
+                              NON‑VAT
+                            </span>
+                          </span>
+                          <span>
+                            Php 0.00
+                          </span>
+                        </div>
+                      </div>
+                      <div className="sec-title" data-preview-page="1" data-page-hidden="false">
+                        Project timeline
+                      </div>
+                      <div className="terms" id="pv_c_timeline" data-preview-page="1" data-page-hidden="false"></div>
+                      <div className="sec-title" data-preview-page="1" data-page-hidden="false">
+                        Warranty
+                      </div>
+                      <div className="terms" id="pv_c_warranty" data-preview-page="1" data-page-hidden="false"></div>
+                      <div className="sec-title terms-heading" data-preview-page="1" data-page-hidden="false">
+                        Terms & conditions
+                      </div>
+                      <div className="terms" id="pv_c_terms" data-preview-page="1" data-page-hidden="false"></div>
+                    </div>
+                    <div className="sheet-lower">
+                      <div className="sec-title" data-preview-page="1" data-page-hidden="false">
+                        Payment terms
+                      </div>
+                      <div className="terms" id="pv_c_payment" data-preview-page="1" data-page-hidden="false"></div>
+                      <div className="signblock" data-preview-page="1" data-page-hidden="false">
+                        <div className="sigline">
+                          <img className="sig-img hidden" id="pv_c_prepby_sig" />
+                          <div id="pv_c_prepby">
+                            ENGR. ______________  ·  20 August 2026
+                          </div>
+                          <div className="role">
+                            For the Contractor · BIMDEC
+                          </div>
+                        </div>
+                        <div className="sigline">
+                          Authorized Client Signature
+                          <div className="role">
+                            Conforme — Client acceptance & date
+                          </div>
+                        </div>
+                      </div>
+                      <div className="titleblock" data-preview-page="1" data-page-hidden="false">
+                        <div className="tb-cell">
+                          <span className="tb-label">
+                            Document
+                          </span>
+                          Contract
+                        </div>
+                        <div className="tb-cell">
+                          <span className="tb-label">
+                            No.
+                          </span>
+                          <span id="tb_c_ctrno"></span>
+                        </div>
+                        <div className="tb-cell">
+                          <span className="tb-label">
+                            Date
+                          </span>
+                          <span id="tb_c_date"></span>
                         </div>
                         <div className="tb-cell">
                           <span className="tb-label">
