@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIMDEC Solar Calculator</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:#f5f5f3; --surface:#ffffff; --surface2:#f0efec;
+    --border:rgba(0,0,0,0.1); --border2:rgba(0,0,0,0.18);
+    --text:#1a1a18; --text2:#5f5e5a; --text3:#888780;
+    --amber:#854F0B; --amber-bg:#FAEEDA; --amber-border:#FAC775;
+    --amber-badge:#FAC775; --amber-badge-text:#633806;
+    --blue:#185FA5; --blue-bg:#E6F1FB; --blue-border:#85B7EB;
+    --blue-badge:#B5D4F4; --blue-badge-text:#0C447C;
+    --green:#3B6D11; --green-bg:#EAF3DE; --green-border:#97C459;
+    --green-badge:#C0DD97; --green-badge-text:#27500A;
+    --teal:#0F6E56; --teal-bg:#E1F5EE; --teal-border:#5DCAA5;
+    --teal-badge:#9FE1CB; --teal-badge-text:#085041;
+    --radius:8px; --radius-lg:12px; --shadow:0 1px 4px rgba(0,0,0,0.07);
+  }
+  @media (prefers-color-scheme:dark) {
+    :root {
+      --bg:#1a1a18; --surface:#242422; --surface2:#2e2e2b;
+      --border:rgba(255,255,255,0.1); --border2:rgba(255,255,255,0.18);
+      --text:#f0ede8; --text2:#a0a09a; --text3:#6a6a64;
+      --amber-bg:#2a1e08; --amber-border:#633806; --amber-badge:#412402; --amber-badge-text:#FAC775;
+      --blue-bg:#0a1e38; --blue-border:#185FA5; --blue-badge:#042C53; --blue-badge-text:#B5D4F4;
+      --green-bg:#0f1f06; --green-border:#3B6D11; --green-badge:#173404; --green-badge-text:#C0DD97;
+      --teal-bg:#04342C; --teal-border:#0F6E56; --teal-badge:#085041; --teal-badge-text:#9FE1CB;
+    }
+  }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:2rem 1rem; font-size:15px; line-height:1.6; }
+  .page { max-width:740px; margin:0 auto; }
+  .header { display:flex; align-items:center; gap:14px; margin-bottom:2rem; }
+  .logo-icon { width:46px; height:46px; background:#FAC775; border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .logo-icon i { font-size:26px; color:#412402; }
+  .logo-text { font-size:20px; font-weight:600; color:var(--text); letter-spacing:-.02em; }
+  .logo-sub { font-size:13px; color:var(--text2); margin-top:1px; }
+  .tabs { display:flex; border-bottom:1px solid var(--border); margin-bottom:1.5rem; overflow-x:auto; }
+  .tab { padding:9px 16px; font-size:13px; font-weight:500; cursor:pointer; color:var(--text2); border:none; background:none; border-bottom:2px solid transparent; transition:all .15s; display:flex; align-items:center; gap:5px; white-space:nowrap; flex-shrink:0; }
+  .tab i { font-size:15px; }
+  .tab.active { color:var(--text); border-bottom-color:#185FA5; }
+  .tab:hover:not(.active) { color:var(--text); }
+  .panel { display:none; } .panel.active { display:block; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem 1.5rem; margin-bottom:1rem; box-shadow:var(--shadow); }
+  .sec-title { font-size:11px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:.08em; margin-bottom:1rem; display:flex; align-items:center; gap:6px; }
+  .sec-title i { font-size:15px; }
+  .field { display:grid; grid-template-columns:1fr auto; align-items:center; gap:10px; margin-bottom:.75rem; }
+  .field label { font-size:14px; color:var(--text2); }
+  .inp-unit { display:flex; align-items:center; gap:7px; }
+  .unit { font-size:12px; color:var(--text3); white-space:nowrap; }
+  input[type="number"] { background:var(--surface2); border:1px solid var(--border2); border-radius:var(--radius); color:var(--text); padding:7px 10px; font-size:13px; font-family:inherit; outline:none; transition:border-color .15s; width:110px; }
+  input[type="number"]:focus { border-color:#185FA5; }
+  input[type="range"] { width:100%; accent-color:#185FA5; height:4px; cursor:pointer; }
+  .slider-row { margin-bottom:.75rem; }
+  .slider-row label { font-size:13px; color:var(--text2); display:flex; justify-content:space-between; margin-bottom:6px; }
+  .slider-row label span { font-weight:600; color:var(--text); }
+  .metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:8px; margin-bottom:.75rem; }
+  .met { background:var(--surface2); border-radius:var(--radius); padding:.75rem 1rem; }
+  .met-label { font-size:11px; color:var(--text3); margin-bottom:3px; }
+  .met-val { font-size:20px; font-weight:600; color:var(--text); line-height:1.2; }
+  .met-unit { font-size:11px; color:var(--text2); margin-top:2px; }
+  .formula-box { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:.85rem 1.1rem; margin-bottom:.85rem; font-size:12.5px; color:var(--text2); line-height:2.1; }
+  .formula-box code { font-family:'SF Mono','Fira Code',monospace; font-size:12px; color:var(--text); }
+  .formula-box strong { color:#185FA5; }
+  /* Rec cards */
+  .rec { border-radius:var(--radius); padding:.9rem 1.1rem; margin-bottom:.65rem; border:1px solid; }
+  .rec.panel-r { background:var(--amber-bg); border-color:var(--amber-border); }
+  .rec.inv-r   { background:var(--blue-bg);  border-color:var(--blue-border); }
+  .rec.bat-r   { background:var(--green-bg); border-color:var(--green-border); }
+  .rec-hd { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+  .rec-hd i { font-size:18px; }
+  .rec.panel-r .rec-hd i { color:var(--amber); }
+  .rec.inv-r   .rec-hd i { color:var(--blue); }
+  .rec.bat-r   .rec-hd i { color:var(--green); }
+  .rec-title { font-size:13px; font-weight:600; }
+  .rec.panel-r .rec-title { color:var(--amber-badge-text); }
+  .rec.inv-r   .rec-title { color:var(--blue-badge-text); }
+  .rec.bat-r   .rec-title { color:var(--green-badge-text); }
+  .rec-detail { font-size:12px; line-height:1.7; }
+  .rec.panel-r .rec-detail { color:var(--amber); }
+  .rec.inv-r   .rec-detail { color:var(--blue); }
+  .rec.bat-r   .rec-detail { color:var(--green); }
+  .badge { display:inline-block; font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; margin-top:6px; }
+  .rec.panel-r .badge { background:var(--amber-badge); color:var(--amber-badge-text); }
+  .rec.inv-r   .badge { background:var(--blue-badge);  color:var(--blue-badge-text); }
+  .rec.bat-r   .badge { background:var(--green-badge); color:var(--green-badge-text); }
+  /* Inverter capacity table */
+  .inv-table-wrap { overflow-x:auto; margin-top:.5rem; }
+  .inv-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .inv-table th { font-size:11px; font-weight:600; color:var(--text2); text-align:left; padding:6px 8px; border-bottom:1px solid var(--border); background:var(--surface2); }
+  .inv-table td { padding:6px 8px; border-bottom:1px solid var(--border); color:var(--text); }
+  .inv-table tr:last-child td { border-bottom:none; }
+  .inv-table tr.selected { background:var(--blue-bg); }
+  .inv-table tr.selected td { color:var(--blue-badge-text); font-weight:600; }
+  .inv-table tr.selected td:first-child::after { content:' ✓ recommended'; font-size:10px; color:var(--blue); font-weight:400; }
+  .inv-table .cap-bar-cell { width:120px; }
+  .cap-bar-track { background:var(--border); border-radius:3px; height:7px; overflow:hidden; }
+  .cap-bar-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,#1D9E75,#185FA5); }
+  /* Savings */
+  .sav-hero { background:var(--teal-bg); border:1px solid var(--teal-border); border-radius:var(--radius-lg); padding:1.5rem; margin-bottom:1rem; text-align:center; }
+  .sav-hero-label { font-size:12px; color:var(--teal-badge-text); font-weight:600; text-transform:uppercase; letter-spacing:.07em; margin-bottom:4px; }
+  .sav-hero-val { font-size:40px; font-weight:700; color:var(--teal); line-height:1.1; }
+  .sav-hero-unit { font-size:14px; color:var(--teal); margin-top:2px; }
+  .sav-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin-bottom:1rem; }
+  .sav-met { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:.85rem 1rem; }
+  .sav-met-label { font-size:11px; color:var(--text3); margin-bottom:3px; }
+  .sav-met-val { font-size:18px; font-weight:600; color:var(--text); }
+  .sav-met-unit { font-size:11px; color:var(--text2); margin-top:1px; }
+  .payback-bar-wrap { background:var(--surface2); border-radius:var(--radius); padding:1rem; margin-bottom:1rem; }
+  .payback-bar-label { font-size:12px; color:var(--text2); margin-bottom:8px; display:flex; justify-content:space-between; }
+  .payback-bar-track { background:var(--border); border-radius:4px; height:10px; overflow:hidden; margin-bottom:6px; }
+  .payback-bar-fill { height:100%; background:linear-gradient(90deg,#1D9E75,#185FA5); border-radius:4px; transition:width .4s ease; }
+  .payback-ticks { display:flex; justify-content:space-between; font-size:10px; color:var(--text3); }
+  .year-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .year-table th { font-size:11px; font-weight:600; color:var(--text2); text-align:left; padding:6px 8px; border-bottom:1px solid var(--border); }
+  .year-table td { padding:6px 8px; border-bottom:1px solid var(--border); color:var(--text); }
+  .year-table tr:last-child td { border-bottom:none; }
+  .positive { color:var(--teal); font-weight:600; }
+  .negative { color:var(--amber); }
+  .year-table .payback-row { background:var(--teal-bg); }
+  .year-table .payback-row td { color:var(--teal-badge-text); font-weight:600; }
+  /* Buttons */
+  .btn-calc { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:13px; background:#185FA5; color:#fff; border:none; border-radius:var(--radius); font-size:15px; font-weight:600; cursor:pointer; margin-top:.5rem; transition:background .15s, transform .1s; }
+  .btn-calc:hover { background:#0d4a88; }
+  .btn-calc:active { transform:scale(.98); }
+  .btn-calc i { font-size:18px; }
+  .btn-print { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:11px; background:var(--surface2); color:var(--text); border:1px solid var(--border2); border-radius:var(--radius); font-size:14px; font-weight:500; cursor:pointer; transition:background .15s; }
+  .btn-print:hover { background:var(--border); }
+  .btn-print i { font-size:17px; }
+  .note { font-size:11.5px; color:var(--text3); line-height:1.65; margin-top:.5rem; }
+  .divider { border:none; border-top:1px solid var(--border); margin:1rem 0; }
+  #backup-card.is-grid-tie .slider-row { opacity:.4; pointer-events:none; }
+  /* Print */
+  @media print {
+    body { background:#fff; padding:.5cm; font-size:11pt; }
+    .tabs,.btn-print,.btn-calc,.no-print { display:none !important; }
+    .panel { display:block !important; }
+    .page { max-width:100%; }
+    .card,.sav-met,.rec { break-inside:avoid; box-shadow:none; }
+    .sav-hero { break-inside:avoid; }
+    .print-section-title { font-size:13pt; font-weight:700; color:#185FA5; border-bottom:2pt solid #185FA5; padding-bottom:4pt; margin:18pt 0 10pt; text-transform:uppercase; letter-spacing:.05em; }
+    .year-table { font-size:9pt; }
+    .payback-bar-wrap,.inv-table-wrap { display:none; }
+  }
+  @media (max-width:520px) {
+    .tab { padding:9px 11px; font-size:12px; }
+    .field { grid-template-columns:1fr; }
+    .field label { margin-bottom:2px; }
+    .sav-hero-val { font-size:32px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo-icon"><i class="ti ti-sun"></i></div>
+    <div>
+      <div class="logo-text">BIMDEC Solar Calculator</div>
+      <div class="logo-sub">PV sizing · Deye inverter max PV capacity · Savings & ROI</div>
+    </div>
+  </div>
+
+  <div class="tabs no-print">
+    <button class="tab active" onclick="switchTab('input')"><i class="ti ti-settings-2"></i> Inputs</button>
+    <button class="tab" onclick="switchTab('results')"><i class="ti ti-chart-bar"></i> Results</button>
+    <button class="tab" onclick="switchTab('savings')"><i class="ti ti-piggy-bank"></i> Savings & ROI</button>
+  </div>
+
+  <!-- ===== INPUTS ===== -->
+  <div id="tab-input" class="panel active">
+    <div class="card">
+      <div class="sec-title"><i class="ti ti-file-invoice"></i> Meralco bill</div>
+      <div class="field">
+        <label for="kwh">Monthly consumption</label>
+        <div class="inp-unit"><input type="number" id="kwh" min="0" max="10000" value="300" step="10"><span class="unit">kWh / month</span></div>
+      </div>
+      <div class="field">
+        <label for="rate">Meralco rate <span style="font-size:11px;color:var(--text3)">(June 2026)</span></label>
+        <div class="inp-unit"><span style="font-size:14px;color:var(--text2);margin-right:2px">₱</span><input type="number" id="rate" min="1" max="30" value="14.4833" step="0.01"><span class="unit">/ kWh</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-title"><i class="ti ti-solar-panel"></i> Panel configuration</div>
+      <div class="field">
+        <label for="panel-w">Panel wattage</label>
+        <div class="inp-unit"><input type="number" id="panel-w" min="100" max="800" value="615" step="5"><span class="unit">W &nbsp;(Trina 615W default)</span></div>
+      </div>
+      <div class="field">
+        <label for="psh">Peak sun hours</label>
+        <div class="inp-unit"><input type="number" id="psh" min="1" max="8" value="4.5" step="0.5"><span class="unit">hrs/day &nbsp;(PH avg 4.5)</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-title"><i class="ti ti-shield-check"></i> Safety factor</div>
+      <div class="slider-row">
+        <label>Safety factor multiplier <span id="sf-out">1.25×</span></label>
+        <input type="range" id="sf" min="1.0" max="1.5" value="1.25" step="0.05">
+      </div>
+      <p class="note">Intentional design buffer for future load growth, panel degradation, and worst-case weather. Standard: <strong>1.25×</strong>.</p>
+    </div>
+    <div class="card" id="backup-card">
+      <div class="sec-title"><i class="ti ti-battery-charging"></i> Battery backup target</div>
+      <div class="slider-row">
+        <label>Daily backup coverage <span id="bk-out">50%</span></label>
+        <input type="range" id="backup" min="20" max="100" value="50" step="10">
+      </div>
+      <p class="note" id="backup-note" style="display:none">Not applicable — the selected inverter line is grid-tie (no battery input).</p>
+    </div>
+    <div class="card">
+      <div class="sec-title"><i class="ti ti-cash"></i> Cost & ROI inputs</div>
+      <div class="field">
+        <label for="cost-per-wp">Installed cost per Wp</label>
+        <div class="inp-unit"><span style="font-size:14px;color:var(--text2);margin-right:2px">₱</span><input type="number" id="cost-per-wp" min="10" max="200" value="55" step="1"><span class="unit">/ Wp &nbsp;(typical PH)</span></div>
+      </div>
+      <div class="field">
+        <label for="rate-increase">Annual rate escalation</label>
+        <div class="inp-unit"><input type="number" id="rate-increase" min="0" max="15" value="4" step="0.5"><span class="unit">% / year</span></div>
+      </div>
+      <div class="field">
+        <label for="panel-degradation">Panel annual degradation</label>
+        <div class="inp-unit"><input type="number" id="panel-degradation" min="0" max="2" value="0.5" step="0.1"><span class="unit">% / year</span></div>
+      </div>
+      <p class="note">Installed cost covers panels, inverter, batteries, racking, wiring, labour, and permits. Typical PH market: ₱45–₱65/Wp for hybrid systems.</p>
+    </div>
+    <button class="btn-calc" onclick="runCalc()">
+      <i class="ti ti-calculator"></i> Calculate Solar System
+    </button>
+  </div>
+
+  <!-- ===== RESULTS ===== -->
+  <div id="tab-results" class="panel">
+    <div class="print-section-title" id="print-title-results" style="display:none">PV Sizing Results</div>
+
+    <div class="card no-print">
+      <div class="sec-title"><i class="ti ti-plug"></i> Inverter line</div>
+      <div class="field" style="grid-template-columns:1fr">
+        <label for="inv-type" style="margin-bottom:6px">Deye product line</label>
+      </div>
+      <select id="inv-type" onchange="onInvTypeChange(); runCalc();" style="width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:var(--radius); color:var(--text); padding:9px 10px; font-size:13px; font-family:inherit;">
+        <option value="1p-hybrid">Single-Phase Hybrid — 6, 8, 12, 16, 18 kW (LV battery)</option>
+        <option value="3p-hybrid">Three-Phase Hybrid — 12, 20 kW (LV battery); 30, 50, 80 kW (HV battery)</option>
+        <option value="1p-grid">Single-Phase Grid-Tie — 3.6, 6, 8, 10 kW (no battery)</option>
+        <option value="3p-grid">Three-Phase Grid-Tie — 10, 20, 30, 50, 60, 100 kW (no battery)</option>
+      </select>
+      <p class="note" id="inv-type-note" style="margin-top:.6rem">Hybrid inverters charge/discharge a battery; grid-tie inverters export straight to the grid and have no battery input.</p>
+    </div>
+
+    <div class="card">
+      <div class="sec-title"><i class="ti ti-calculator"></i> PV sizing calculation</div>
+      <div class="formula-box" id="formula-box">Press <strong>Calculate Solar System</strong> on the Inputs tab.</div>
+      <div class="metrics" id="metrics"></div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title"><i class="ti ti-solar-panel"></i> PV panel recommendation</div>
+      <div class="rec panel-r">
+        <div class="rec-hd"><i class="ti ti-solar-panel"></i><span class="rec-title" id="rec-panel-title">—</span></div>
+        <div class="rec-detail" id="rec-panel-detail">—</div>
+        <span class="badge" id="rec-panel-badge">—</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title"><i class="ti ti-plug"></i> Deye inverter — maximized PV capacity per model</div>
+      <p class="note" style="margin-bottom:.85rem" id="inv-intro">Based on your required system size, the table below shows how many panels each Deye inverter can accept at its maximum PV input rating. The recommended model is highlighted.</p>
+      <div class="inv-table-wrap">
+        <table class="inv-table" id="inv-table">
+          <thead>
+            <tr>
+              <th>Deye model</th>
+              <th>Inverter AC</th>
+              <th>Max PV input</th>
+              <th id="inv-th-panels">Max panels (615W)</th>
+              <th>Max kWp</th>
+              <th>PV capacity used</th>
+              <th class="cap-bar-cell"></th>
+            </tr>
+          </thead>
+          <tbody id="inv-table-body"></tbody>
+        </table>
+      </div>
+      <div class="rec inv-r" id="rec-inv-card" style="margin-top:.85rem">
+        <div class="rec-hd"><i class="ti ti-plug"></i><span class="rec-title" id="rec-inv-title">—</span></div>
+        <div class="rec-detail" id="rec-inv-detail">—</div>
+        <span class="badge" id="rec-inv-badge">—</span>
+      </div>
+    </div>
+
+    <div class="card" id="battery-rec-card">
+      <div class="sec-title"><i class="ti ti-battery-charging"></i> Battery recommendation</div>
+      <div class="rec bat-r" id="rec-bat-block">
+        <div class="rec-hd"><i class="ti ti-battery-charging"></i><span class="rec-title" id="rec-bat-title">—</span></div>
+        <div class="rec-detail" id="rec-bat-detail">—</div>
+        <span class="badge" id="rec-bat-badge">—</span>
+      </div>
+      <p class="note" id="rec-bat-na" style="display:none">Not applicable — grid-tie inverters export directly to the grid and have no battery input. Add a hybrid inverter and battery separately if backup power is needed.</p>
+    </div>
+
+    <div class="card">
+      <div class="sec-title"><i class="ti ti-info-circle"></i> System loss summary (NREL PVWatts v8 — applied in calculation)</div>
+      <div id="loss-summary" style="font-size:12px;color:var(--text2);line-height:2">—</div>
+    </div>
+
+    <button class="btn-print no-print" onclick="printResults()">
+      <i class="ti ti-printer"></i> Print / Save as PDF
+    </button>
+  </div>
+
+  <!-- ===== SAVINGS ===== -->
+  <div id="tab-savings" class="panel">
+    <div class="print-section-title" id="print-title-savings" style="display:none">Savings & ROI</div>
+
+    <div class="sav-hero">
+      <div class="sav-hero-label">Monthly electricity savings</div>
+      <div class="sav-hero-val" id="sav-monthly">₱—</div>
+      <div class="sav-hero-unit" id="sav-monthly-kwh">Press Calculate to see savings</div>
+    </div>
+
+    <div class="sav-grid">
+      <div class="sav-met"><div class="sav-met-label">Annual savings (Year 1)</div><div class="sav-met-val" id="sav-annual">₱—</div><div class="sav-met-unit">at current Meralco rate</div></div>
+      <div class="sav-met"><div class="sav-met-label">Est. system cost</div><div class="sav-met-val" id="sav-cost">₱—</div><div class="sav-met-unit">installed turnkey</div></div>
+      <div class="sav-met"><div class="sav-met-label">Simple payback</div><div class="sav-met-val" id="sav-payback">— yrs</div><div class="sav-met-unit">without rate escalation</div></div>
+      <div class="sav-met"><div class="sav-met-label">Payback w/ escalation</div><div class="sav-met-val" id="sav-payback-esc">— yrs</div><div class="sav-met-unit">with annual rate increase</div></div>
+      <div class="sav-met"><div class="sav-met-label">25-year total savings</div><div class="sav-met-val" id="sav-25yr">₱—</div><div class="sav-met-unit">net of system cost</div></div>
+      <div class="sav-met"><div class="sav-met-label">25-year ROI</div><div class="sav-met-val" id="sav-roi">—%</div><div class="sav-met-unit">return on investment</div></div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title"><i class="ti ti-hourglass"></i> Payback progress</div>
+      <div class="payback-bar-wrap no-print">
+        <div class="payback-bar-label"><span>Cost recovery timeline</span><span id="pb-label-right">—</span></div>
+        <div class="payback-bar-track"><div class="payback-bar-fill" id="pb-fill" style="width:0%"></div></div>
+        <div class="payback-ticks" id="pb-ticks"></div>
+      </div>
+      <p class="note" id="sav-note">—</p>
+    </div>
+
+    <div class="card">
+      <div class="sec-title"><i class="ti ti-table"></i> Year-by-year cash flow (25-year system life)</div>
+      <div style="overflow-x:auto">
+        <table class="year-table">
+          <thead><tr><th>Year</th><th>Rate (₱/kWh)</th><th>Annual savings</th><th>Cumulative</th><th>Net position</th></tr></thead>
+          <tbody id="year-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <button class="btn-print no-print" onclick="printResults()">
+      <i class="ti ti-printer"></i> Print / Save as PDF
+    </button>
+  </div>
+</div>
+
+<!-- Hidden NREL losses (used in calculation silently) -->
+<div style="display:none">
+  <input id="l-temp"  value="7">
+  <input id="l-soil"  value="4">
+  <input id="l-shade" value="3">
+  <input id="l-wire"  value="2">
+  <input id="l-inv"   value="4">
+  <input id="l-mis"   value="2">
+  <input id="l-lid"   value="1.5">
+  <input id="l-name"  value="1">
+  <input id="l-avail" value="3">
+</div>
+
+<script>
+// ── Deye inverter specs, confirmed against official Deye datasheets (deyeinverter.com) ──
+// Each entry's maxPvW = "Max. PV Access/Input Power" from the model's datasheet.
+const INVERTER_SETS = {
+  // Single-Phase Hybrid, 48V LV battery. 6/8kW: SUN-6/8K-SG01LP1-US/EU.
+  // 12/16/18kW: SUN-12/16/18K-SG01LP1-EU-AM3-P (higher DC/AC oversizing variant —
+  // the plain SG01LP1-EU line only goes up to 16kW at a lower PV cap).
+  '1p-hybrid': [
+    { model:'Deye SUN-6K-SG01LP1',        kw:6,  maxPvW:7800,  hasBattery:true, battV:'48V LV' },
+    { model:'Deye SUN-8K-SG01LP1',        kw:8,  maxPvW:10400, hasBattery:true, battV:'48V LV' },
+    { model:'Deye SUN-12K-SG01LP1-AM3-P', kw:12, maxPvW:24000, hasBattery:true, battV:'48V LV' },
+    { model:'Deye SUN-16K-SG01LP1-AM3-P', kw:16, maxPvW:32000, hasBattery:true, battV:'48V LV' },
+    { model:'Deye SUN-18K-SG01LP1-AM3-P', kw:18, maxPvW:36000, hasBattery:true, battV:'48V LV' },
+  ],
+  // Three-Phase Hybrid. 12/20kW are genuine 48V LV battery models (SG04LP3-EU,
+  // SG05LP3-EU-SM2 — Deye's 20K LV unit is the largest 3-phase LV hybrid it makes).
+  // Deye does NOT make a 30/50/80kW three-phase hybrid with an LV (48V) battery —
+  // those sizes only exist as HV (160-800V battery) models (SG01HP3-EU-BM3/BM4),
+  // included here since they're the closest match to the requested kW ratings.
+  '3p-hybrid': [
+    { model:'Deye SUN-12K-SG04LP3-EU',      kw:12, maxPvW:18000, hasBattery:true, battV:'48V LV' },
+    { model:'Deye SUN-20K-SG05LP3-EU-SM2',  kw:20, maxPvW:30000, hasBattery:true, battV:'48V LV' },
+    { model:'Deye SUN-30K-SG01HP3-EU-BM3',  kw:30, maxPvW:39000, hasBattery:true, battV:'160–800V HV (not LV)' },
+    { model:'Deye SUN-50K-SG01HP3-EU-BM4',  kw:50, maxPvW:65000, hasBattery:true, battV:'160–800V HV (not LV)' },
+    { model:'Deye SUN-80K-SG01HP3-EU-BM4',  kw:80, maxPvW:104000,hasBattery:true, battV:'160–800V HV (not LV)' },
+  ],
+  // Single-Phase Grid-Tie string inverters (SUN-X-G / SUN-X-G04) — no battery input.
+  '1p-grid': [
+    { model:'Deye SUN-3.6K-G04', kw:3.6, maxPvW:5400,  hasBattery:false },
+    { model:'Deye SUN-6K-G04',   kw:6,   maxPvW:9000,  hasBattery:false },
+    { model:'Deye SUN-8K-G',     kw:8,   maxPvW:10400, hasBattery:false },
+    { model:'Deye SUN-10K-G',    kw:10,  maxPvW:13000, hasBattery:false },
+  ],
+  // Three-Phase Grid-Tie string inverters at 380/400V — no battery input.
+  // (Deye's official "-LV" suffix line is a separate 127/220V South-America product
+  // family capped at 50kW; these are the standard 380V three-phase string models.)
+  '3p-grid': [
+    { model:'Deye SUN-10K-G05',  kw:10,  maxPvW:13000,  hasBattery:false },
+    { model:'Deye SUN-20K-G05',  kw:20,  maxPvW:26000,  hasBattery:false },
+    { model:'Deye SUN-30K-G04',  kw:30,  maxPvW:39000,  hasBattery:false },
+    { model:'Deye SUN-50K-G04',  kw:50,  maxPvW:65000,  hasBattery:false },
+    { model:'Deye SUN-60K-G',    kw:60,  maxPvW:78000,  hasBattery:false },
+    { model:'Deye SUN-100K-G03', kw:100, maxPvW:150000, hasBattery:false },
+  ],
+};
+
+function onInvTypeChange(){
+  const type = document.getElementById('inv-type').value;
+  const isGrid = type.indexOf('grid') !== -1;
+  document.getElementById('backup-card').classList.toggle('is-grid-tie', isGrid);
+  document.getElementById('backup').disabled = isGrid;
+  document.getElementById('backup-note').style.display = isGrid ? 'block' : 'none';
+  document.getElementById('inv-type-note').textContent = isGrid
+    ? 'Grid-tie inverters export straight to the grid — no battery, no backup power. Panel/inverter sizing below still applies.'
+    : 'Hybrid inverters charge/discharge a battery and can provide backup power during an outage.';
+}
+
+const LOSS_DEFS = [
+  {key:'temp', label:'Temperature (°C derating)', val:7},
+  {key:'soil', label:'Soiling',                   val:4},
+  {key:'shade',label:'Shading',                   val:3},
+  {key:'wire', label:'DC wiring',                 val:2},
+  {key:'inv',  label:'Inverter DC→AC',            val:4},
+  {key:'mis',  label:'Mismatch',                  val:2},
+  {key:'lid',  label:'LID degradation',           val:1.5},
+  {key:'name', label:'Nameplate tolerance',        val:1},
+  {key:'avail',label:'Availability',              val:3},
+];
+
+function getDerate() {
+  let d = 1;
+  LOSS_DEFS.forEach(l => { d *= (1 - l.val / 100); });
+  return d;
+}
+
+function fmt(n) { return '₱' + Math.round(n).toLocaleString(); }
+
+function sliderSync() {
+  document.getElementById('sf-out').textContent = (parseFloat(document.getElementById('sf').value)||1.25).toFixed(2) + '×';
+  document.getElementById('bk-out').textContent = Math.round(parseFloat(document.getElementById('backup').value)||50) + '%';
+}
+document.getElementById('sf').addEventListener('input', sliderSync);
+document.getElementById('backup').addEventListener('input', sliderSync);
+
+function runCalc() {
+  const kwh       = parseFloat(document.getElementById('kwh').value)          || 0;
+  const rate      = parseFloat(document.getElementById('rate').value)         || 14.4833;
+  const panelW    = parseFloat(document.getElementById('panel-w').value)      || 615;
+  const psh       = parseFloat(document.getElementById('psh').value)          || 4.5;
+  const sf        = parseFloat(document.getElementById('sf').value)           || 1.25;
+  const backPct   = parseFloat(document.getElementById('backup').value)       || 50;
+  const costPerWp = parseFloat(document.getElementById('cost-per-wp').value)  || 55;
+  const rateEsc   = parseFloat(document.getElementById('rate-increase').value)|| 4;
+  const panelDeg  = parseFloat(document.getElementById('panel-degradation').value) || 0.5;
+
+  const panelKWp  = panelW / 1000;
+  const derate    = getDerate();
+  const totalLoss = +((1 - derate) * 100).toFixed(1);
+
+  // ── PV sizing ──
+  const daily     = kwh / 30;
+  const design    = daily * sf;
+  const reqKWp    = design / (psh * derate);
+  const numPanels = Math.ceil(reqKWp / panelKWp);
+  const actualKWp = +(numPanels * panelKWp).toFixed(3);
+  const actualW   = numPanels * panelW;
+
+  // ── Formula box ──
+  document.getElementById('formula-box').innerHTML =
+    `<code>Daily load    = ${kwh} ÷ 30 = <strong>${daily.toFixed(2)} kWh/day</strong></code><br>` +
+    `<code>Design load   = ${daily.toFixed(2)} × ${sf.toFixed(2)} (Safety Factor) = <strong>${design.toFixed(2)} kWh/day</strong></code><br>` +
+    `<code>Derate factor = ${derate.toFixed(3)} → ${totalLoss}% total system loss (NREL PVWatts v8)</code><br>` +
+    `<code>Required kWp  = ${design.toFixed(2)} ÷ (${psh} PSH × ${derate.toFixed(3)}) = <strong>${reqKWp.toFixed(2)} kWp</strong></code><br>` +
+    `<code>Panels needed = ⌈${reqKWp.toFixed(2)} ÷ ${panelKWp}⌉ = <strong>${numPanels} panels × ${panelW}W = ${actualW.toLocaleString()}W (${actualKWp} kWp)</strong></code>`;
+
+  document.getElementById('metrics').innerHTML =
+    `<div class="met"><div class="met-label">Daily load</div><div class="met-val">${daily.toFixed(1)}</div><div class="met-unit">kWh/day</div></div>` +
+    `<div class="met"><div class="met-label">Design load (w/ SF)</div><div class="met-val">${design.toFixed(1)}</div><div class="met-unit">kWh/day</div></div>` +
+    `<div class="met"><div class="met-label">Required array</div><div class="met-val">${reqKWp.toFixed(2)}</div><div class="met-unit">kWp minimum</div></div>` +
+    `<div class="met"><div class="met-label">No. of panels</div><div class="met-val">${numPanels}</div><div class="met-unit">${panelW}W panels</div></div>` +
+    `<div class="met"><div class="met-label">Actual array</div><div class="met-val">${actualKWp}</div><div class="met-unit">kWp installed</div></div>` +
+    `<div class="met"><div class="met-label">Derate factor</div><div class="met-val">${derate.toFixed(3)}</div><div class="met-unit">${totalLoss}% system loss</div></div>`;
+
+  // ── Panel rec ──
+  document.getElementById('rec-panel-title').textContent  = `${numPanels} × Trina Solar ${panelW}W panels`;
+  document.getElementById('rec-panel-detail').textContent = `${actualKWp} kWp total installed · ${numPanels} panels · ${(actualW/1000).toFixed(2)} kWp DC array`;
+  document.getElementById('rec-panel-badge').textContent  = `${actualKWp} kWp system`;
+
+  // ── Inverter table: max PV capacity per model ──
+  const invType    = document.getElementById('inv-type').value;
+  const isGridTie  = invType.indexOf('grid') !== -1;
+  const INVERTERS  = INVERTER_SETS[invType];
+  const invLineLabel = document.getElementById('inv-type').selectedOptions[0].textContent.split(' — ')[0];
+  // Find recommended inverter: smallest whose maxPvW ≥ actualW
+  let recInv = INVERTERS.find(i => i.maxPvW >= actualW) || INVERTERS[INVERTERS.length - 1];
+
+  const maxPvAll = INVERTERS[INVERTERS.length - 1].maxPvW;
+  let tbodyHTML = '';
+  INVERTERS.forEach(inv => {
+    const maxPanels = Math.floor(inv.maxPvW / panelW);
+    const maxKWp    = +(maxPanels * panelKWp).toFixed(2);
+    const pctUsed   = Math.min(100, (actualW / inv.maxPvW) * 100);
+    const isRec     = inv.model === recInv.model;
+    const barPct    = (inv.maxPvW / maxPvAll * 100).toFixed(0);
+    tbodyHTML += `<tr class="${isRec ? 'selected' : ''}">
+      <td>${inv.model}</td>
+      <td>${inv.kw} kW</td>
+      <td>${(inv.maxPvW/1000).toFixed(1)} kWp</td>
+      <td>${maxPanels} panels</td>
+      <td>${maxKWp} kWp</td>
+      <td>${pctUsed.toFixed(0)}% of max</td>
+      <td class="cap-bar-cell"><div class="cap-bar-track"><div class="cap-bar-fill" style="width:${barPct}%"></div></div></td>
+    </tr>`;
+  });
+  document.getElementById('inv-table-body').innerHTML = tbodyHTML;
+  document.getElementById('inv-th-panels').textContent = `Max panels (${panelW}W)`;
+  document.getElementById('inv-intro').textContent =
+    `Deye ${invLineLabel} line. The table below shows how many panels each model can accept at its maximum PV input rating. The recommended model is highlighted.`;
+
+  // Inverter rec card
+  const recMaxPanels = Math.floor(recInv.maxPvW / panelW);
+  const recMaxKWp    = +(recMaxPanels * panelKWp).toFixed(2);
+  const dcac         = +(actualKWp / recInv.kw).toFixed(2);
+  const pctUsed      = +((actualW / recInv.maxPvW) * 100).toFixed(0);
+  const headroom     = recMaxPanels - numPanels;
+
+  const battNote = recInv.hasBattery ? ` · Battery: ${recInv.battV}` : ' · No battery input (grid-tie)';
+  document.getElementById('rec-inv-title').textContent  = recInv.model;
+  document.getElementById('rec-inv-detail').textContent =
+    `${recInv.kw} kW AC output · Max PV input: ${(recInv.maxPvW/1000).toFixed(1)} kWp · ` +
+    `Accepts up to ${recMaxPanels} × ${panelW}W panels (${recMaxKWp} kWp)\n` +
+    `Your array: ${numPanels} panels (${actualKWp} kWp) = ${pctUsed}% of inverter PV capacity · ` +
+    `${headroom} panel slot${headroom!==1?'s':''} still available · DC/AC ratio: ${dcac}${battNote}`;
+  document.getElementById('rec-inv-badge').textContent = `${recInv.kw} kW · max ${recMaxPanels} panels`;
+
+  // ── Battery rec (LV 51.2V pack sizing — only meaningful for hybrid/LV-battery inverters) ──
+  const showBattery = recInv.hasBattery && recInv.battV === '48V LV';
+  document.getElementById('rec-bat-block').style.display = showBattery ? 'block' : 'none';
+  document.getElementById('rec-bat-na').style.display    = showBattery ? 'none'  : 'block';
+  if (!recInv.hasBattery) {
+    document.getElementById('rec-bat-na').textContent =
+      'Not applicable — grid-tie inverters export directly to the grid and have no battery input. Add a hybrid inverter and battery separately if backup power is needed.';
+  } else if (recInv.battV !== '48V LV') {
+    document.getElementById('rec-bat-na').textContent =
+      `The recommended ${recInv.model} uses a ${recInv.battV} battery — this calculator's battery sizing below is for 51.2V LV packs only. Size the HV battery bank with your battery supplier's datasheet instead.`;
+  }
+  if (showBattery) {
+    const targetWh  = daily * (backPct / 100) * 1000;
+    const bat200u   = 200 * 51.2 * 0.8;
+    const bat314u   = 314 * 51.2 * 0.8;
+    const cnt200    = Math.ceil(targetWh / bat200u);
+    const cnt314    = Math.ceil(targetWh / bat314u);
+    let batAh, batCount, batLabel;
+    if (cnt314 <= cnt200) { batAh=314; batCount=cnt314; batLabel='Deye LiFePO4 314Ah (51.2V)'; }
+    else                  { batAh=200; batCount=cnt200; batLabel='Deye LiFePO4 200Ah (51.2V)'; }
+    if (batCount > 6 && batAh === 200) { batAh=314; batCount=cnt314; batLabel='Deye LiFePO4 314Ah (51.2V)'; }
+    const totalBatKwh = +(batCount * batAh * 51.2 * 0.8 / 1000).toFixed(1);
+    const backupHrs   = +(totalBatKwh / daily * 24).toFixed(1);
+
+    document.getElementById('rec-bat-title').textContent  = `${batCount} × ${batLabel}`;
+    document.getElementById('rec-bat-detail').textContent = `${totalBatKwh} kWh usable · ~${backupHrs} hrs backup · ${Math.round(backPct)}% daily coverage target`;
+    document.getElementById('rec-bat-badge').textContent  = `${batCount} unit${batCount>1?'s':''} · ${batAh}Ah cells`;
+  }
+
+  // ── Loss summary ──
+  document.getElementById('loss-summary').innerHTML =
+    LOSS_DEFS.map(l => `<span style="margin-right:14px"><strong>${l.label}:</strong> ${l.val}%</span>`).join('') +
+    `<br><strong style="color:var(--text)">Total: ${totalLoss}% → Derate factor: ${derate.toFixed(3)}</strong>`;
+
+  // ── Savings ──
+  const monthlyProd   = actualKWp * psh * 30 * derate;
+  const monthlyOffset = Math.min(monthlyProd, kwh);
+  const monthlySavings= monthlyOffset * rate;
+  const annualSavings1= monthlySavings * 12;
+  const systemCost    = actualKWp * 1000 * costPerWp;
+  const simplePayback = systemCost / annualSavings1;
+
+  document.getElementById('sav-monthly').textContent     = fmt(monthlySavings);
+  document.getElementById('sav-monthly-kwh').textContent = `${monthlyOffset.toFixed(0)} kWh offset / month (${((monthlyOffset/kwh)*100).toFixed(0)}% of bill)`;
+  document.getElementById('sav-annual').textContent      = fmt(annualSavings1);
+  document.getElementById('sav-cost').textContent        = fmt(systemCost);
+  document.getElementById('sav-payback').textContent     = simplePayback.toFixed(1) + ' yrs';
+
+  let cumSavings = 0, paybackYrEsc = null;
+  const rows = [];
+  for (let y = 1; y <= 25; y++) {
+    const rateY  = rate * Math.pow(1 + rateEsc / 100, y - 1);
+    const outY   = monthlyOffset * Math.pow(1 - panelDeg / 100, y - 1);
+    const savY   = outY * rateY * 12;
+    cumSavings  += savY;
+    const netPos = cumSavings - systemCost;
+    if (netPos >= 0 && paybackYrEsc === null) paybackYrEsc = y;
+    rows.push({y, rateY, savY, cumSavings, netPos});
+  }
+  const net25 = cumSavings - systemCost;
+  const roi25 = (net25 / systemCost) * 100;
+
+  document.getElementById('sav-payback-esc').textContent = paybackYrEsc ? paybackYrEsc + ' yrs' : '>25 yrs';
+  document.getElementById('sav-25yr').textContent        = fmt(net25);
+  document.getElementById('sav-roi').textContent         = roi25.toFixed(0) + '%';
+
+  const pbPct = Math.min(96, paybackYrEsc ? (paybackYrEsc / 25) * 100 : 100);
+  document.getElementById('pb-fill').style.width       = (100 - pbPct + 4) + '%';
+  document.getElementById('pb-label-right').textContent = paybackYrEsc ? 'Break-even at Year ' + paybackYrEsc : 'Not within 25 years';
+  document.getElementById('pb-ticks').innerHTML         = [1,5,10,15,20,25].map(t => `<span>Yr ${t}</span>`).join('');
+
+  document.getElementById('sav-note').textContent =
+    `Your ${actualKWp} kWp system generates ~${monthlyProd.toFixed(0)} kWh/month, offsetting ${monthlyOffset.toFixed(0)} kWh ` +
+    `(${((monthlyOffset/kwh)*100).toFixed(0)}% of your ${kwh} kWh bill). At ₱${rate.toFixed(4)}/kWh = ${fmt(monthlySavings)}/month ` +
+    `or ${fmt(annualSavings1)}/year. With ${rateEsc}% annual escalation and ${panelDeg}% panel degradation, ` +
+    `break-even is Year ${paybackYrEsc || '>25'} and 25-year net return is ${fmt(net25)}.`;
+
+  document.getElementById('year-table-body').innerHTML = rows.map(r => {
+    const isPb = r.y === paybackYrEsc;
+    return `<tr class="${isPb ? 'payback-row' : ''}">
+      <td>${r.y}${isPb ? ' ✓' : ''}</td>
+      <td>₱${r.rateY.toFixed(4)}</td>
+      <td class="${isPb ? '' : 'positive'}">${fmt(r.savY)}</td>
+      <td>${fmt(r.cumSavings)}</td>
+      <td class="${r.netPos >= 0 ? 'positive' : 'negative'}">${r.netPos >= 0 ? '+' : ''}${fmt(r.netPos)}</td>
+    </tr>`;
+  }).join('');
+
+  switchTab('results');
+}
+
+function printResults() {
+  document.querySelectorAll('.panel').forEach(p => p.classList.add('active'));
+  document.getElementById('print-title-results').style.display = 'block';
+  document.getElementById('print-title-savings').style.display = 'block';
+  window.print();
+  setTimeout(() => {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('print-title-results').style.display = 'none';
+    document.getElementById('print-title-savings').style.display = 'none';
+    switchTab('results');
+  }, 500);
+}
+
+function switchTab(t) {
+  const names = ['input', 'results', 'savings'];
+  document.querySelectorAll('.tab').forEach((b, i) => b.classList.toggle('active', names[i] === t));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + t).classList.add('active');
+}
+
+sliderSync();
+onInvTypeChange();
+</script>
+</body>
+</html>

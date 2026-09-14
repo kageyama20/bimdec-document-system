@@ -74,9 +74,15 @@ function DocumentMarkup({ rootRef }) {
             </span>
             Acknowledgement Receipt
           </button>
-          <a className="tabbtn onedrive-files-tab" href="https://1drv.ms/f/c/1b24af0211eb28f6/IgCiehFET-cvRoksHIhBMlUUAZfDrgcspTIPXajOdDfLMek?e=xTy2ED" target="_blank" rel="noopener noreferrer" title="Open OneDrive Files">
+          <button className="tabbtn" data-tab="solar" data-onclick="switchTab('solar')">
             <span className="num">
               04
+            </span>
+            Solar Calculator
+          </button>
+          <a className="tabbtn onedrive-files-tab" href="https://1drv.ms/f/c/1b24af0211eb28f6/IgCiehFET-cvRoksHIhBMlUUAZfDrgcspTIPXajOdDfLMek?e=xTy2ED" target="_blank" rel="noopener noreferrer" title="Open OneDrive Files">
+            <span className="num">
+              05
             </span>
             OneDrive Files
           </a>
@@ -1546,6 +1552,37 @@ Non-VAT Registered TIN: 343-962-880-00000
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="workspace hidden" id="workspace-solar">
+              <div className="solar-embed-head no-print">
+                <h3 style={{ margin: '0 0 4px' }}>Solar Calculator</h3>
+                <p style={{ margin: '0 0 12px', fontSize: '12.5px', color: 'var(--muted)' }}>
+                  Size a PV system from a Meralco bill and get panel, Deye inverter, and battery recommendations with savings/ROI —
+                  then print or save the recommendation as a PDF.
+                </p>
+                <div className="actions" style={{ margin: '0 0 12px' }}>
+                  <button type="button" className="btn btn-print" data-onclick="printSolarCalc()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M6 9V2h12v7"></path>
+                      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                      <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                    Print / Save recommendation as PDF
+                  </button>
+                </div>
+                <p className="note no-print">
+                  <b>Before you print:</b> run the calculation on the calculator's Inputs tab first, then either use this button or the calculator's own
+                  &quot;Print / Save as PDF&quot; button on its Results/Savings tabs. In the print dialog, turn <b>Headers and footers</b> off for a clean recommendation PDF.
+                </p>
+              </div>
+              <iframe
+                id="solarCalcFrame"
+                src="/solar-calculator.html"
+                title="Solar Calculator"
+                style={{ width: '100%', minHeight: '900px', border: '1px solid var(--line)', borderRadius: 'var(--radius, 8px)', background: '#fff', display: 'block' }}
+                loading="lazy"
+              ></iframe>
             </div>
           </div>
         </div>

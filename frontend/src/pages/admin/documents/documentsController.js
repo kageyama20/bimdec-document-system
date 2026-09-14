@@ -194,7 +194,7 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     scheduleSave();
   }
 
-  const TAB_LABELS = { proposal:'Proposal', invoice:'Billing Invoice', ack:'Acknowledgement Receipt' };
+  const TAB_LABELS = { proposal:'Proposal', invoice:'Billing Invoice', ack:'Acknowledgement Receipt', solar:'Solar Calculator' };
   const ALL_TABS = Object.keys(TAB_LABELS);
 
   /* ---------------- preview zoom ---------------- */
@@ -202,6 +202,47 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
   let previewPage = { proposal:1, invoice:1, ack:1 };
   let previewPageCount = { proposal:1, invoice:1, ack:1 };
   const ZOOM_MIN = 0.5, ZOOM_MAX = 2, ZOOM_STEP = 0.1;
+
+  /* ---------------- Solar Calculator embed (iframe) ---------------- */
+  function printSolarCalc(){
+    const frame = byId('solarCalcFrame');
+    if(!frame || !frame.contentWindow){
+      alert('The Solar Calculator hasn\'t finished loading yet — try again in a moment.');
+      return;
+    }
+    try{
+      if(typeof frame.contentWindow.printResults === 'function'){
+        frame.contentWindow.printResults();
+      }else{
+        frame.contentWindow.focus();
+        frame.contentWindow.print();
+      }
+    }catch(e){
+      alert('Could not open the print dialog automatically. Open the calculator\'s Results tab below and use its own "Print / Save as PDF" button instead.');
+    }
+  }
+
+  function initSolarCalcFrame(){
+    const frame = byId('solarCalcFrame');
+    if(!frame) return;
+    function resizeFrame(){
+      try{
+        const doc = frame.contentWindow.document;
+        const h = Math.max(doc.documentElement.scrollHeight, doc.body ? doc.body.scrollHeight : 0);
+        if(h) frame.style.height = (h + 32) + 'px';
+      }catch(e){ /* cross-origin — keep the default min-height */ }
+    }
+    frame.addEventListener('load', ()=>{
+      resizeFrame();
+      try{
+        const body = frame.contentWindow.document.body;
+        if(window.ResizeObserver && body){
+          new ResizeObserver(resizeFrame).observe(body);
+        }
+        frame.contentWindow.document.addEventListener('click', ()=>setTimeout(resizeFrame, 60));
+      }catch(e){ /* cross-origin fallback: static min-height still applies */ }
+    });
+  }
 
   function applyZoom(kind){
     const sheet = byId('sheet-'+kind);
@@ -989,6 +1030,7 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
   safeInit('renderPreview', renderPreview);
   safeInit('applyZoom(all tabs)', ()=>ALL_TABS.forEach(applyZoom));
   safeInit('bindZoomWheel', bindZoomWheel);
+  safeInit('initSolarCalcFrame', initSolarCalcFrame);
   if(!hadSavedDraft) saveState();
   byId('printPaperModal')?.addEventListener('click', e=>{ if(e.target.id==='printPaperModal') closePrintPaperModal(); });
   onDoc('keydown', e=>{ if(e.key==='Escape') closePrintPaperModal(); });
@@ -1011,7 +1053,7 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     goHome, prevPage, nextPage, goEnd,
     printSheet, confirmPrintPaper, closePrintPaperModal,
     clearSavedDraft, sendDocumentEmail, portalLogout,
-    generateDocNumber, saveDocumentRecord,
+    generateDocNumber, saveDocumentRecord, printSolarCalc,
   };
   const ACTION_NAMES = Object.keys(ACTIONS);
   const ACTION_FNS = ACTION_NAMES.map((n) => ACTIONS[n]);

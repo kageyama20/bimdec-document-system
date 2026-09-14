@@ -473,6 +473,9 @@
   }
   .hidden{display:none !important;}
 
+  #workspace-solar{ display:block; min-height:0; }
+  #workspace-solar .actions{ display:flex; margin-top:0; padding-top:0; border-top:none; }
+
   /* ---------- On-screen page-break preview ---------- */
   /* Purely visual (screen only): when a sheet's content is taller than one
      A4 page, JS inserts one of these between the blocks that will actually
