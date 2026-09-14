@@ -60,6 +60,9 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     contract: [
       {desc:'', qty:1, unit:'LOT', price:0},
     ],
+    delivery: [
+      {desc:'', qty:1, unit:'unit', remarks:'Good condition'},
+    ],
   };
   // Snapshot of the defaults, taken before anything can mutate itemState, so a saved
   // draft written by an older version of this file (missing a key, e.g. "ack" before
@@ -69,8 +72,8 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
   const PHP = n => 'Php ' + (Number(n)||0).toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2});
 
   /* ---------------- digital signatures (PNG/JPG) ---------------- */
-  const SIG_KEYS = ['p_prepby', 'i_prepby', 'i_appby', 'a_recvby', 'a_appby', 'c_prepby'];
-  let sigState = { p_prepby:null, i_prepby:null, i_appby:null, a_recvby:null, a_appby:null, c_prepby:null };
+  const SIG_KEYS = ['p_prepby', 'i_prepby', 'i_appby', 'a_recvby', 'a_appby', 'c_prepby', 'd_prepby'];
+  let sigState = { p_prepby:null, i_prepby:null, i_appby:null, a_recvby:null, a_appby:null, c_prepby:null, d_prepby:null };
   const SIG_MAX_BYTES = 2 * 1024 * 1024; // 2MB
 
   function handleSigUpload(key, inputEl){
@@ -133,7 +136,7 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
 
   /* ---------------- lock toggles (Issuer letterhead / Payment channel) ---------------- */
   const LOCK_GROUPS = {
-    letterhead: { fieldClass:'lk-letterhead', btnIds:['lockbtn-letterhead-proposal','lockbtn-letterhead-invoice','lockbtn-letterhead-ack','lockbtn-letterhead-contract'] },
+    letterhead: { fieldClass:'lk-letterhead', btnIds:['lockbtn-letterhead-proposal','lockbtn-letterhead-invoice','lockbtn-letterhead-ack','lockbtn-letterhead-contract','lockbtn-letterhead-delivery'] },
     paych:      { fieldClass:'lk-paych',      btnIds:['lockbtn-paych-proposal','lockbtn-paych-invoice'] }
   };
   let lockState = { letterhead:false, paych:false };
@@ -197,13 +200,13 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     scheduleSave();
   }
 
-  const TAB_LABELS = { proposal:'Proposal', contract:'Contract', invoice:'Billing Invoice', ack:'Acknowledgement Receipt', solar:'Solar Calculator' };
+  const TAB_LABELS = { proposal:'Proposal', contract:'Contract', delivery:'Delivery Report', invoice:'Billing Invoice', ack:'Acknowledgement Receipt', solar:'Solar Calculator' };
   const ALL_TABS = Object.keys(TAB_LABELS);
 
   /* ---------------- preview zoom ---------------- */
-  let zoomState = { proposal:0.8, invoice:0.8, ack:0.8, contract:0.8 };
-  let previewPage = { proposal:1, invoice:1, ack:1, contract:1 };
-  let previewPageCount = { proposal:1, invoice:1, ack:1, contract:1 };
+  let zoomState = { proposal:0.8, invoice:0.8, ack:0.8, contract:0.8, delivery:0.8 };
+  let previewPage = { proposal:1, invoice:1, ack:1, contract:1, delivery:1 };
+  let previewPageCount = { proposal:1, invoice:1, ack:1, contract:1, delivery:1 };
   const ZOOM_MIN = 0.5, ZOOM_MAX = 2, ZOOM_STEP = 0.1;
 
   /* ---------------- Solar Calculator embed (iframe) ---------------- */
@@ -377,6 +380,7 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     const stamp = new Date().toISOString().slice(0,10);
     if(which==='proposal') return `BIMDEC-Proposal-${(byId('p_qno').value||stamp).replace(/[\\/:*?"<>|]/g,'-')}`;
     if(which==='contract') return `BIMDEC-Contract-${(byId('c_ctrno').value||stamp).replace(/[\\/:*?"<>|]/g,'-')}`;
+    if(which==='delivery') return `BIMDEC-DeliveryReport-${(byId('d_drno').value||stamp).replace(/[\\/:*?"<>|]/g,'-')}`;
     if(which==='invoice')  return `BIMDEC-Invoice-${(byId('i_invno').value||stamp).replace(/[\\/:*?"<>|]/g,'-')}`;
     if(which==='ack')      return `BIMDEC-Receipt-${(byId('a_recno').value||stamp).replace(/[\\/:*?"<>|]/g,'-')}`;
     return `BIMDEC-Document-${stamp}`;
@@ -386,6 +390,7 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
   const DOC_EMAIL_META = {
     proposal: { subject: n => `Proposal${n ? ' — ' + n : ''} — BIMDEC`, noun: 'proposal', bodyIntro: 'Please see the attached proposal.' },
     contract: { subject: n => `Contract${n ? ' — ' + n : ''} — BIMDEC`, noun: 'contract', bodyIntro: 'Please see the attached contract for review and signature.' },
+    delivery: { subject: n => `Delivery Report${n ? ' — ' + n : ''} — BIMDEC`, noun: 'delivery report', bodyIntro: 'Please see the attached delivery report.' },
     invoice:  { subject: n => `Billing Invoice${n ? ' ' + n : ''} — BIMDEC`, noun: 'billing invoice', bodyIntro: 'Please see the attached billing invoice.' },
     ack:      { subject: n => `Acknowledgement Receipt${n ? ' ' + n : ''} — BIMDEC`, noun: 'acknowledgement receipt', bodyIntro: 'Please see the attached acknowledgement receipt.' },
   };
@@ -393,6 +398,7 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
   function docNumberFor(which){
     if(which==='proposal') return byId('p_qno').value;
     if(which==='contract') return byId('c_ctrno').value;
+    if(which==='delivery') return byId('d_drno').value;
     if(which==='invoice')  return byId('i_invno').value;
     if(which==='ack')      return byId('a_recno').value;
     return '';
@@ -400,12 +406,12 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
 
   /* ---------------- computer-generated document numbers ----------------
      Maps the tabs to the doc_type values the database side (see
-     database/documents-schema.sql + database/contracts-migration.sql)
-     understands, and to the on-screen number field each tab keeps its
-     number in. */
-  const DOC_TYPE = { proposal:'quotation', contract:'contract', invoice:'invoice', ack:'receipt' };
-  const DOC_NO_FIELD = { proposal:'p_qno', contract:'c_ctrno', invoice:'i_invno', ack:'a_recno' };
-  const DOC_NO_STATUS = { proposal:'qnoStatus_proposal', contract:'qnoStatus_contract', invoice:'qnoStatus_invoice', ack:'qnoStatus_ack' };
+     database/documents-schema.sql + database/contracts-migration.sql +
+     database/delivery-report-migration.sql) understands, and to the
+     on-screen number field each tab keeps its number in. */
+  const DOC_TYPE = { proposal:'quotation', contract:'contract', delivery:'delivery', invoice:'invoice', ack:'receipt' };
+  const DOC_NO_FIELD = { proposal:'p_qno', contract:'c_ctrno', delivery:'d_drno', invoice:'i_invno', ack:'a_recno' };
+  const DOC_NO_STATUS = { proposal:'qnoStatus_proposal', contract:'qnoStatus_contract', delivery:'qnoStatus_delivery', invoice:'qnoStatus_invoice', ack:'qnoStatus_ack' };
 
   async function generateDocNumber(which){
     const field = byId(DOC_NO_FIELD[which]);
@@ -472,6 +478,10 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
       clientName: byId('c_client').value, company: byId('c_clientco').value,
       project: byId('c_project').value, totalAmount: sumItems(itemState.contract),
       category: byId('c_category').value || null, items: itemState.contract,
+    };
+    if(which==='delivery') return {
+      clientName: byId('d_client').value, company: byId('d_clientco').value,
+      project: byId('d_project').value, totalAmount: null, items: itemState.delivery,
     };
     if(which==='invoice'){
       const sub = sumItems(itemState.invoice);
@@ -696,9 +706,10 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
         invoice: Array.isArray(saved.itemState.invoice) ? saved.itemState.invoice : ITEM_STATE_DEFAULTS.invoice,
         ack: Array.isArray(saved.itemState.ack) ? saved.itemState.ack : ITEM_STATE_DEFAULTS.ack,
         contract: Array.isArray(saved.itemState.contract) ? saved.itemState.contract : ITEM_STATE_DEFAULTS.contract,
+        delivery: Array.isArray(saved.itemState.delivery) ? saved.itemState.delivery : ITEM_STATE_DEFAULTS.delivery,
       };
     }
-    if(saved.sigState) sigState = Object.assign({p_prepby:null,i_prepby:null,i_appby:null,a_recvby:null,a_appby:null,c_prepby:null}, saved.sigState);
+    if(saved.sigState) sigState = Object.assign({p_prepby:null,i_prepby:null,i_appby:null,a_recvby:null,a_appby:null,c_prepby:null,d_prepby:null}, saved.sigState);
     if(saved.lockState) lockState = Object.assign({letterhead:false, paych:false}, saved.lockState);
     if(saved.fields){
       Object.keys(saved.fields).forEach(id=>{
@@ -889,6 +900,121 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     renderPreview();
     scheduleSave();
   }
+
+  /* ---------------- Delivery Report: items (desc/qty/unit/remarks — no price) ---------------- */
+  function renderDeliveryItemEditor(){
+    const wrap = byId('d_items');
+    if(!wrap) return;
+    if(!Array.isArray(itemState.delivery)) itemState.delivery = JSON.parse(JSON.stringify(ITEM_STATE_DEFAULTS.delivery));
+    wrap.innerHTML = '';
+    itemState.delivery.forEach((item, idx)=>{
+      const div = document.createElement('div');
+      div.className = 'item-editor';
+      div.draggable = true;
+      div.dataset.index = idx;
+      div.innerHTML = `
+        <button type="button" class="drag-handle" title="Drag this line to reorder" aria-label="Drag this line to reorder">⋮⋮</button>
+        <button class="rm-btn" data-onclick="removeDeliveryItem(${idx})" title="Remove">✕</button>
+        <div class="drag-hint">Drag this line anywhere on the card to reorder</div>
+        <div class="desc"><textarea rows="1" data-idx="${idx}" data-field="desc" data-oninput="updateDeliveryItem(this)" placeholder="Item / equipment description">${esc(item.desc)}</textarea></div>
+        <div class="row2" style="margin:6px 0 0;">
+          <div class="field" style="margin:0;"><label style="font-size:9.5px;">Qty</label><input data-idx="${idx}" data-field="qty" type="number" step="1" value="${item.qty}" data-oninput="updateDeliveryItem(this)" placeholder="Qty"></div>
+          <div class="field" style="margin:0;"><label style="font-size:9.5px;">Unit</label><input data-idx="${idx}" data-field="unit" value="${esc(item.unit)}" data-oninput="updateDeliveryItem(this)" placeholder="unit / pc / set"></div>
+        </div>
+        <div class="field" style="margin:6px 0 0;"><label style="font-size:9.5px;">Condition / remarks</label><input data-idx="${idx}" data-field="remarks" value="${esc(item.remarks)}" data-oninput="updateDeliveryItem(this)" placeholder="e.g. Good condition"></div>`;
+
+      div.addEventListener('dragstart', e=>{
+        if(e.target.closest('input,select,textarea,button')){
+          if(!e.target.closest('.drag-handle')){ e.preventDefault(); return; }
+        }
+        dragItem = {kind:'delivery', index: idx};
+        div.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(idx));
+      });
+      div.addEventListener('dragend', ()=>{
+        div.classList.remove('dragging');
+        wrap.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'));
+        dragItem = null;
+      });
+      div.addEventListener('dragover', e=>{
+        if(!dragItem || dragItem.kind !== 'delivery') return;
+        e.preventDefault();
+        if(dragItem.index !== idx) div.classList.add('drop-target');
+      });
+      div.addEventListener('dragleave', ()=>div.classList.remove('drop-target'));
+      div.addEventListener('drop', e=>{
+        if(!dragItem || dragItem.kind !== 'delivery') return;
+        e.preventDefault();
+        const from = dragItem.index;
+        const rect = div.getBoundingClientRect();
+        const before = e.clientY < rect.top + rect.height / 2;
+        let to = idx + (before ? 0 : 1);
+        const moved = itemState.delivery.splice(from, 1)[0];
+        if(from < to) to--;
+        itemState.delivery.splice(Math.max(0, Math.min(to, itemState.delivery.length)), 0, moved);
+        dragItem = null;
+        renderDeliveryItemEditor();
+        renderPreview();
+        scheduleSave();
+      });
+
+      wrap.appendChild(div);
+    });
+  }
+  function addDeliveryItem(){
+    itemState.delivery.push({desc:'', qty:1, unit:'unit', remarks:'Good condition'});
+    renderDeliveryItemEditor();
+    renderPreview();
+    scheduleSave();
+  }
+  function removeDeliveryItem(idx){
+    itemState.delivery.splice(idx,1);
+    renderDeliveryItemEditor();
+    renderPreview();
+    scheduleSave();
+  }
+  function updateDeliveryItem(el){
+    const idx = el.dataset.idx, field = el.dataset.field;
+    itemState.delivery[idx][field] = field==='qty' ? parseFloat(el.value||0) : el.value;
+    renderPreview();
+    scheduleSave();
+  }
+  function deliveryItemRows(){
+    if(!itemState.delivery.length) return `<tr><td colspan="3" style="text-align:center;color:var(--muted2);">No items listed</td></tr>`;
+    return itemState.delivery.map(it=>`
+      <tr><td>${esc(it.desc)||'—'}</td><td class="num">${it.qty||0} ${esc(it.unit)||''}</td><td>${esc(it.remarks)||'—'}</td></tr>`).join('');
+  }
+
+  /* Optional convenience: pull client/company/project off any saved
+     document (Proposal, Contract, or Invoice) by its number, so the
+     Delivery Report doesn't need everything retyped. Unlike the
+     Contract tab's loader, this doesn't need a category/template match. */
+  async function loadDeliveryFromRecord(){
+    const refInput = byId('d_srcref');
+    const status = byId('d_loadStatus');
+    const ref = (refInput.value || '').trim();
+    if(!ref){
+      if(status){ status.className = 'send-status bad'; status.textContent = 'Enter a Quotation/Contract/Invoice No. first.'; }
+      return;
+    }
+    if(status){ status.className = 'send-status pending'; status.textContent = 'Looking up saved record…'; }
+    try{
+      const rec = await DB.getDocumentByNumber(ref);
+      if(!rec){
+        if(status){ status.className = 'send-status bad'; status.textContent = 'No saved record found with that number.'; }
+        return;
+      }
+      byId('d_client').value = rec.client_name || '';
+      byId('d_clientco').value = rec.company || '';
+      byId('d_project').value = rec.project || '';
+      renderPreview();
+      scheduleSave();
+      if(status){ status.className = 'send-status ok'; status.textContent = `Loaded client/project from ${rec.doc_type} ${ref}.`; }
+    }catch(err){
+      if(status){ status.className = 'send-status bad'; status.textContent = 'Failed: ' + err.message; }
+    }
+  }
   /* ---------------- preview rendering ---------------- */
   function esc(s){ return (s||'').toString(); }
   function nl2li(text){
@@ -965,6 +1091,28 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     applySigToPreview('c_prepby', 'pv_c_prepby_sig');
     g('tb_c_ctrno').textContent = c('ctrno');
     g('tb_c_date').textContent = c('date');
+
+    /* ---- DELIVERY REPORT ---- */
+    const d = id => byId('d_'+id).value;
+    g('pv_d_letterhead').textContent =
+      `${g('d_addr').value}\n${g('d_email').value}\n${g('d_phone').value}\n${g('d_tin').value}`;
+    g('pv_d_drno').textContent = d('drno');
+    g('pv_d_srcref').textContent = d('srcref');
+    g('pv_d_client').textContent = d('client');
+    g('pv_d_date').textContent = d('date');
+    g('pv_d_clientco').textContent = d('clientco');
+    g('pv_d_project').textContent = d('project');
+    g('pv_d_loc').textContent = d('loc');
+    g('pv_d_deliveredby').textContent = d('deliveredby');
+    g('pv_d_items').innerHTML = deliveryItemRows();
+    g('pv_d_remarks').innerHTML = textToHtml(d('remarks'));
+    g('pv_d_prepby').textContent = d('prepby') + '  ·  ' + d('prepdate');
+    applySigToPreview('d_prepby', 'pv_d_prepby_sig');
+    g('pv_d_recvname').textContent = d('recvname') || 'Print name';
+    g('pv_d_recvpos').textContent = d('recvpos') || '';
+    g('pv_d_recvdate').textContent = d('recvdate') || '';
+    g('tb_d_drno').textContent = d('drno');
+    g('tb_d_date').textContent = d('date');
 
     /* ---- INVOICE ---- */
     const i = id => byId('i_'+id).value;
@@ -1136,6 +1284,7 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     requestAnimationFrame(()=>{
       paginateSheet('sheet-proposal', 'pageCountProposal');
       paginateSheet('sheet-contract', 'pageCountContract');
+      paginateSheet('sheet-delivery', 'pageCountDelivery');
       paginateSheet('sheet-invoice', 'pageCountInvoice');
       paginateSheet('sheet-ack', 'pageCountAck');
     });
@@ -1149,10 +1298,13 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
   safeInit('renderItemEditor(contract)', ()=>renderItemEditor('contract'));
   safeInit('renderItemEditor(invoice)', ()=>renderItemEditor('invoice'));
   safeInit('renderAckItemEditor', renderAckItemEditor);
+  safeInit('renderDeliveryItemEditor', renderDeliveryItemEditor);
   safeInit('renderAllSigThumbs', renderAllSigThumbs);
   safeInit('applyAllLocks', applyAllLocks);
   safeInit('syncAutoDateDisabled(p_prepdate)', ()=>syncAutoDateDisabled('p_prepdate'));
   safeInit('syncAutoDateDisabled(c_prepdate)', ()=>syncAutoDateDisabled('c_prepdate'));
+  safeInit('syncAutoDateDisabled(d_prepdate)', ()=>syncAutoDateDisabled('d_prepdate'));
+  safeInit('syncAutoDateDisabled(d_recvdate)', ()=>syncAutoDateDisabled('d_recvdate'));
   safeInit('syncAutoDateDisabled(i_prepdate)', ()=>syncAutoDateDisabled('i_prepdate'));
   safeInit('syncAutoDateDisabled(a_appdate)', ()=>syncAutoDateDisabled('a_appdate'));
   // These two are what make typing show up in the preview — they always run,
@@ -1187,6 +1339,7 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     clearSavedDraft, sendDocumentEmail, portalLogout,
     generateDocNumber, saveDocumentRecord, printSolarCalc,
     loadContractFromQuotation, applyContractTemplate,
+    addDeliveryItem, removeDeliveryItem, updateDeliveryItem, loadDeliveryFromRecord,
   };
   const ACTION_NAMES = Object.keys(ACTIONS);
   const ACTION_FNS = ACTION_NAMES.map((n) => ACTIONS[n]);

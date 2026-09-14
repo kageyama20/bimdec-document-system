@@ -68,27 +68,33 @@ function DocumentMarkup({ rootRef }) {
             </span>
             Contract
           </button>
-          <button className="tabbtn" data-tab="invoice" data-onclick="switchTab('invoice')">
+          <button className="tabbtn" data-tab="delivery" data-onclick="switchTab('delivery')">
             <span className="num">
               03
+            </span>
+            Delivery Report
+          </button>
+          <button className="tabbtn" data-tab="invoice" data-onclick="switchTab('invoice')">
+            <span className="num">
+              04
             </span>
             Billing Invoice
           </button>
           <button className="tabbtn active" data-tab="ack" data-onclick="switchTab('ack')">
             <span className="num">
-              04
+              05
             </span>
             Acknowledgement Receipt
           </button>
           <button className="tabbtn" data-tab="solar" data-onclick="switchTab('solar')">
             <span className="num">
-              05
+              06
             </span>
             Solar Calculator
           </button>
           <a className="tabbtn onedrive-files-tab" href="https://1drv.ms/f/c/1b24af0211eb28f6/IgCiehFET-cvRoksHIhBMlUUAZfDrgcspTIPXajOdDfLMek?e=xTy2ED" target="_blank" rel="noopener noreferrer" title="Open OneDrive Files">
             <span className="num">
-              06
+              07
             </span>
             OneDrive Files
           </a>
@@ -1084,6 +1090,464 @@ Non-VAT Registered TIN: 343-962-880-00000
                             Date
                           </span>
                           <span id="tb_c_date"></span>
+                        </div>
+                        <div className="tb-cell">
+                          <span className="tb-label">
+                            Tax status
+                          </span>
+                          Non‑VAT
+                        </div>
+                      </div>
+                    </div>
+                    <div className="sheet-foot" data-preview-page="1" data-page-hidden="false">
+                      <span>
+                        BIM Design & Engineering Consultants
+                      </span>
+                      <span>
+                        Instrument of Service — Confidential
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="workspace hidden" id="workspace-delivery">
+              <div className="editor no-print">
+                <div className="h3row">
+                  <h3>
+                    Issuer letterhead
+                  </h3>
+                  <button type="button" className="lock-btn locked" id="lockbtn-letterhead-delivery" data-onclick="toggleLock('letterhead')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="4" y="11" width="16" height="10" rx="2"></rect>
+                      <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+                    </svg>
+                    <span>
+                      Locked
+                    </span>
+                  </button>
+                </div>
+                <div className="field lk-letterhead locked">
+                  <label>
+                    Firm address
+                  </label>
+                  <input id="d_addr" defaultValue="1187 Don Quijote St. Sampaloc, Brgy. 480, Metro Manila, Philippines" disabled />
+                </div>
+                <div className="field lk-letterhead locked">
+                  <label>
+                    Email
+                  </label>
+                  <input id="d_email" defaultValue="joemel.baccal@bimphilippines.org" disabled />
+                </div>
+                <div className="field lk-letterhead locked">
+                  <label>
+                    Phone
+                  </label>
+                  <input id="d_phone" defaultValue="(02)8832-3530/(63)917-541-3963" disabled />
+                </div>
+                <div className="field lk-letterhead locked">
+                  <label>
+                    Tax status
+                  </label>
+                  <input id="d_tin" defaultValue="Non-VAT Registered TIN: 343-962-880-00000" disabled />
+                </div>
+
+                <h3>
+                  Reference (optional)
+                </h3>
+                <div className="field">
+                  <label>
+                    Quotation / Contract / Invoice No.
+                  </label>
+                  <div className="gen-no-row">
+                    <input id="d_srcref" defaultValue="" placeholder="e.g. 20260826-0001" />
+                    <button type="button" className="gen-no-btn" data-onclick="loadDeliveryFromRecord()">
+                      Load client/project
+                    </button>
+                  </div>
+                  <div className="send-status" id="d_loadStatus"></div>
+                  <span className="hint">
+                    Optional — pulls the client, company and project from any saved record so you don't retype them.
+                  </span>
+                </div>
+
+                <h3>
+                  Client & reference
+                </h3>
+                <div className="field">
+                  <label>
+                    Client / attention to
+                  </label>
+                  <input id="d_client" defaultValue="" placeholder="e.g. MS. JUAN DELA CRUZ" />
+                </div>
+                <div className="field">
+                  <label>
+                    Client company
+                  </label>
+                  <input id="d_clientco" defaultValue="" placeholder="e.g. Client Company, Inc." />
+                </div>
+                <div className="row2">
+                  <div className="field">
+                    <label>
+                      Delivery report no.
+                    </label>
+                    <div className="gen-no-row">
+                      <input id="d_drno" defaultValue="" placeholder="e.g. 20260826-0001" />
+                      <button type="button" className="gen-no-btn" data-onclick="generateDocNumber('delivery')">
+                        Generate No.
+                      </button>
+                    </div>
+                    <div className="gen-no-status" id="qnoStatus_delivery"></div>
+                  </div>
+                  <div className="field">
+                    <label>
+                      Date
+                    </label>
+                    <input id="d_date" defaultValue="" placeholder="e.g. 20 August 2026" />
+                  </div>
+                </div>
+                <div className="row2">
+                  <div className="field">
+                    <label>
+                      Project name
+                    </label>
+                    <input id="d_project" defaultValue="" placeholder="e.g. Project name" />
+                  </div>
+                  <div className="field">
+                    <label>
+                      Delivery location
+                    </label>
+                    <input id="d_loc" defaultValue="" placeholder="e.g. Project site address" />
+                  </div>
+                </div>
+                <div className="field">
+                  <label>
+                    Delivered by (driver / personnel)
+                  </label>
+                  <input id="d_deliveredby" defaultValue="" placeholder="e.g. Name — vehicle plate no." />
+                </div>
+
+                <h3>
+                  Delivered items
+                </h3>
+                <div id="d_items"></div>
+                <button className="add-item-btn" data-onclick="addDeliveryItem()">
+                  + Add line item
+                </button>
+
+                <h3>
+                  Remarks
+                </h3>
+                <div className="field">
+                  <label>
+                    General notes
+                  </label>
+                  <textarea id="d_remarks" style={{ minHeight: "70px" }} defaultValue="Items received in good order and condition, except as noted above." />
+                </div>
+
+                <h3>
+                  Prepared by
+                </h3>
+                <div className="row2">
+                  <div className="field">
+                    <label>
+                      Prepared by (name)
+                    </label>
+                    <select id="d_prepby" data-onchange="renderPreview(); scheduleSave();">
+                      <option defaultValue="ENGR. ______________">
+                        ENGR. ______________
+                      </option>
+                      <option defaultValue="Engr. Joemel Baccal">
+                        Engr. Joemel Baccal
+                      </option>
+                      <option defaultValue="Engr. Joseph Domingo">
+                        Engr. Joseph Domingo
+                      </option>
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label>
+                      Date prepared
+                    </label>
+                    <input id="d_prepdate" defaultValue="" placeholder="e.g. 20 August 2026" />
+                  </div>
+                </div>
+                <div className="datetick-row">
+                  <label className="tickopt">
+                    <input type="checkbox" id="d_prepdate_day" data-onchange="updateAutoDate('d_prepdate')" />
+                    Day
+                  </label>
+                  <label className="tickopt">
+                    <input type="checkbox" id="d_prepdate_month" data-onchange="updateAutoDate('d_prepdate')" />
+                    Month
+                  </label>
+                  <label className="tickopt">
+                    <input type="checkbox" id="d_prepdate_year" data-onchange="updateAutoDate('d_prepdate')" />
+                    Year
+                  </label>
+                  <span className="hint" style={{ margin: "0" }}>
+                    Tick to auto-fill today's date parts
+                  </span>
+                </div>
+                <div className="field">
+                  <label>
+                    Digital signature (PNG/JPG, optional)
+                  </label>
+                  <div className="sig-upload">
+                    <input type="file" accept="image/png,image/jpeg" data-onchange="handleSigUpload('d_prepby', this)" />
+                  </div>
+                  <div className="sig-thumb-row" id="d_prepby_sigpreview"></div>
+                </div>
+
+                <h3>
+                  Received by (client)
+                </h3>
+                <div className="row2">
+                  <div className="field">
+                    <label>
+                      Printed name
+                    </label>
+                    <input id="d_recvname" defaultValue="" placeholder="e.g. JUAN DELA CRUZ" />
+                  </div>
+                  <div className="field">
+                    <label>
+                      Position / designation
+                    </label>
+                    <input id="d_recvpos" defaultValue="" placeholder="e.g. Site Engineer" />
+                  </div>
+                </div>
+                <div className="field">
+                  <label>
+                    Date received
+                  </label>
+                  <input id="d_recvdate" defaultValue="" placeholder="e.g. 20 August 2026" />
+                </div>
+                <div className="datetick-row">
+                  <label className="tickopt">
+                    <input type="checkbox" id="d_recvdate_day" data-onchange="updateAutoDate('d_recvdate')" />
+                    Day
+                  </label>
+                  <label className="tickopt">
+                    <input type="checkbox" id="d_recvdate_month" data-onchange="updateAutoDate('d_recvdate')" />
+                    Month
+                  </label>
+                  <label className="tickopt">
+                    <input type="checkbox" id="d_recvdate_year" data-onchange="updateAutoDate('d_recvdate')" />
+                    Year
+                  </label>
+                  <span className="hint" style={{ margin: "0" }}>
+                    Tick to auto-fill today's date parts
+                  </span>
+                </div>
+
+                <div className="actions">
+                  <button className="btn btn-print" data-onclick="printSheet('delivery')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M6 9V2h12v7"></path>
+                      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                      <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                    Print / Save as PDF
+                  </button>
+                  <button type="button" className="btn btn-print" id="saveRecordBtn_delivery" data-onclick="saveDocumentRecord('delivery')">
+                    Save to records
+                  </button>
+                </div>
+                <div className="send-status" id="saveRecordStatus_delivery"></div>
+                <div className="print-hint no-print">
+                  <b>
+                    Before you print:
+                  </b>
+                  in the print dialog, open “More settings” and turn
+                  <b>
+                    Headers and footers
+                  </b>
+                  off (and set Margins to “Default” or “None”).
+                </div>
+                <div className="send-email-box no-print">
+                  <h4>
+                    Send this to email
+                  </h4>
+                  <div className="send-email-row">
+                    <input type="email" id="sendEmail_delivery" placeholder="client@example.com" />
+                    <button type="button" className="btn btn-print" style={{ padding: "9px 16px" }} data-onclick="sendDocumentEmail('delivery')" id="sendBtn_delivery">
+                      Send delivery report
+                    </button>
+                  </div>
+                  <div className="send-status" id="sendStatus_delivery"></div>
+                </div>
+              </div>
+              <div className="preview-wrap" data-kind="delivery">
+                <div className="preview-inner">
+                  <div className="zoom-bar no-print">
+                    <button type="button" className="zoom-btn" data-onclick="zoomOut('delivery')" aria-label="Zoom out">
+                      −
+                    </button>
+                    <span className="zoom-level" id="zoomLevel_delivery">
+                      80%
+                    </span>
+                    <button type="button" className="zoom-btn" data-onclick="zoomIn('delivery')" aria-label="Zoom in">
+                      +
+                    </button>
+                    <button type="button" className="zoom-reset-btn" data-onclick="resetZoom('delivery')">
+                      Reset
+                    </button>
+                    <span className="preview-page-nav" aria-label="Preview page navigation">
+                      <button type="button" className="page-nav-btn" data-onclick="goHome('delivery')" id="pageHome_delivery" disabled>
+                        Home
+                      </button>
+                      <button type="button" className="page-nav-btn" data-onclick="prevPage('delivery')" id="pagePrev_delivery" disabled>
+                        Previous
+                      </button>
+                      <span className="page-nav-status" id="pageNav_delivery">
+                        1 / 1
+                      </span>
+                      <button type="button" className="page-nav-btn" data-onclick="nextPage('delivery')" id="pageNext_delivery" disabled>
+                        Next
+                      </button>
+                      <button type="button" className="page-nav-btn" data-onclick="goEnd('delivery')" id="pageEnd_delivery" disabled>
+                        End
+                      </button>
+                    </span>
+                    <span className="zoom-hint">
+                      Ctrl+scroll to zoom
+                    </span>
+                  </div>
+                  <div className="page-count-note no-print" id="pageCountDelivery">
+                    Continuous preview — 1 printed page
+                  </div>
+                  <div className="sheet" id="sheet-delivery" style={{ zoom: "0.8" }}>
+                    <div className="screen-frame no-print"></div>
+                    <div className="sheet-upper">
+                      <div className="sheet-head" data-preview-page="1" data-page-hidden="false">
+                        <div className="sheet-brand">
+                          <img className="brand-logo" src={LETTERHEAD_LOGO} alt="BIMDEC logo" />
+                          <div>
+                            <div className="bname">
+                              BIM Design & Engineering Consultants
+                            </div>
+                          </div>
+                        </div>
+                        <div className="sheet-meta" id="pv_d_letterhead">
+                          1187 Don Quijote St. Sampaloc, Metro Manila, Philippines
+joemel.baccal@bimphilippines.org
+(02)8832-3530/(63)917-541-3963
+Non-VAT Registered TIN: 343-962-880-00000
+                        </div>
+                      </div>
+                      <span className="doctitle" data-preview-page="1" data-page-hidden="false">
+                        DELIVERY REPORT
+                      </span>
+                      <div className="docsub" data-preview-page="1" data-page-hidden="false">
+                        DR No.
+                        <span id="pv_d_drno"></span>
+                        ·  Ref. No.
+                        <span id="pv_d_srcref"></span>
+                      </div>
+                      <div className="kv-grid" data-preview-page="1" data-page-hidden="false">
+                        <div className="kv">
+                          <span className="k">
+                            Client
+                          </span>
+                          <span className="v" id="pv_d_client"></span>
+                        </div>
+                        <div className="kv">
+                          <span className="k">
+                            Date
+                          </span>
+                          <span className="v" id="pv_d_date"></span>
+                        </div>
+                        <div className="kv">
+                          <span className="k">
+                            Company
+                          </span>
+                          <span className="v" id="pv_d_clientco"></span>
+                        </div>
+                        <div className="kv">
+                          <span className="k">
+                            Delivered by
+                          </span>
+                          <span className="v" id="pv_d_deliveredby"></span>
+                        </div>
+                        <div className="kv">
+                          <span className="k">
+                            Project
+                          </span>
+                          <span className="v" id="pv_d_project"></span>
+                        </div>
+                        <div className="kv">
+                          <span className="k">
+                            Location
+                          </span>
+                          <span className="v" id="pv_d_loc"></span>
+                        </div>
+                      </div>
+                      <div className="sec-title" data-preview-page="1" data-page-hidden="false">
+                        Delivered items
+                      </div>
+                      <table className="doc-table" data-preview-page="1" data-page-hidden="false">
+                        <thead>
+                          <tr>
+                            <th style={{ width: "56%" }}>
+                              Description
+                            </th>
+                            <th className="num">
+                              Qty
+                            </th>
+                            <th>
+                              Condition / remarks
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody id="pv_d_items"></tbody>
+                      </table>
+                      <div className="sec-title" data-preview-page="1" data-page-hidden="false">
+                        Remarks
+                      </div>
+                      <div className="terms" id="pv_d_remarks" data-preview-page="1" data-page-hidden="false"></div>
+                    </div>
+                    <div className="sheet-lower">
+                      <div className="signblock" data-preview-page="1" data-page-hidden="false">
+                        <div className="sigline">
+                          <img className="sig-img hidden" id="pv_d_prepby_sig" />
+                          <div id="pv_d_prepby">
+                            ENGR. ______________  ·  20 August 2026
+                          </div>
+                          <div className="role">
+                            Prepared/Delivered by · BIMDEC
+                          </div>
+                        </div>
+                        <div className="sigline">
+                          <div id="pv_d_recvname">
+                            Print name
+                          </div>
+                          <div className="role">
+                            <span id="pv_d_recvpos"></span>
+                            {' '}
+                            ·  Received on
+                            {' '}
+                            <span id="pv_d_recvdate"></span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="titleblock" data-preview-page="1" data-page-hidden="false">
+                        <div className="tb-cell">
+                          <span className="tb-label">
+                            Document
+                          </span>
+                          Delivery Report
+                        </div>
+                        <div className="tb-cell">
+                          <span className="tb-label">
+                            No.
+                          </span>
+                          <span id="tb_d_drno"></span>
+                        </div>
+                        <div className="tb-cell">
+                          <span className="tb-label">
+                            Date
+                          </span>
+                          <span id="tb_d_date"></span>
                         </div>
                         <div className="tb-cell">
                           <span className="tb-label">
