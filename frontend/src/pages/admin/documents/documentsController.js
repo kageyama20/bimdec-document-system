@@ -469,11 +469,16 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
   /* Metadata (client name / company / project / total) saved alongside each
      PDF — pulled straight from whatever the current tab's fields hold. */
   function docRecordMetaFor(which){
-    if(which==='proposal') return {
-      clientName: byId('p_client').value, company: byId('p_clientco').value,
-      project: byId('p_project').value, totalAmount: sumItems(itemState.proposal),
-      category: byId('p_category').value || null, items: itemState.proposal,
-    };
+    if(which==='proposal'){
+      const sub = sumItems(itemState.proposal);
+      const discPct = parseFloat(byId('p_disc_pct').value || 0) || 0;
+      const discAmt = discPct > 0 ? sub * (discPct / 100) : 0;
+      return {
+        clientName: byId('p_client').value, company: byId('p_clientco').value,
+        project: byId('p_project').value, totalAmount: +(sub - discAmt).toFixed(2),
+        category: byId('p_category').value || null, items: itemState.proposal,
+      };
+    }
     if(which==='contract') return {
       clientName: byId('c_client').value, company: byId('c_clientco').value,
       project: byId('c_project').value, totalAmount: sumItems(itemState.contract),
@@ -1050,9 +1055,13 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     g('pv_p_scope').innerHTML = nl2li(p('scope'));
     g('pv_p_items').innerHTML = itemRows(itemState.proposal);
     const pTotal = sumItems(itemState.proposal);
+    const pDiscPct = parseFloat(byId('p_disc_pct').value || 0) || 0;
+    const pDiscAmt = pDiscPct > 0 ? +(pTotal * (pDiscPct / 100)).toFixed(2) : 0;
+    const pGrandTotal = +(pTotal - pDiscAmt).toFixed(2);
     g('pv_p_totals').innerHTML = `
       <div class="trow"><span class="k">Total professional fee</span><span>${PHP(pTotal)}</span></div>
-      <div class="trow grand"><span class="k">Total contract price <span class="nonvat-badge">NON‑VAT</span></span><span>${PHP(pTotal)}</span></div>`;
+      ${pDiscAmt > 0 ? `<div class="trow"><span class="k">Discount</span><span>-${PHP(pDiscAmt)}</span></div>` : ''}
+      <div class="trow grand"><span class="k">Total contract price <span class="nonvat-badge">NON‑VAT</span></span><span>${PHP(pGrandTotal)}</span></div>`;
     g('pv_p_sitevisit').textContent = p('sitevisit');
     g('pv_p_terms').innerHTML = textToHtml(p('terms'));
     g('pv_p_revisions').innerHTML = textToHtml(p('revisions'));

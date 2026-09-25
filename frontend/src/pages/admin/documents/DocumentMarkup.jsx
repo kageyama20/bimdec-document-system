@@ -226,6 +226,15 @@ function DocumentMarkup({ rootRef }) {
                 <button className="add-item-btn" data-onclick="addItem('proposal')">
                   + Add line item
                 </button>
+                <div className="field">
+                  <label>
+                    Discount (%)
+                  </label>
+                  <input id="p_disc_pct" type="number" min="0" max="100" step="0.01" defaultValue="" placeholder="e.g. 10" data-oninput="renderPreview(); scheduleSave();" />
+                  <span className="hint">
+                    Applied to the total professional fee. Only the discounted amount is shown on the printed proposal — the percentage itself is not printed.
+                  </span>
+                </div>
                 <h3>
                   Site visit / add-on fee (optional)
                 </h3>
