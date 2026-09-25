@@ -472,7 +472,8 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     if(which==='proposal'){
       const sub = sumItems(itemState.proposal);
       const discPct = parseFloat(byId('p_disc_pct').value || 0) || 0;
-      const discAmt = discPct > 0 ? sub * (discPct / 100) : 0;
+      const discAmtFixed = parseFloat(byId('p_disc_amt').value || 0) || 0;
+      const discAmt = (sub * (discPct / 100)) + discAmtFixed;
       return {
         clientName: byId('p_client').value, company: byId('p_clientco').value,
         project: byId('p_project').value, totalAmount: +(sub - discAmt).toFixed(2),
@@ -1056,7 +1057,8 @@ export function initGenerator(root, { who = '', onLogout = () => {} } = {}) {
     g('pv_p_items').innerHTML = itemRows(itemState.proposal);
     const pTotal = sumItems(itemState.proposal);
     const pDiscPct = parseFloat(byId('p_disc_pct').value || 0) || 0;
-    const pDiscAmt = pDiscPct > 0 ? +(pTotal * (pDiscPct / 100)).toFixed(2) : 0;
+    const pDiscAmtFixed = parseFloat(byId('p_disc_amt').value || 0) || 0;
+    const pDiscAmt = +((pTotal * (pDiscPct / 100)) + pDiscAmtFixed).toFixed(2);
     const pGrandTotal = +(pTotal - pDiscAmt).toFixed(2);
     g('pv_p_totals').innerHTML = `
       <div class="trow"><span class="k">Total professional fee</span><span>${PHP(pTotal)}</span></div>

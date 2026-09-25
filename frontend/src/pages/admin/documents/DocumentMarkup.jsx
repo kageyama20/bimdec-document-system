@@ -226,15 +226,23 @@ function DocumentMarkup({ rootRef }) {
                 <button className="add-item-btn" data-onclick="addItem('proposal')">
                   + Add line item
                 </button>
-                <div className="field">
-                  <label>
-                    Discount (%)
-                  </label>
-                  <input id="p_disc_pct" type="number" min="0" max="100" step="0.01" defaultValue="" placeholder="e.g. 10" data-oninput="renderPreview(); scheduleSave();" />
-                  <span className="hint">
-                    Applied to the total professional fee. Only the discounted amount is shown on the printed proposal — the percentage itself is not printed.
-                  </span>
+                <div className="row2">
+                  <div className="field">
+                    <label>
+                      Discount (%)
+                    </label>
+                    <input id="p_disc_pct" type="number" min="0" max="100" step="0.01" defaultValue="" placeholder="e.g. 10" data-oninput="renderPreview(); scheduleSave();" />
+                  </div>
+                  <div className="field">
+                    <label>
+                      Discount (Php amount)
+                    </label>
+                    <input id="p_disc_amt" type="number" min="0" step="0.01" defaultValue="" placeholder="e.g. 5000" data-oninput="renderPreview(); scheduleSave();" />
+                  </div>
                 </div>
+                <span className="hint">
+                  Use either one, or both (they add together). Applied to the total professional fee. Only the discounted amount is shown on the printed proposal — the percentage itself is not printed.
+                </span>
                 <h3>
                   Site visit / add-on fee (optional)
                 </h3>
